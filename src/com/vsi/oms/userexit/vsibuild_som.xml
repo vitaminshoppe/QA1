@@ -1,0 +1,959 @@
+<?xml version="1.0" ?>
+<project name="Build Script For HBC" default="all" basedir=".">
+
+        <tstamp>
+                <format property="timestamp" pattern="yyyy-MM-dd" />
+        </tstamp>
+
+	
+  <property file="/opt/sterling/build/vsibuild.properties" />
+	<property environment="env"/>
+	
+	
+	<path id="implementation.class.path">
+		
+                <fileset dir="${devhome}/Foundation/jar">
+                        <include name="**/*.jar"/>
+                </fileset>
+                <fileset dir="${INSTALL_DIR}/jar/elasticsearch/1_7_1">
+                        <include name="**/*.jar"/>
+                </fileset>
+	
+		<fileset dir="${INSTALL_DIR}/jar/smcfs/9.5">
+			<include name="**/*.jar"/>
+		</fileset>
+		
+           <fileset dir="/opt/sterling/ssdcs/jar">
+			<include name="**/*.jar"/>
+		</fileset>
+
+		<fileset dir="${INSTALL_DIR}/jar/platform_afc/9_5">
+			<include name="**/*.jar"/>
+		</fileset>
+
+		<fileset dir="${INSTALL_DIR}/jar/platform/9_5">
+			<include name="**/*.jar"/>
+		</fileset>
+
+              <!--  <fileset dir="${INSTALL_DIR}/jar/sbi/9.2.1">
+                        <include name="**/*.jar"/>
+                </fileset> -->
+		
+		<fileset dir="${INSTALL_DIR}/jar/log4j/1_2_17">
+			<include name="**/*.jar"/>
+		</fileset>
+<!--<fileset dir="${INSTALL_DIR}/jar/sbi/9.2.1">
+                        <include name="**/*.jar"/> 
+                </fileset> -->
+<fileset dir="${INSTALL_DIR}//jar/Kount/1.0">
+                        <include name="**/*.jar"/>
+                </fileset>
+
+<fileset dir="${INSTALL_DIR}//jar/Kount/1.0">
+                        <include name="*.jar"/>
+                </fileset>
+
+
+
+		<fileset dir="${INSTALL_DIR}/jar/COM_Add-in/9.5_9.5">
+			<include name="**/*.jar"/>
+		</fileset>
+		
+		<fileset dir="${INSTALL_DIR}/repository/eardata/platform/war/yfscommon">
+			<include name="**/*.jar"/>
+		</fileset>
+		
+		<fileset dir="${INSTALL_DIR}/jar/platform_afc_ui_impl/9_5">
+			<include name="**/*.jar"/>
+		</fileset>	
+
+		<fileset dir="${INSTALL_DIR}/jar/scecore/9.5">
+			<include name="**/*.jar"/>
+		</fileset>			
+		
+		<!--<fileset dir="${INSTALL_DIR}/installed_data/COM/jars/COM/9.5">
+				<include name="**/*.jar"/>
+		</fileset> -->
+
+               <fileset dir="${INSTALL_DIR}/jar/dom4j/1_5_2">
+				<include name="**/*.jar"/>
+		</fileset>
+
+           <!--   <fileset dir="${INSTALL_DIR}/rcp/COM/9.2.1/platform/rcpclient">
+				<include name="**/*.jar"/>
+		</fileset> -->
+
+		 <fileset dir="${INSTALL_DIR}/jar">
+			<include name="*.jar"/>					
+		 </fileset>      				
+		 
+             <fileset dir="${INSTALL_DIR}/jar">
+			<include name="**/*.jar"/>
+		 </fileset>      
+		
+	</path>
+	
+	<path id="pca.class.path">
+                <fileset dir="${INSTALL_DIR}/jar/platform_afc">
+                        <include name="**/*.jar"/>
+                </fileset>
+                <fileset dir="${INSTALL_DIR}/rcp/COM/9.2.1/platform/rcpdependencies/${os}/eclipse/plugins" includes="**/*.jar"/>
+		<fileset dir="${INSTALL_DIR}/jar/COM/9.2.1" includes="**/*.jar"/>
+		<fileset dir="${INSTALL_DIR}/lib" includes="**/*.jar"/>	
+		<fileset dir="${INSTALL_DIR}/rcp/COM/9.2.1/platform/rcpclient" includes="**/*.jar"/>	
+				<!--<fileset dir="${devhome}/dist/reqdplugins" includes="**/*.jar"/> -->
+		<!--<fileset dir="${devhome}/dist/rcpdrop/plugins/" includes="**/*.jar"/> -->
+	</path>
+	
+	<path id="project.class.path">
+		<path refid="implementation.class.path" />
+	</path>
+	
+
+
+	
+	  <condition property="SCRIPT_EXT" value="cmd" else="sh">
+	<os family="windows"/>
+  </condition>
+	
+<target name="onlycom">
+	<!-- stop and uninstall commands come here -->
+		
+		<!--<del_dir_contents dir="${pca.extn.plugin.src}" />
+        	<antcall target="checkout-pca-branch"/> -->
+		<antcall target="build-pca"/>
+		<!--below line reqiured for dev -->
+		<!--<antcall target="zip-release-candidate-artifacts"/>	-->
+		<!-- install and start commands come here -->
+	</target>
+	<target name="build-pca">
+<!--		<antcall target="clean" />
+		<antcall target="jar-plugin-clients" />
+		<antcall target="copy-custom-plugins" />-->
+
+		<antcall target="prepare-rcp-extn-folder" />
+		<antcall target="jar-plugin-clients" />		
+		<exec executable="${INSTALL_DIR}/bin/${antCommand}" failonerror="true">
+			<env key="RCP_EXTN_FOLDER" value="${pca.extn.folder}"/>
+			<arg value="-f"/>
+			<arg value="${foundation.base.dir}/bin/buildsomapplication.xml"/>
+			<arg value="buildSOMForWindows"/>
+			<!--<arg value="-Denv.RCP_EXTN_FOLDER=${env.RCP_EXTN_FOLDER}"/>-->
+		</exec> 
+
+		<antcall target="prepare-rcp-extn-folder" />
+		<antcall target="jar-plugin-clients" />
+		<exec executable="${foundation.base.dir}/bin/sci_ant.${SCRIPT_EXT}" failonerror="true">
+			<env key="RCP_EXTN_FOLDER" value="${pca.extn.folder}"/>
+			<arg value="-f"/>
+			<arg value="${foundation.base.dir}/bin/buildcomapplication.xml"/>
+			<arg value="buildCOMForWindows"/>
+		</exec>	
+		<antcall target="autoupdate-clients"/>
+	</target>
+	
+<target name="autoupdate-clients" description="Invokes the COM and SOM autoupdate targetss">
+		<antcall target="autoupdate-com-client-folder" />
+		<antcall target="autoupdate-som-client-folder" />
+			</target>
+			
+	<target name="autoupdate-com-client-folder" description="Unzip the latest COM client to the auto update folder for a pull update.">
+		<echo message="unzip the COM client."/>
+        <unzip dest="${rcp.pca.updates.dir.com}" src="${INSTALL_DIR}/rcpdrop/windows/9.2.1/com.zip"/>
+        <echo message="completed updating the COM client."/>
+    </target>
+       
+    <target name="autoupdate-som-client-folder" description="Unzip the latest SOM client to the auto update folder for a pull update.">
+        <echo message="unzip the SOM client."/>
+        <unzip dest="${rcp.pca.updates.dir.som}" src="${INSTALL_DIR}/rcpdrop/windows/9.2.1/som.zip"/>
+        <echo message="completed updating the SOM client."/>
+    </target>
+	
+	<target name="copy-rcp-updates-com">
+		<del_dir_contents dir="${rcp.pca.updates.dir.com}" />
+                <copy todir="${rcp.pca.updates.dir.com}">
+                        <fileset dir="${com.build.dir}">
+                        </fileset>
+                </copy>
+        </target>
+        <target name="copy-rcp-updates-som">
+                <del_dir_contents dir="${rcp.pca.updates.dir.som}" />
+                <copy todir="${rcp.pca.updates.dir.som}">
+                        <fileset dir="${som.build.dir}">
+                        </fileset>
+                </copy>
+        </target>
+	
+	<target name="jar-plugin-clients"  description="Compile client java code and builds jar." depends="extract-rcp-clients">
+		<echo>Compiling COM classes for VSI</echo>
+		<echo>Start of creating ${pca.plugin.id}.jar</echo>
+		<macro-build-pca-classes pluginid="${pca.plugin.id}"/>
+		<macro-jar-pca-client pluginid="${pca.plugin.id}" version="${pca.plugin.version}"/>
+	</target>
+	
+	<macrodef name	="macro-build-pca-classes">
+        <attribute name="pluginid" />
+    	<sequential>
+    		<delete dir="${foundation.base.dir}/dist/rcpdrop/plugins/@{pluginid}"/>
+   			<mkdir dir="${foundation.base.dir}/dist/rcpdrop/plugins/@{pluginid}"/>    		
+    		
+    		<javac srcdir="${pca.extn.plugin.src}/plugins/@{pluginid}" 
+    				destdir="${foundation.base.dir}/dist/rcpdrop/plugins/@{pluginid}" executable="javac" debug="on" debuglevel="lines,vars,source" fork="true">
+    			<classpath refid="pca.class.path" />
+    		</javac>
+    		
+    	</sequential>
+    	</macrodef>
+		
+		<macrodef name="macro-jar-pca-client">
+        <attribute name="pluginid" />
+    	<attribute name="version" />
+    	<sequential>
+    		<copy file="${pca.extn.plugin.src}/plugins/@{pluginid}/META-INF/MANIFEST.MF" tofile="${pca.extn.plugin.src}/plugins/@{pluginid}/META-INF/MANIFEST.MF.Release"/>
+    		<replace file="${pca.extn.plugin.src}/plugins/@{pluginid}/META-INF/MANIFEST.MF.Release" token="Bundle-Version: 1.0.0" value="Bundle-Version: @{version}"/>
+    		
+    		<jar destfile="${pca.extn.folder}/plugins/@{pluginid}_@{version}.jar"
+    			manifest="${pca.extn.plugin.src}/plugins/@{pluginid}/META-INF/MANIFEST.MF.Release">
+    			<fileset dir="${pca.extn.plugin.src}/plugins/@{pluginid}" >
+				<include name="icons/**"/>
+    		 		<include name="*.ythm"/>
+    		 		<!--<include name="*.ycfg"/> -->
+    		 		<include name="*.yuix"/>
+    		 		<include name="**/*.ycml"/>
+    		 		<include name="*.properties"/>
+    		 		<include name="*.xml"/>
+					<include name="*.ywx"/>
+					<include name="lib/*.*"/>
+    		 	</fileset>
+    			<fileset dir="${foundation.base.dir}/dist/rcpdrop/plugins/@{pluginid}" >
+    		 		<include name="**"/>
+    		 	</fileset>
+    			<fileset dir="${pca.extn.plugin.src}/resources" >
+    		 		<include name="*.ycfg"/>
+    		 	</fileset>
+    	 	</jar>	
+
+    		<delete file="${pca.extn.plugin.src}/plugins/@{pluginid}/META-INF/MANIFEST.MF.Release"/>
+    		<delete dir="${foundation.base.dir}/dist/rcpdrop/plugins/@{pluginid}"/>
+
+    		</sequential>
+    	</macrodef>
+		
+	
+	<target name="extract-rcp-clients">
+		<copy todir="${foundation.base.dir}/dist/reqdplugins">
+			<fileset dir="${foundation.base.dir}/rcp/COM/9.2.1/platform/rcpclient/"/>
+
+		</copy>	
+	</target>
+	
+<target name="prepare-rcp-extn-folder">
+		<delete dir="${foundation.base.dir}/dist/rcpdrop" />
+		<mkdir dir="${foundation.base.dir}/dist/rcpdrop/plugins" />	
+		<copy todir="${foundation.base.dir}/dist/rcpdrop/resources">
+			<fileset dir="${pca.extn.plugin.src}/resources">
+				<exclude name="**/SVN/**"/>
+			</fileset>
+		</copy>
+
+	</target>
+	
+	<!--<target name="test" if="whichenv">
+		<antcall target="cleandevhome"/>
+	</target>
+	-->
+
+	<!--
+<target name="cdt-fetch" description="Fetches CDT xmls from MC">
+		<delete dir="${cdt.fetch.dir}" />
+		<mkdir dir="${cdt.fetch.dir}"/>
+		<exec os="Linux" dir="${INSTALL_DIR}/bin" executable="sh" >
+			<arg line="cdtshell_source.sh"/>		
+			<arg value="${SOURCE_DB}"/>
+			<arg value="${SOURCE_PASSWORD}"/>
+			<arg value="${TARGET_DB}"/>
+			<arg value="${TARGET_PASSWORD}"/>
+			<arg value="${LOG_FILE}"/>
+		</exec>
+	</target>
+	--> 
+	
+        <target name="backup-and-unzip">
+            <tstamp>
+           	<format property="backup.time" pattern="_MMddyyyy_hh.mm.ss_aa"/>
+       	    </tstamp> 
+            <echo message="Taking a backup of the zip files..."/> 
+			<!-- <zip destfile="/opt/sterling/VSI_Build_Workspace/VSI_BR1/dev_sterling/dev.zip" basedir="/opt/sterling/VSI_Build_Workspace/VSI_BR1/dev" excludes="**SVN/*.*,cdt/*.*" /> -->
+			<zip destfile="/opt/sterling/VSI_Build_Workspace/VSI_BR1/dev_sterling/dev.zip" basedir="/opt/sterling/VSI_Build_Workspace/VSI_BR1/dev" excludes="**SVN/*.*" />
+          <copy file="/opt/sterling/VSI_Build_Workspace/VSI_BR1/dev_sterling/dev.zip" failonerror="false" overwrite="true" tofile="/opt/sterling/VSI_Build_Workspace/VSI_BR1/dev_archive/dev${backup.time}.zip"
+			verbose="true"/>
+			<delete>
+                  <fileset dir="/opt/sterling/VSI_Build_Workspace/VSI_BR1/dev_sterling">
+                  <include name="dev.zip"/>                  
+                  </fileset>
+            </delete> 
+            <echo message="Unzipping the CDT and the DEV zip files..."/> 
+        </target>
+
+
+        <!-- Start of test targets  -->
+        <target name="re-build"  depends="echo-env, svn-fetch, copy-files, build-jars, copy-files, deploy-extensions,build-ear" description="Rebuilds the existing code without unzipping the latest code"/>
+
+        <target name="silent-build"  depends="echo-env, backup-and-unzip,svn-fetch, copy-files, build-jars, copy-files, deploy-extensions,test-build-ear" description="Rebuilds the existing code in the background "/>
+
+         <target name="test-build-ear" description="Builds EAR file for deployment">
+                <exec executable="${INSTALL_DIR}/bin/${buildEarCommand}">
+                        <arg value="-Dappserver=${appServer}"/>
+                        <arg value="-Dwarfiles=smcfs,sma,sbc"/>
+                        <arg value="-Dearfile=smcfs.ear"/>
+                        <arg value="-Dnodocear=true"/>
+                        <arg value="-Ddevmode=true"/>
+                        <arg value="-Dnowebservice=true"/>
+                        <arg value="create-ear"/>
+                </exec>
+        </target>	
+
+        <!-- End of test targets -->
+
+	<!-- <target name="all"  depends="echo-env,  backup-and-unzip, clean, svn-fetch, copy-files, build-pca, build-jars, copy-files, deploy-extensions,build-ear,onlycom" description="Executes all the targets"/>  -->
+  <!--<target name="all"  depends="echo-env,backup-and-unzip,copy-files,build-pca,build-jars,copy-files,deploy-extensions,build-ear,cdt-mc-to-test,deploy" description="Executes all the targets"/>  -->
+  
+  <target name="all"  depends="echo-env,backup-and-unzip,build-jars,copy-files,deploy-extensions,build-ear,create-timestamp-directory,cdt-mc-backup,cdt-mc-to-test,cdt-bkp-to-test,deploy" description="Executes all the targets"/>
+  
+  
+
+
+<!--
+
+<target name="all"  depends="echo-env" description="Executes all the targets"/> 
+-->
+<!--<target name="all"  depends="build-ear" description="Executes all the targets"/> -->
+
+	
+
+	<target name="cleanlocaldevhome" if="whichenv">
+		<delete dir="${devhome}"/>
+		<mkdir dir="${devhome}"/>
+		<mkdir dir="${devhome}/dist" />
+	</target>
+	
+	<target name="echo-env">
+		<echo message="JAVA_HOME		: ${env.JAVA_HOME}"/>
+		<echo message="INSTALL_DIR		: ${INSTALL_DIR}"/>
+		<!-- <echo message="RCP_EXTN_FOLDER	: ${env.RCP_EXTN_FOLDER}"/>  -->
+		<echo message="ANT_HOME			: ${env.ANT_HOME}"/>
+		<echo message="ANT_OPTS			: ${env.ANT_OPTS}"/>
+		<echo message="PATH				: ${env.PATH}"/>
+		<echo message="SVN Dir				: /opt/sterling/VSI_Build_Workspace"/>
+	</target>
+<!--
+	<target name="autoupdate-clients" description="Invokes the COM and SOM autoupdate targetss">
+		<antcall target="autoupdate-com-client-folder" />
+		<antcall target="autoupdate-som-client-folder" />
+	</target>	
+	
+	<target name="autoupdate-com-client-folder" description="Unzip the latest COM client to the auto update folder for a pull update.">
+		<echo message="unzip the COM client."/>
+        <unzip dest="${INSTALL_DIR}/com_client_updates/YFSSYS00011/8.5/win32.win32.x86" src="${INSTALL_DIR}/rcpdrop/windows/8.5/com.zip"/>
+        <echo message="completed updating the COM client."/>
+    </target>
+
+	<target name="autoupdate-som-client-folder" description="Unzip the latest SOM client to the auto update folder for a pull update.">
+        <echo message="unzip the SOM client."/>
+        <unzip dest="${INSTALL_DIR}/com_client_updates/YFSSYS00006/8.5/win32.win32.x86" src="${INSTALL_DIR}/rcpdrop/windows/8.5/som.zip"/>
+        <echo message="completed updating the SOM client."/>
+    </target>
+  -->
+	
+	<target name="cleanvsidevhome" unless="whichenv">
+		<echo message="Environment Information:${whichenv}"/>
+		<echo message="Not Deleting ${devhome} in this Environment"/>
+		<echo message="Directory ${devhome} and ${devhome}/dist Already Exists."/>
+	</target>
+		
+	<!-- Cleans the custom code in INSTALL_DIR -->
+	
+	<!--
+	<target name="clean" description="Deletes directories" >
+		Temporary command to remove old directory structure introduced due to product defect-->
+		
+		<!--
+		<delete includeemptydirs="true">
+			<fileset dir="${INSTALL_DIR}/repository/xapi/template/merged/com.yantra.pca.ycd.rcp" includes="**/extn/*" defaultexcludes="false"/>
+			<fileset dir="${INSTALL_DIR}/repository/xapi/template/merged/com.yantra.pca.ycd.rcp" includes="**/SVN/*" defaultexcludes="false"/>
+			<fileset dir="${INSTALL_DIR}/repository/xapi/template/merged/com.yantra.pca.ycd.rcp" includes="**/SVN" defaultexcludes="false"/>
+			<fileset dir="${INSTALL_DIR}/repository/xapi/template/merged/com.yantra.pca.ycd.rcp" includes="**/extn" defaultexcludes="false"/>
+		</delete>
+-->
+		
+		<!-- Delete directories -->
+		<!--
+		<delete dir="${INSTALL_DIR}/repository/xapi/template/merged/xsl/extn" />
+		<delete dir="${INSTALL_DIR}/extensions/global" />		
+		
+		 Re-create directories 
+		
+		<mkdir dir="${INSTALL_DIR}/repository/xapi/template/merged/xsl/extn" />
+		
+		<antcall target="cleanlocaldevhome"/>
+		<antcall target="cleanvsidevhome"/>
+	</target>
+	-->
+	<target name="svn-fetch" description="Fetches from SVN">
+		<antcall target="local-svn-fetch"/>
+		<antcall target="vsi-svn-fetch"/>
+	</target>
+	
+	<!-- Fetches the VSI modules from Local SVN respository -->
+	<target name="local-svn-fetch" if="whichenv">
+		<!-- First create the SVN fetch directory -->
+        <svn svnRoot=":pserver:${svn.user}:${svn.pass}@${svn.server}:${svn.root}" package="${svn.module.name}" dest="/opt/sterling/VSI_Build_Workspace"/>
+		<echo message="svn-fetch not allowed in this environment. Reading Updated SVN file from Local Directory: /opt/sterling/VSI_Build_Workspace"/>
+	</target>   
+	
+	<!-- Fetches the VSI modules from VSI SVN repository -->
+	<target name="vsi-svn-fetch" unless="whichenv">
+		<mkdir dir="/opt/sterling/VSI_Build_Workspace"/>
+		<echo message="svn-fetch not allowed in this environment. Reading Updated SVN file from Local Directory: /opt/sterling/VSI_Build_Workspace"/>
+	</target>   
+
+  	<target name="build-jars" description="Make Jar">
+		<!-- Compile the java source files -->
+		<delete dir="${devhome}/dist/Foundation/classes" />
+        <mkdir dir="${devhome}/dist/Foundation/classes" />
+		<javac classpathref="project.class.path" destdir="${devhome}/dist/Foundation/classes" executable="javac" debug="on" debuglevel="lines,vars,source">
+			<src path="${devhome}/src">
+			</src>
+        </javac>
+		
+		<!-- Makes the project jar file -->
+		<!--Create version file -->    		
+        <tstamp>
+            <format property="NOW" pattern="EEE, MMMM dd yyyy hh:mm aa z" />
+        </tstamp>    	
+
+		<echo file="${devhome}/dist/version.txt">
+			Release Version: ${project.name} V ${release.version}
+			Release Date: ${NOW}
+		</echo>
+
+		<!--Copy the version.txt-->
+        <copy file="${devhome}/dist/version.txt" todir="${devhome}/dist/Foundation/classes"/>
+		 <!-- Makes the project jar file -->
+		
+        <jar destfile="${devhome}/dist/Foundation/${project.name}.jar" basedir="${devhome}/dist/Foundation/classes" excludes="**/isccs/**">
+            <manifest>
+                <attribute name="Built-By" value="${user.name}" />
+                <section name="version-information">
+                    <attribute name="Version" value="${release.version}" />
+                    <attribute name="Date" value="${NOW}" />
+                </section>
+			</manifest>
+        </jar>
+		
+		 <!-- Makes ISCCS jar file -->
+        <jar destfile="${devhome}/dist/Foundation/${project.name}ISCCS.jar" basedir="${devhome}/dist/Foundation/classes" excludes="**/oms/**">
+            <manifest>
+                <attribute name="Built-By" value="${user.name}" />
+                <section name="version-information">
+                    <attribute name="Version" value="${release.version}" />
+                    <attribute name="Date" value="${NOW}" />
+                </section>
+                        </manifest>
+        </jar>
+		
+   	</target>
+
+	<target name="copy-files" description="Deploys the project files in the relevant folders of MCF Installation">
+		<!--Copy templates-->
+        <echo>Copy the project specific repository to repository folder of APP</echo>
+ <!--Copy isccs jar in dev-->
+	<copy todir="${devhome}/Foundation/repository/eardata/isccsdev/extn/WEB-INF/lib/" overwrite="true">
+                        <fileset file="${devhome}/dist/Foundation/${project.name}ISCCS.jar">
+                        </fileset>
+        </copy>
+	  <!--Copy isccs jar-->
+	 <copy todir="${devhome}/Foundation/repository/eardata/isccs/extn/WEB-INF/lib/" overwrite="true">
+                        <fileset file="${devhome}/dist/Foundation/${project.name}ISCCS.jar">
+                        </fileset>
+        </copy>
+        <copy todir="${INSTALL_DIR}/repository/" overwrite="true">
+			<fileset dir="${devhome}/Foundation/repository">
+				<exclude name="**/SVN" />
+			</fileset>
+	</copy>
+
+        <echo>Copy the startagent script to the bin dir</echo>
+        <copy overwrite="true" verbose="true"  todir="${INSTALL_DIR}/bin/" description="copy the startagent script to the bin directory">
+		<fileset dir="${devhome}/Foundation/bin">
+			<exclude name="**/SVN" />
+		</fileset>
+	</copy>        
+
+      <!--  <copy todir="${INSTALL_DIR}/repository/" overwrite="true">
+                        <fileset dir="${devhome}/Foundation/repository">
+                                <exclude name="**/SVN" />
+                        </fileset>
+        </copy>
+-->
+
+
+
+		<!--Copy resources-->
+        <echo>Copy the project specific resources to resources folder of APP</echo>
+
+        <copy todir="${INSTALL_DIR}/resources/" overwrite="true">
+			<fileset dir="${devhome}/Foundation/resources">
+				<exclude name="**/SVN" />
+			</fileset>
+		</copy>
+
+		<!--Copy properties-->
+        <echo>Copy the project specific properties to properties folder of APP</echo>
+
+		<copy todir="${INSTALL_DIR}/properties/" overwrite="true">
+			<fileset dir="${devhome}/Foundation/properties">
+				<exclude name="**/SVN" />
+			</fileset>
+		</copy>
+
+		<!--Copy extensions-->
+        <echo>Copy the project specific extensions to extensions folder of APP</echo>
+
+		<copy todir="${INSTALL_DIR}/extensions/" overwrite="true">
+			<fileset dir="${devhome}/Foundation/extensions">
+				<exclude name="**/SVN" />
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="deploy-extensions" description="Deploys extensions on MCF app">		
+		<exec executable="${INSTALL_DIR}/bin/${install3rdPartyCommand}" failonerror="true">
+			  <arg value="VSIJar"/>
+			  <arg value="1_0"/>
+			  <arg value="-j"/>
+			  <arg value="${devhome}/dist/Foundation/${project.name}.jar"/>
+			  <arg value="-targetJVM"/>
+			  <arg value="APP"/>
+		</exec>					
+
+		<exec executable="${INSTALL_DIR}/bin/${install3rdPartyCommand}" failonerror="true">
+			  <arg value="VSIJar"/>
+			  <arg value="1_0"/>
+			  <arg value="-j"/>
+			   <arg value="${devhome}/dist/Foundation/${project.name}.jar"/>
+			  <arg value="-targetJVM"/>
+			  <arg value="AGENT"/>
+		</exec>	
+		
+		
+             <!--  
+                <exec executable="${INSTALL_DIR}/bin/${install3rdPartyCommand}" failonerror="true">
+			  <arg value="apache_web_services"/>
+			  <arg value="1_0"/>
+			  <arg value="-j"/>
+			  <arg value="${devhome}/Foundation/jar/*.jar"/>
+			  <arg value="-targetJVM"/>
+			  <arg value="AGENT"/>
+		</exec>	
+		
+		<exec executable="${INSTALL_DIR}/bin/${install3rdPartyCommand}" failonerror="true">
+			  <arg value="apache_web_services"/>
+			  <arg value="1_0"/>
+			  <arg value="-j"/>
+			  <arg value="${devhome}/Foundation/jar/*.jar"/>
+			  <arg value="-targetJVM"/>
+			  <arg value="APP"/>
+		</exec>
+	
+-->
+
+                <exec executable="${INSTALL_DIR}/bin/${install3rdPartyCommand}" failonerror="true">
+                          <arg value="commons_logging"/>
+                          <arg value="1_0_4"/>
+                          <arg value="-j"/>
+                          <arg value="${INSTALL_DIR}/jar/commons_logging/1_0_4/*.jar"/>
+                          <arg value="-targetJVM"/>
+                          <arg value="AGENT"/>
+                </exec>
+
+               <exec executable="${INSTALL_DIR}/bin/${install3rdPartyCommand}" failonerror="true">
+                          <arg value="platform_uifwk"/>
+                          <arg value="5_0"/>
+                          <arg value="-j"/>
+                          <arg value="${INSTALL_DIR}/jar/platform_uifwk/9_5/*.jar"/>
+                          <arg value="-targetJVM"/>
+                          <arg value="AGENT"/>
+                </exec> 
+
+		
+		<exec executable="${INSTALL_DIR}/bin/${deployerCommand}" failonerror="true">
+			<arg value="-t"/>
+			<arg value="resourcejar"/>
+		</exec>
+
+		<exec executable="${INSTALL_DIR}/bin/${deployerCommand}" failonerror="true">
+			<arg value="-t"/>
+			<arg value="entitydeployer"/>
+		</exec>
+	</target>
+
+	<target name="build-ear" description="Builds EAR file for deployment">		
+		<exec executable="${INSTALL_DIR}/bin/${buildEarCommand}">
+			<arg value="-Dappserver=${appServer}"/>
+			
+              <arg value="-Dwarfiles=smcfs,sbc,isccs"/>
+			<arg value="-Dearfile=smcfs.ear"/>
+			<arg value="-Dnodocear=true"/>
+			<arg value="-Ddevmode=true"/>		
+			<arg value="-Dnowebservice=false"/>
+			<arg value="create-ear"/>							  
+		</exec>
+		<!--<antcall target="cdt-export"/>-->
+		<!--<antcall target="deploy-ear"/>-->
+	</target>
+
+	<target name="make-release">
+		<delete dir="${release.dir}"/>
+
+
+		<mkdir dir="${release.dir}" />
+		<mkdir dir="${release.dir}/temp" />
+		<mkdir dir="${release.dir}/temp/src" />
+		<mkdir dir="${release.dir}/temp/PCAExtensions" />
+		<mkdir dir="${release.dir}/temp/PCAExtensions/plugins" />
+		<mkdir dir="${release.dir}/temp/PCAExtensions/resources" />
+		<mkdir dir="${release.dir}/temp/Foundation" />
+		<mkdir dir="${release.dir}/temp/Foundation/repository" />
+		<mkdir dir="${release.dir}/temp/Foundation/resources" />
+		<mkdir dir="${release.dir}/temp/Foundation/extensions" />
+		<mkdir dir="${release.dir}/temp/Foundation/jar" />
+
+		<copy todir="${release.dir}/temp/src/com">
+			<fileset dir="${devhome}/src/com">
+				<exclude name="**/SVN" />
+				<exclude name="**/dummy.txt" />
+			</fileset>
+		</copy>
+              <!--  
+		<copy todir="${release.dir}/temp/PCAExtensions/plugins">                        
+			<fileset dir="${devhome}/PCAExtensions/plugins">                                
+			<exclude name="**/SVN" />                                
+			<exclude name="**/dummy.txt" />                        
+			</fileset>                
+		</copy>                
+		
+		<copy todir="${release.dir}/temp/PCAExtensions/resources">                        
+			<fileset dir="${devhome}/PCAExtensions/resources">                                
+			<exclude name="**/SVN" />                                
+			<exclude name="**/dummy.txt" />                        
+			</fileset>                
+		</copy>
+		-->
+
+		<copy todir="${release.dir}/temp/Foundation/repository">
+			<fileset dir="${devhome}/Foundation/repository">
+				<exclude name="**/SVN" />
+				<exclude name="**/dummy.txt" />
+			</fileset>
+		</copy>
+
+        <copy todir="${release.dir}/temp/Foundation/resources">
+			<fileset dir="${devhome}/Foundation/resources">
+				<exclude name="**/SVN" />
+				<exclude name="**/dummy.txt" />
+			</fileset>
+		</copy>
+
+        <copy todir="${release.dir}/temp/Foundation/jar">
+			<fileset dir="${devhome}/Foundation/jar">
+				<exclude name="**/SVN" />
+				<exclude name="**/dummy.txt" />
+				<exclude name="**/checkstyle.xsl" />
+				<exclude name="**/com.atlassw.tools.eclipse.checkstyle_4.4.2-bin.zip" />
+			</fileset>
+		</copy>
+
+        <copy todir="${release.dir}/temp/Foundation/extensions">
+			<fileset dir="${devhome}/Foundation/extensions">
+				<exclude name="**/SVN" />
+				<exclude name="**/dummy.txt" />
+			</fileset>
+		</copy>
+
+		<zip destfile="${release.dir}/Source.zip" basedir="${release.dir}/temp" >
+			<exclude name="**/SVN" />
+			<exclude name="**/dummy.txt" />
+		</zip>
+	</target>
+
+	<!--Start: Added for building PCA components-->
+	<!--
+	<target name="jar-plugin-clients"  description="Compile client java code and builds jar." depends="extract-rcp-clients">
+		<echo>Compiling COM classes from VSI</echo>
+
+		<macro-build-pca-classes pluginid="${pca.plugin.id}"/>
+		<macro-jar-pca-client pluginid="${pca.plugin.id}" version="${pca.plugin.version}"/>
+	</target>
+
+	<target name="prepare-rcp-extn-folder">
+		<delete dir="${devhome}/dist/rcpdrop" />
+		<mkdir dir="${devhome}/dist/rcpdrop/plugins" />
+	
+		<copy todir="${devhome}/dist/rcpdrop/truststore">
+			<fileset dir="${pca.extn.folder}/truststore">
+				<exclude name="**/SVN/**"/>
+			</fileset>
+		</copy>
+		<copy todir="${devhome}/dist/rcpdrop/resources">
+			<fileset dir="${pca.extn.folder}/resources">
+				<exclude name="**/SVN/**"/>
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="copy-custom-plugins">
+		<delete dir="${env.RCP_EXTN_FOLDER}/plugins" />
+		<mkdir dir="${env.RCP_EXTN_FOLDER}/plugins" />
+	
+		<copy todir="${env.RCP_EXTN_FOLDER}/plugins">
+			<fileset dir="${devhome}/dist/rcpdrop/plugins">
+			</fileset>
+		</copy>
+		<echo>Change for HTTPS to include trust store....</echo>
+	    	<mkdir dir="${env.RCP_EXTN_FOLDER}/truststore" />
+		<copy todir="${env.RCP_EXTN_FOLDER}/truststore">
+			<fileset dir="${devhome}/PCAExtensions/plugins/com.yantra.yfc.rcp_1.0.0/truststore">
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="replace-appid">
+		<replace file="${pca.extn.folder}/plugins/${pca.plugin.id}/${pca.plugin.id}_extn.yuix" token="YFSSYS00006" value="YFSSYS00011"/>
+	</target>
+
+	<target name="build-pca" depends="echo-env">
+		<antcall target="jar-plugin-clients" />
+		<antcall target="copy-custom-plugins" />
+		
+		<exec executable="${INSTALL_DIR}/bin/${antCommand}" failonerror="true">
+			<arg value="-f"/>
+			<arg value="${INSTALL_DIR}/bin/buildsomapplication_BR3.xml"/>
+			<arg value="buildSOMForWindows"/>
+			<arg value="-Denv.RCP_EXTN_FOLDER=${env.RCP_EXTN_FOLDER}"/>
+		</exec> 
+		
+		<antcall target="replace-appid" />
+		<antcall target="jar-plugin-clients" />
+		<antcall target="copy-custom-plugins" />
+		
+		<exec executable="${INSTALL_DIR}/bin/${antCommand}" failonerror="true">
+			<arg value="-f"/>
+			<arg value="${INSTALL_DIR}/bin/buildcomapplication_BR3.xml"/>
+			<arg value="buildCOMForWindows"/>
+			<arg value="-Denv.RCP_EXTN_FOLDER=${env.RCP_EXTN_FOLDER}"/>
+		</exec>
+
+		<antcall target="autoupdate-clients"/>
+
+	</target>
+	-->
+	
+
+	<!-- = = = = = = = = = = = = = = = = =
+          macrodef: macro-build-pca-classes
+          Compiles the PCA client side code and jars the class files
+         = = = = = = = = = = = = = = = = = -->
+		 <!--
+    <macrodef name="macro-build-pca-classes">
+        <attribute name="pluginid" />
+    	<sequential>
+    		<delete dir="${devhome}/dist/rcpdrop/plugins/@{pluginid}"/>
+   			<mkdir dir="${devhome}/dist/rcpdrop/plugins/@{pluginid}"/>    		
+    		
+    		  <javac srcdir="${pca.extn.folder}/plugins/@{pluginid}" 
+    				destdir="${devhome}/dist/rcpdrop/plugins/@{pluginid}" executable="${env.JAVA_HOME}/bin/javac" fork="true"  debug="on" debuglevel="lines,vars,source">
+    			<classpath refid="pca.class.path" />
+    		</javac>
+    	</sequential>
+    </macrodef>
+	-->
+
+    <!-- = = = = = = = = = = = = = = = = =
+          macrodef: macro-jar-pca-client
+          Builds the final Jar file containing the PCA client
+         = = = = = = = = = = = = = = = = = -->
+		 <!--
+    	<macrodef name="macro-jar-pca-client">
+        <attribute name="pluginid" />
+    	<attribute name="version" />
+    	<sequential>
+    		<copy file="${pca.extn.folder}/plugins/@{pluginid}/META-INF/MANIFEST.MF" tofile="${pca.extn.folder}/plugins/@{pluginid}/META-INF/MANIFEST.MF.Release"/>
+    		<replace file="${pca.extn.folder}/plugins/@{pluginid}/META-INF/MANIFEST.MF.Release" token="Bundle-Version: 1.0.0" value="Bundle-Version: @{version}"/>
+    		
+    		<jar destfile="${devhome}/dist/rcpdrop/plugins/@{pluginid}_@{version}.jar"
+    			manifest="${pca.extn.folder}/plugins/@{pluginid}/META-INF/MANIFEST.MF.Release">
+    			<fileset dir="${pca.extn.folder}/plugins/@{pluginid}" >
+    		 		<include name="resources/**"/>
+					<include name="icons/**"/>
+    		 		<include name="*.ythm"/>
+    		 		<include name="*.ycfg"/>
+    		 		<include name="*.yuix"/>
+    		 		<include name="**/*.ycml"/>
+    		 		<include name="*.properties"/>
+    		 		<include name="*.xml"/>
+    		 	</fileset>
+    			<fileset dir="${devhome}/dist/rcpdrop/plugins/@{pluginid}" >
+    		 		<include name="**"/>
+    		 	</fileset>
+    	 	</jar>	
+
+    		<delete file="${pca.extn.folder}/plugins/@{pluginid}/META-INF/MANIFEST.MF.Release"/>
+    		<delete dir="${devhome}/dist/rcpdrop/plugins/@{pluginid}"/>
+
+    		</sequential>
+    	</macrodef>
+
+	<target name="create-release-client" description="Build COM Client for HBC" depends="clean-client-build, svn-fetch">
+		<antcall target="build-pca" />
+	</target>
+
+	<target name="clean-client-build" description="Deletes directories" >
+	
+		Delete directories 
+		
+		
+        <delete dir="${devhome}/dist/rcpdrop" />
+		<mkdir dir="${devhome}/dist/rcpdrop/plugins" />
+	</target>
+
+     <target name="extract-rcp-clients">
+		<copy todir="${devhome}/dist/reqdplugins">
+			<fileset dir="${INSTALL_DIR}/rcp/COM/8.5/platform/rcpclient/">
+			</fileset>
+		</copy>	
+	</target>
+
+    
+	<target name="cdt-export">
+		<antcall target="cdt-export-mc-to-test"/>
+		<antcall target="cdt-export-file-to-test"/>
+	</target>
+	
+	<target name="cdt-export-file-to-test" unless="whichenv">
+		<exec os="Linux" dir="${INSTALL_DIR}/bin" executable="sh" >
+			<arg line="cdtshell_target.sh"/>                 
+			<arg value="${cdt.source.name}" />
+			<arg value="${cdt.target.name}" />
+			<arg value="${cdt.target.password}" />
+         </exec>
+	</target>
+	
+	<target name="cdt-export-mc-to-test" if="whichenv">
+		<exec os="Linux" dir="${INSTALL_DIR}/bin" executable="sh" >
+			<arg line="cdtshell.sh"/>                 
+			<arg value="${cdt.source.name}" />
+			<arg value="${cdt.source.password}" />
+			<arg value="${cdt.target.name}" />
+			<arg value="${cdt.target.password}" />
+         </exec>
+	</target>
+-->
+
+
+	<target name="cdt-mc-to-test" if="cdt.apply">
+                <exec os="Linux" dir="${INSTALL_DIR}/bin" executable="sh" >
+                        <arg line="cdtshell_build.sh"/>
+                        <arg value="${cdt.mc.name}" />
+                        <arg value="${cdt.mc.password}" />
+                        <arg value="${cdt.dev.name}" />
+                        <arg value="${cdt.dev.password}" />
+         </exec>
+        </target>
+
+        <target name="create-timestamp-directory" if="cdt.apply">
+                <echo>Creating backup directory</echo>
+                <mkdir dir="/opt/sterling/backup/CDT/folder_today"/>
+        </target>
+		
+		<target name="cdt-bkp-to-test" if="cdt.rollback">
+		<echo>Rolling Back changes</echo>
+		<exec os="Linux" dir="${INSTALL_DIR}/bin" executable="sh" >
+			<arg line="cdtshell_build.sh"/>
+			<arg value="${cdt.backup.name}" />
+			<arg value=" "/>
+			<arg value="${cdt.dev.name}" />
+			<arg value="${cdt.dev.password}" />
+		</exec>
+	</target>
+
+
+                <target name="cdt-mc-backup" if="cdt.apply">
+                <exec os="Linux" dir="${INSTALL_DIR}/bin" executable="sh" >
+
+                        <arg line="cdtshell_build.sh"/>
+                        <arg value="${cdt.dev.name}" />
+                        <arg value="${cdt.dev.password}" />
+                        <arg value="${cdt.backup.name}" />
+
+                </exec>
+
+                <move todir="/opt/sterling/backup/CDT/${timestamp}">
+                  <fileset dir="/opt/sterling/backup/CDT/folder_today"/>
+                </move>
+                </target>
+
+
+
+  	<target name="deploy" depends="backup">
+             	<echo message="Deploying.. "/>
+                
+		<delete>
+ 		<fileset dir="${jboss.deploy.dir}/smcfs.ear">
+   			<include name="**/*"/>
+                </fileset>
+		</delete> 
+		<unzip src="${INSTALL_DIR}/external_deployments/smcfs.ear" dest="${jboss.deploy.dir}/smcfs.ear"/>
+		<!-- upgrade 95 change-->
+	       <!-- <delete file="${jboss.deploy.dir}/smcfs.ear/SIXBeanXapiJaxWS.war"/>
+                <copy file="/opt/sterling/webservice/SIXBeanXapiJaxWS.war" tofile="${jboss.deploy.dir}/smcfs.ear/SIXBeanXapiJaxWS.war"/> -->
+
+</target>
+
+	<target name="backup" >
+     	 	<echo message="Back up of ear.. "/>
+	  	<tstamp/>
+      		<echo message="Back up ear to  ${backup.ear}/smcfs_${DSTAMP}_${TSTAMP}.ear"    />
+		<zip destfile="${backup.ear}/smcfs_${DSTAMP}_${TSTAMP}.ear" basedir="${jboss.deploy.dir}/smcfs.ear" >
+		</zip>
+	</target>
+
+	<target name="deploy-ear"  depends="expose-webservices">
+        <copy file="${INSTALL_DIR}/external_deployments/${project.name}.ear" todir="${jboss.deploy.dir}"/>      
+	</target>
+	
+	<target name="expose-webservices"  description="Exposes the Webservices in Sterling Application">
+		<echo>Deleting dir ${INSTALL_DIR}/external_deployments/tempear</echo>
+		<delete dir="${INSTALL_DIR}/external_deployments/tempear"/>
+		<echo>Deleting dir ${INSTALL_DIR}/external_deployments/backupear</echo>
+		<delete dir="${INSTALL_DIR}/external_deployments/backupear"/>
+		<echo>creating dir ${INSTALL_DIR}/external_deployments/tempear</echo>
+		<mkdir dir="${INSTALL_DIR}/external_deployments/tempear"/>
+		<echo>creating dir ${INSTALL_DIR}/external_deployments/backupear</echo>
+		<mkdir dir="${INSTALL_DIR}/external_deployments/backupear"/>
+		<echo>unzip ${project.name}.ear</echo>
+		<unzip src="${INSTALL_DIR}/external_deployments/${project.name}.ear" dest="${INSTALL_DIR}/external_deployments/tempear"/>
+<!--        <delete file="${INSTALL_DIR}/external_deployments/tempear/META-INF/application.xml"/>
+        <delete file="${INSTALL_DIR}/external_deployments/tempear/axis2.war"/>
+		<echo>copy ${devhome}/foundation/appxml/application.xml</echo>
+        <copy file="${devhome}/tools/UrbanWebservices/application.xml" todir="${INSTALL_DIR}/external_deployments/tempear/META-INF"/>
+		<echo>copy axis2.war</echo>
+		<copy file="${devhome}/tools/UrbanWebservices/axis2.war" todir="${INSTALL_DIR}/external_deployments/tempear"/> -->
+		<echo>copy backup ${project.name}.ear</echo>
+		<copy file="${INSTALL_DIR}/external_deployments/${project.name}.ear"  todir="${INSTALL_DIR}/external_deployments/backupear"/>
+		<echo>jar file</echo>
+        <jar destfile="${INSTALL_DIR}/external_deployments/${project.name}.ear" basedir="${INSTALL_DIR}/external_deployments/tempear"/>
+   	</target>	
+	
+</project>
+

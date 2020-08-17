@@ -1,0 +1,5 @@
+Connecting to 10.3.2.140...
+Changing to: /relex
+sftp> put relex_data.csv
+Uploading relex_data.csv to /relex/relex_data.csv
+sftp> quit
