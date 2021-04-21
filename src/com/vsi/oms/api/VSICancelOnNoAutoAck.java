@@ -20,6 +20,7 @@ import com.vsi.oms.utils.VSIConstants;
 import com.vsi.oms.utils.VSIUtils;
 import com.vsi.oms.utils.XMLUtil;
 import com.yantra.yfc.log.YFCLogCategory;
+import com.yantra.yfc.util.YFCCommon;
 import com.yantra.yfs.japi.YFSEnvironment;
 
 public class VSICancelOnNoAutoAck extends VSIBaseCustomAPI implements VSIConstants
@@ -62,7 +63,10 @@ public class VSICancelOnNoAutoAck extends VSIBaseCustomAPI implements VSIConstan
 				{
 					Element orderLineEle = (Element) getOrderListOutputDoc.getElementsByTagName(ELE_ORDER_LINE).item(l);
 					String conditionVariable1 = orderLineEle.getAttribute(ATTR_CONDITION_VARIBALE1);			
-				
+					String strLineType=orderLineEle.getAttribute(VSIConstants.ATTR_LINE_TYPE);
+					//OMS-2966 : Start
+					if(!YFCCommon.isVoid(strLineType) && VSIConstants.LINETYPE_PUS.equals(strLineType))
+					{	
 					log.info("conditionVariable1 => "+conditionVariable1);					
 	                if(conditionVariable1.equalsIgnoreCase("Y")) {
 						changeOrderLineCancellation(orderHeaderKey, orderLineEle.getAttribute(ATTR_CONDITION_VARIBALE1), orderLineEle.getAttribute(ATTR_ORDER_LINE_KEY), env);
@@ -70,6 +74,8 @@ public class VSICancelOnNoAutoAck extends VSIBaseCustomAPI implements VSIConstan
 	                else {
 	                	changeOrderLineCancellation(orderHeaderKey, "N", orderLineEle.getAttribute(ATTR_ORDER_LINE_KEY), env);
 	                }
+					}
+					//OMS-2966 : End
 				}
 				}
 				
@@ -95,12 +101,18 @@ public class VSICancelOnNoAutoAck extends VSIBaseCustomAPI implements VSIConstan
 				eleShipment.setAttribute(ATTR_ORDER_HEADER_KEY, orderHeaderKey);
 				
 				Document getShipmentListOuputDoc = VSIUtils.invokeAPI(env, TEMPLATE_SHIPMENT_LIST, API_GET_SHIPMENT_LIST, getShipmentListInputDoc);
-				Element shipments = (Element) getShipmentListOuputDoc.getElementsByTagName(ELE_SHIPMENTS).item(0);					
+				Element shipments = (Element) getShipmentListOuputDoc.getElementsByTagName(ELE_SHIPMENTS).item(0);
+                Element shipEle = (Element) getShipmentListOuputDoc.getElementsByTagName(ELE_SHIPMENT).item(0);	
+				String status = shipEle.getAttribute("Status");		
+
+				
+
+				
 				totalNumberOfRecords = Integer.parseInt(shipments.getAttribute(ATTR_TOTAL_NUMBER_OF_RECORDS));
 				NodeList shipmentNode = getShipmentListOuputDoc.getElementsByTagName(ELE_SHIPMENT);				
 				int shipmentNodeLength = shipmentNode.getLength();
 				log.info("totalNumberOfRecords => OH Key"+totalNumberOfRecords);
-				if (totalNumberOfRecords > 0) {				
+				if ((totalNumberOfRecords > 0) && (!"9000".equalsIgnoreCase(status))) {				
 				for(int l=0; l< shipmentNodeLength; l++)
 				{
 					Element shipmentEle = (Element) getShipmentListOuputDoc.getElementsByTagName(ELE_SHIPMENT).item(l);

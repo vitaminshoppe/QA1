@@ -9,20 +9,21 @@ import java.net.SocketTimeoutException;
 import java.rmi.RemoteException;
 import java.util.Hashtable;
 import java.util.Map;
-
+import java.io.*;
+import java.net.*;
+import org.apache.commons.json.*;
 import javax.naming.AuthenticationException;
 import javax.naming.CommunicationException;
 import javax.naming.Context;
-import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
-
 import com.vsi.oms.utils.VSIConstants;
 import com.yantra.yfc.core.YFCObject;
 import com.yantra.yfc.log.YFCLogCategory;
 import com.yantra.yfs.core.YFSSystem;
 import com.yantra.yfs.japi.YFSException;
 import com.yantra.yfs.japi.util.YFSAuthenticator;
+
 
 /**
  * This class provides a sample of how to implement LDAP V2 authentication using
@@ -56,18 +57,81 @@ public class VSILdapAuth implements YFSAuthenticator, VSIConstants {
 			throws AuthenticationException, Exception {
 				
 		boolean numeric = true;
-				
-        numeric = sLoginID.matches("-?\\d+(\\.\\d+)?");
-
-        if(numeric){
-			log.verbose("Sore User");
-		}
-        else{
-    
-
 		YFSException yfe = new YFSException();
 		String ldapFactory = "com.sun.jndi.ldap.LdapCtxFactory";
 		Hashtable<String, String> env = new Hashtable<String, String>();
+		numeric = sLoginID.matches("-?\\d+(\\.\\d+)?");
+		if(sLoginID.startsWith("GenericUser"))
+		{
+			log.debug("Store UserName"+sLoginID);
+			log.debug("Store Password"+sPassword);
+			log.debug("GenericUser No Validation");
+			return null;
+		}
+		if(numeric){
+			log.verbose("Store UserName"+sLoginID);
+			log.verbose("Store Password"+sPassword);
+			try {
+			String respText=null;
+			//String strInp="{source: "VBOOK", employeeId: "100003", password: "Test1test"}";
+			JSONObject obj = new JSONObject();
+			obj.put("source", "VBOOK");
+		    obj.put("employeeId",sLoginID );
+		    obj.put("password", sPassword);
+		    //obj.put("employeeId","100003" );
+		    //obj.put("password", "Test1test");
+		    log.debug(obj);
+			URL postURL = new URL(YFSSystem.getProperty("STORE_AUTHENTICATION_URL"));
+            HttpURLConnection conn = (HttpURLConnection)postURL.openConnection();
+            conn.setDoInput (true);
+            conn.setDoOutput (true);
+            //conn.setConnectTimeout(100);
+            //conn.setReadTimeout(100);
+            conn.setRequestProperty("Content-Type", "application/json");
+            //conn.setRequestProperty( "User-Agent", agent );
+            String encodedData=obj.toString();
+            conn.setRequestProperty( "Content-Length", String.valueOf( encodedData.length()) );
+            log.debug("encodedData:" + encodedData);
+            conn.setRequestMethod("POST");
+            DataOutputStream output = new DataOutputStream( conn.getOutputStream());
+            output.writeBytes( encodedData );
+            output.flush();
+            output.close ();
+            DataInputStream  in = new DataInputStream (conn.getInputStream()); 
+            int rc = conn.getResponseCode();
+            if ( rc != -1)
+            {
+                    BufferedReader is = new BufferedReader(new InputStreamReader( conn.getInputStream()));
+                    String _line = null;
+                    while(((_line = is.readLine()) !=null))
+                    {
+                            respText = respText + _line;
+                    }     
+            }
+            log.debug("RESPTEXT"+respText);
+            if(respText.contains("SUCCESSFUL_LOGIN"))
+            {
+            	log.debug("SUCCESSFUL_LOGIN");
+				return null;
+            }
+            else
+            {
+            	log.debug("RESPTEXT"+respText);
+				yfe.setErrorCode("EXTN_00001");
+				yfe.setErrorDescription("Authentication Failed");
+				throw yfe;
+            }
+			}
+			catch(Exception ex) {
+				log.error("ERROR:: " + ex);
+				if (ex instanceof AuthenticationException) {
+					log.error("Error: " + ex);
+					yfe.setErrorCode("EXTN_00001");
+					yfe.setErrorDescription("Authentication Failure");
+					throw yfe;
+				}
+		}
+		}
 		String sLdapURL = "";
 
 		if (count == 1) {
@@ -136,8 +200,9 @@ public class VSILdapAuth implements YFSAuthenticator, VSIConstants {
 				throw yfe;
 			}
 		}
-		}
+		
 
 		return null;
 	}
 }
+	

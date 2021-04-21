@@ -29,10 +29,16 @@ public class VSIApplyKountHoldSTH implements YCPDynamicConditionEx {
 
 		boolean bApplyKountHold = false;
 		boolean bCreditCardOrder = false;
+		//OMS-2924 Changes -- Start
+		boolean bPaypalOrder = false;
+		//OMS-2924 Changes -- End
 		double dAmount=0;
 		String strDTCOFlag=null;
 		Element eleOrder = inXML.getDocumentElement();
-		log.info("VSIApplyKountHoldSTH.evaluateCondition Input XML :" + SCXmlUtil.getString(inXML));
+		//Mixed Cart Changes -- Start
+		String strOrdType = eleOrder.getAttribute(VSIConstants.ATTR_ORDER_TYPE);
+		//Mixed Cart Changes -- End
+		log.verbose("VSIApplyKountHoldSTH.evaluateCondition Input XML :" + SCXmlUtil.getString(inXML));
 		log.info("==============Inside VSIApplyKountHoldSTH================================");
 		if(!YFCObject.isNull(eleOrder)){
 
@@ -43,26 +49,86 @@ public class VSIApplyKountHoldSTH implements YCPDynamicConditionEx {
 				for(int i=0; i<nlPaymentMethod.getLength(); i++){
 					Element elePaymentMethod = (Element) nlPaymentMethod.item(i);
 					String strPaymentType = elePaymentMethod.getAttribute(VSIConstants.ATTR_PAYMENT_TYPE);
-					if(VSIConstants.PAYMENT_MODE_CC.equals(strPaymentType)){
-						log.info("Credit Card is used in this Order");
-						bCreditCardOrder=true;
+					//OMS-2924 Changes -- Start
+					if(VSIConstants.PAYMENT_MODE_CC.equals(strPaymentType) || VSIConstants.PAYMENT_MODE_PAYPAL.equals(strPaymentType)){
+						if(VSIConstants.PAYMENT_MODE_CC.equals(strPaymentType)){
+							bCreditCardOrder=true;
+							log.info("Credit Card is used in this Order");
+						}else if(VSIConstants.PAYMENT_MODE_PAYPAL.equals(strPaymentType)){
+							bPaypalOrder=true;
+							log.info("Paypal is used in this Order");
+						}
+						//OMS-2924 Changes -- End
 						String strAmount = elePaymentMethod.getAttribute(VSIConstants.ATTR_MAX_CHARGE_LIMIT);
 						if(!YFCCommon.isVoid(strAmount)){
 							dAmount = Double.parseDouble(strAmount);
 						}
 						if((dAmount==0) || (dAmount==0.0) || (dAmount==0.00)){
-							bCreditCardOrder=false;
-							log.info("Credit Card Request Amount is zero");
+							//OMS-2924 Changes -- Start
+							if(VSIConstants.PAYMENT_MODE_CC.equals(strPaymentType)){
+								bCreditCardOrder=false;
+								log.info("Credit Card Request Amount is zero");
+							}else if(VSIConstants.PAYMENT_MODE_PAYPAL.equals(strPaymentType)){
+								bPaypalOrder=false;
+								log.info("Paypal Request Amount is zero");
+							}
+							//OMS-2924 Changes -- End
 						}						
-						break;
 					}
 				}
-				if(!bCreditCardOrder){
-					log.info("Non Credit Card Order, hold will not be applied");
+				if(!bCreditCardOrder && !bPaypalOrder){
+					log.info("Non Credit Card/Paypal Order, hold will not be applied");
 					log.info("VSIApplyFraudVerificationHold.evaluateCondition output: " +bApplyKountHold);
 					return bApplyKountHold;
 				}
 				//OMS-2332 End
+				
+				//Mixed Cart Changes -- Start				
+				boolean bSTHLinePresent=false;
+				boolean bBOPUSOrSTSPresent=false;
+				boolean bMultiNodePresent=false;
+				
+				if(!VSIConstants.ATTR_ORDER_TYPE_POS.equals(strOrdType)){
+					
+					String strPreviousNode="";
+					Element eleOrderLines=SCXmlUtil.getChildElement(eleOrder, VSIConstants.ELE_ORDER_LINES);
+					NodeList nlOrderLine=eleOrderLines.getElementsByTagName(VSIConstants.ELE_ORDER_LINE);
+					int iOrdLneLnth=nlOrderLine.getLength();
+					if(iOrdLneLnth>=2){					
+					
+						for(int i=0; i<nlOrderLine.getLength(); i++){			
+							Element eleOrderLine=(Element)nlOrderLine.item(i);
+							String strPrimeLineNo=eleOrderLine.getAttribute(VSIConstants.ATTR_PRIME_LINE_NO);
+							String strLineType=eleOrderLine.getAttribute(VSIConstants.ATTR_LINE_TYPE);
+							if(VSIConstants.LINETYPE_STH.equals(strLineType)){
+								bSTHLinePresent=true;
+							}else if(VSIConstants.LINETYPE_PUS.equals(strLineType) || VSIConstants.LINETYPE_STS.equals(strLineType)){
+								bBOPUSOrSTSPresent=true;
+								String strShipNode=eleOrderLine.getAttribute(VSIConstants.ATTR_SHIP_NODE);
+								if(YFCCommon.isVoid(strPreviousNode)){
+									log.info("Setting the ShipNode value for the first time as "+strShipNode);
+									strPreviousNode=strShipNode;
+								}else if(!strPreviousNode.equals(strShipNode)){
+									log.info("OrderLine with PrimeLineNo "+strPrimeLineNo+" with ShipNode "+strShipNode+" differnt from previous ShipNode "+strPreviousNode+", so setting MultiNode flag as true");
+									bMultiNodePresent=true;
+								}
+							}
+						}
+						
+						log.info("Value of bSTHLinePresent: "+bSTHLinePresent);
+						log.info("Value of bBOPUSOrSTSPresent: "+bBOPUSOrSTSPresent);
+						log.info("Value of bMultiNodePresent: "+bMultiNodePresent);
+						
+						if((bSTHLinePresent && bBOPUSOrSTSPresent) || bMultiNodePresent){
+							log.info("Mixed Cart Scenario");
+							bApplyKountHold=true;
+							log.info("VSIApplyKountHoldSTH.evaluateCondition output: " +bApplyKountHold );
+							return bApplyKountHold;
+						}					
+					}
+				}
+				//Mixed Cart Changes -- End
+				
 				//OMS-1707 start
 				ArrayList<Element> listDTCOrderFlag;
 				listDTCOrderFlag = VSIUtils.getCommonCodeList(env, "VSI_DTC_FLAG", "DTC", "DEFAULT");
@@ -120,7 +186,7 @@ public class VSIApplyKountHoldSTH implements YCPDynamicConditionEx {
 				throw new YFSException();
 			}
 		}
-		log.info("VSIApplyKountHoldSTH.evaluateCondition output: " +bApplyKountHold );
+		log.verbose("VSIApplyKountHoldSTH.evaluateCondition output: " +bApplyKountHold );
 		return bApplyKountHold;
 	}
 

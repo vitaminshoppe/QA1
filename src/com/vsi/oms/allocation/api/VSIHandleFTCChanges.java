@@ -6,8 +6,10 @@ import java.util.ArrayList;
 
 import javax.xml.transform.TransformerException;
 
+import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.NodeList;
 
 import com.sterlingcommerce.baseutil.SCXmlUtil;
@@ -196,7 +198,7 @@ public class VSIHandleFTCChanges implements VSIConstants {
 	 * where estimated ship date is in future
 	 */
 	public Document updateFTCDatesOnConfirmDraftOrder (YFSEnvironment env, Document docInput) throws YFSException, RemoteException, 
-	YIFClientCreationException, TransformerException, ParseException {
+	YIFClientCreationException, TransformerException, ParseException,Exception {
 		log.beginTimer("VSIHandleFTCChanges.handleFTCNotification : START");
 		
 		Element eleOrder = docInput.getDocumentElement();
@@ -211,6 +213,51 @@ public class VSIHandleFTCChanges implements VSIConstants {
 		Boolean updateSourcingClassification = false;
 		String deliveryMethod = "";
 		Element eleLinePersonInfoShipTo = null;
+		
+		//checking if it is a mixed cart order - start
+		//Address import to header level from line level should not happen for mixed cart order
+		int shpCount = 0;
+		int pickCount = 0;
+		boolean isMixedCartOrder = false;
+		for(Element eleOrderLineForCount:arrOrderLines){
+			if(log.isDebugEnabled()){
+				log.debug("Inside for loop for iterating Order Lines: updateFTCDatesOnConfirmDraftOrder");
+			}
+			String strDeliveryMethodForCount = eleOrderLineForCount.getAttribute(VSIConstants.ATTR_DELIVERY_METHOD);
+			if(strDeliveryMethodForCount.equals("SHP")){
+				shpCount++;
+			}
+			
+			if(strDeliveryMethodForCount.equals("PICK")){
+				pickCount++;
+			}
+		}
+		if(arrOrderLines.size() == pickCount)
+		{
+			String initialShipNode = null;
+			for(int i=1; i < arrOrderLines.size(); i++)
+			{
+				Element initalOrderLine = arrOrderLines.get(0);
+				initialShipNode = initalOrderLine.getAttribute(ATTR_SHIP_NODE);
+				Element orderLine = arrOrderLines.get(i);
+				if(!initialShipNode.equals(orderLine.getAttribute(ATTR_SHIP_NODE)))
+				{
+					isMixedCartOrder = true;
+					break;
+				}				
+			}
+		}		
+		if(log.isDebugEnabled()){
+			log.verbose("updateFTCDatesOnConfirmDraftOrder - SHP Count: " + shpCount);
+			log.debug("updateFTCDatesOnConfirmDraftOrder - SHP Count: " + shpCount);
+			log.verbose("updateFTCDatesOnConfirmDraftOrder - PICK Count: " + pickCount);
+			log.debug("updateFTCDatesOnConfirmDraftOrder - PICK Count: " + pickCount);
+		}
+		if(shpCount>0 && pickCount>0)
+		{
+			isMixedCartOrder = true;
+		}
+		//checking if it is a mixed cart order - end
 		
 		//prepare change order document
 		Document docChangeOrder = SCXmlUtil.createDocument(ELE_ORDER);
@@ -255,6 +302,12 @@ public class VSIHandleFTCChanges implements VSIConstants {
 			if(deliveryMethod.equals(ATTR_DEL_METHOD_SHP)){
 				
 				eleLinePersonInfoShipTo = SCXmlUtil.getChildElement(eleOrderLine, ELE_PERSON_INFO_SHIP_TO);
+				if (!YFCCommon.isVoid(eleLinePersonInfoShipTo))
+		        {
+					SCXmlUtil.importElement(eleChangeOrderLine, eleLinePersonInfoShipTo);
+		        }else {
+		        	SCXmlUtil.importElement(eleChangeOrderLine, eleOrderPersonInfoShipTo);					
+				}
 			}
 			else
 			{
@@ -264,7 +317,12 @@ public class VSIHandleFTCChanges implements VSIConstants {
 		          eleLinePersonInfoShipTo.setAttribute("FirstName", "Store");
 		          eleLinePersonInfoShipTo.setAttribute("LastName", shipNode);
 		          SCXmlUtil.importElement(eleChangeOrderLine, eleLinePersonInfoShipTo);
-		          SCXmlUtil.importElement(eleChangeOrder, eleLinePersonInfoShipTo);
+		          if(!isMixedCartOrder)
+		          {
+		        	  SCXmlUtil.importElement(eleChangeOrder, eleLinePersonInfoShipTo);
+		          }		          
+		        }else {
+		        	updateShipNodePersonInfo(env, shipNode,eleChangeOrderLine);
 		        }
 			}
 			
@@ -466,6 +524,52 @@ public class VSIHandleFTCChanges implements VSIConstants {
 			Element eleDetails = SCXmlUtil.getChildElement(eleOrderStatus, ELE_DETAILS);
 			eleCancelDate.setAttribute(ATTR_ACTUAL_DATE, eleDetails.getAttribute(ATTR_EXPECTED_SHIPMENT_DATE));
 		}
+	}
+		public void updateShipNodePersonInfo(YFSEnvironment env,
+			String shipNode,Element changeOrderLine) throws Exception {
+		
+		Element elShipNodePersoninfo = null;
+		Document getShipNodeListOutput = null;
+		Element elGetShipNodeList = null;
+		String strShipNode = shipNode;
+		Element elOLPersonInfoShipTo = null;
+					Document getShipNodeListInput = SCXmlUtil
+							.createFromString("<ShipNode ShipnodeKey='"
+									+ strShipNode + "'/>");
+					try {
+						getShipNodeListOutput = VSIUtils
+								.invokeAPI(
+										env,
+										VSIConstants.TEMPLATE_GET_SHIP_NODE_LIST_BEFORECHANGEORDERUE,
+										"getShipNodeList", getShipNodeListInput);
+						elGetShipNodeList = getShipNodeListOutput
+								.getDocumentElement();
+						elShipNodePersoninfo = (Element) elGetShipNodeList
+								.getElementsByTagName("ShipNodePersonInfo").item(0);
+					} catch (YFSException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (RemoteException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (YIFClientCreationException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				
+				
+				NamedNodeMap personInfoElemAttrs = elShipNodePersoninfo
+						.getAttributes();
+				elOLPersonInfoShipTo = SCXmlUtil.createChild(changeOrderLine, "PersonInfoShipTo");
+				for (int h = 0; h < personInfoElemAttrs.getLength(); h++) {
+					Attr a1 = (Attr) personInfoElemAttrs.item(h);
+					elOLPersonInfoShipTo.setAttribute(a1.getName(),
+							a1.getValue());
+					elOLPersonInfoShipTo.setAttribute("FirstName", "Store");
+					elOLPersonInfoShipTo.setAttribute("LastName",strShipNode );
+				}		
+	
+	
 	}
 	
 }

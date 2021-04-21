@@ -14,6 +14,7 @@ import com.yantra.interop.japi.YIFApi;
 import com.yantra.interop.japi.YIFClientFactory;
 import com.yantra.yfc.core.YFCObject;
 import com.yantra.yfc.log.YFCLogCategory;
+import com.yantra.yfc.util.YFCCommon;
 import com.yantra.yfs.japi.YFSEnvironment;
 
 public class VSIOnChangeOrderStatusWEB {
@@ -97,7 +98,7 @@ public class VSIOnChangeOrderStatusWEB {
 						strMinStatus.equalsIgnoreCase("2160.10")||strMinStatus.equalsIgnoreCase("2160.20")
 						||strMinStatus.equalsIgnoreCase("3200")||strMinStatus.equalsIgnoreCase("1500.100")
 						||strMinStatus.equalsIgnoreCase("1500.200") || strMinStatus.equalsIgnoreCase("3350") 
-						|| strMinStatus.equalsIgnoreCase("3350.10") || strMinStatus.equalsIgnoreCase("3350.20")){
+						||strMinStatus.equalsIgnoreCase("3350.10") || strMinStatus.equalsIgnoreCase("3350.20")){						
 					strWebMinStatus="Processing";
 				}
 				
@@ -113,7 +114,7 @@ public class VSIOnChangeOrderStatusWEB {
 						|| strMaxStatus.equalsIgnoreCase("2160.10") || strMaxStatus.equalsIgnoreCase("2160.20") ||
 						strMaxStatus.equalsIgnoreCase("3200")||strMaxStatus.equalsIgnoreCase("1500.100")
 						||strMaxStatus.equalsIgnoreCase("1500.200") || strMaxStatus.equalsIgnoreCase("3350")
-						|| strMaxStatus.equalsIgnoreCase("3350.10") || strMaxStatus.equalsIgnoreCase("3350.20")){
+						|| strMaxStatus.equalsIgnoreCase("3350.10") || strMaxStatus.equalsIgnoreCase("3350.20")){						
 					strWebMaxStatus="Processing";
 				}
 				
@@ -121,21 +122,28 @@ public class VSIOnChangeOrderStatusWEB {
 					strWebMaxStatus="Complete";
 				}
 				
-				
-				//OrderStatusToWEBEle.setAttribute("Status",strStatus);
-				if(strMinStatus.equalsIgnoreCase(strMaxStatus)){
-					webStatus=strWebMaxStatus;
+				//OMS-3104 Changes -- Start
+				if(!YFCCommon.isVoid(strWebMinStatus) && !YFCCommon.isVoid(strWebMaxStatus)){
+				//OMS-3104 Changes -- End
+					//OrderStatusToWEBEle.setAttribute("Status",strStatus);
+					if(strMinStatus.equalsIgnoreCase(strMaxStatus)){
+						webStatus=strWebMaxStatus;
+					}
+					else if (strWebMaxStatus.equalsIgnoreCase("Processing")){
+						
+						webStatus=strWebMaxStatus;
+					}
+					else if(strWebMaxStatus.equalsIgnoreCase("Complete")){
+						webStatus=strWebMinStatus;
+					}
+					else{
+						webStatus="Partially "+strWebMaxStatus;
+					}
+				//OMS-3104 Changes -- Start
+				}else{
+					webStatus="Processing";
 				}
-				else if (strWebMaxStatus.equalsIgnoreCase("Processing")){
-					
-					webStatus=strWebMaxStatus;
-				}
-				else if(strWebMaxStatus.equalsIgnoreCase("Complete")){
-					webStatus=strWebMinStatus;
-				}
-				else{
-					webStatus="Partially "+strWebMaxStatus;
-				}
+				//OMS-3104 Changes -- End
 				OrderStatusToWEBEle.setAttribute("Status",webStatus);
 		
 				api.executeFlow(env,"VSIWEBStatusUpdate",OrderStatusToWEB);

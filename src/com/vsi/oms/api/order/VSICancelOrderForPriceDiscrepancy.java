@@ -27,7 +27,9 @@ public class VSICancelOrderForPriceDiscrepancy {
 			Element eleOverallTotals = SCXmlUtil.getXpathElement(eleOrder, "/Order/OverallTotals");
 			String strGrandTotal=eleOverallTotals.getAttribute("GrandTotal");
 			Element elePaymentMethod = SCXmlUtil.getXpathElement(eleOrder, "/Order/PaymentMethods/PaymentMethod");
-			String strMaxChargeLimit=elePaymentMethod.getAttribute("MaxChargeLimit");
+            Element elePaymentMethods = SCXmlUtil.getXpathElement(eleOrder, "/Order/PaymentMethods");
+			String strMaxChargeLimit=(!YFCObject.isVoid(elePaymentMethod))?elePaymentMethod.getAttribute("MaxChargeLimit"):null;
+            String strCreditCardNo=(!YFCObject.isVoid(elePaymentMethod))?elePaymentMethod.getAttribute("CreditCardNo"):null;
 			String strOrderType=eleOrder.getAttribute(VSIConstants.ATTR_ORDER_TYPE);
 			double dGrandTotal=0.00;
 			double dMaxChargeLimit=0.00;
@@ -35,8 +37,10 @@ public class VSICancelOrderForPriceDiscrepancy {
 			dGrandTotal=Double.parseDouble(strGrandTotal);
 			if(!YFCObject.isVoid(strMaxChargeLimit))
 			dMaxChargeLimit=Double.parseDouble(strMaxChargeLimit);
+			System.out.println("dMaxChargeLimit->"+dMaxChargeLimit);
 			eleOrder.setAttribute(VSIConstants.ATTR_IS_CANCELLED, VSIConstants.FLAG_N);
-			if((!YFCObject.isVoid(strOrderType) && VSIConstants.ATTR_ORDER_TYPE_POS.equals(strOrderType)) && dGrandTotal>0.00 && dGrandTotal>dMaxChargeLimit)
+			if((!YFCObject.isVoid(strOrderType) && VSIConstants.ATTR_ORDER_TYPE_POS.equals(strOrderType))
+					&& dGrandTotal>0.00 && dGrandTotal>dMaxChargeLimit || YFCObject.isVoid(elePaymentMethods) || YFCObject.isVoid(strCreditCardNo))
 			{
 				Document docChangeOrder=SCXmlUtil.createDocument(VSIConstants.ELE_ORDER);
 				Element eleChangeOrder=docChangeOrder.getDocumentElement();

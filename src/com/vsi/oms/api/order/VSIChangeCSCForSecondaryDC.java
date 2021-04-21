@@ -97,15 +97,33 @@ public class VSIChangeCSCForSecondaryDC{
 			for (int i = 0; i < nRegionList.getLength(); i++) {
 				Element eleRegion = (Element) nRegionList.item(i);
 				String strRegionName = eleRegion.getAttribute(VSIConstants.ATTR_REGION_NAME);
-				if(!VSIConstants.ATTR_NAVY_EAST_REGION.equals(strRegionName)&&!VSIConstants.ATTR_NAVY_WEST_REGION.equals(strRegionName)){
+				
+				//Start - changes for wholesale project
+				
+				Document docGetCommonCodeInput = SCXmlUtil.createDocument(VSIConstants.ELEMENT_COMMON_CODE);
+				Element eleCommonCodeElement = docGetCommonCodeInput.getDocumentElement();
+				eleCommonCodeElement.setAttribute(VSIConstants.ATTR_CODE_TYPE, VSIConstants.ATTR_ALL_WH_REGIONS);
+				eleCommonCodeElement.setAttribute(VSIConstants.ATTR_ORG_CODE, VSIConstants.ATTR_DEFAULT);
+				Document docgetCommonCodeOutput = VSIUtils.invokeAPI(env,VSIConstants.API_COMMON_CODE_LIST, docGetCommonCodeInput);
+				
+				if(docgetCommonCodeOutput.getDocumentElement().hasChildNodes()){
+					NodeList nCommonCodeList = docgetCommonCodeOutput.getElementsByTagName(VSIConstants.ELE_COMMON_CODE);
+					for (int j = 0; j < nCommonCodeList.getLength(); j++) {
+						Element eleCommonCode = (Element) nCommonCodeList.item(j);
+						String strWhRegionName = eleCommonCode.getAttribute(VSIConstants.ATTR_CODE_LONG_DESC);
+				if(!strWhRegionName.equals(strRegionName)){
 					String strRegion=strRegionName.replace(" ", "");
 					String strDistributionRuleId="VSI_"+strRegion+"_DC";
 					if(log.isDebugEnabled()){
 						log.debug("Input XML strDistributionRuleId : "+ strDistributionRuleId);
 					}
+					
+			   //End - changes for wholesale project
 
 					//invoke getDistributionRuleList api
 					return getDistributionRuleListInput(env,strDistributionRuleId);
+				}
+					}
 				}
 
 			}

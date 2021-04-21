@@ -53,6 +53,21 @@ public class VSICheckReleaseEligibility {
 										String strExpectedShipmentDateFormat=null;
 										Element eleDeatils=null;
 										if("1500".equalsIgnoreCase(strStatus)){
+											//OMS-2965: Start
+											String strLineType=eleOrderLine.getAttribute(VSIConstants.ATTR_LINE_TYPE);
+											if(!YFCCommon.isVoid(strLineType) && VSIConstants.LINETYPE_PUS.equals(strLineType))
+											{
+												Document docReleaseOrderInput = XMLUtil.createDocument("ReleaseOrder");
+												Element eleReleaseOrder = docReleaseOrderInput.getDocumentElement();
+												eleReleaseOrder.setAttribute(VSIConstants.ATTR_ORDER_HEADER_KEY,strOrderHeaderKey);
+												eleReleaseOrder.setAttribute("IgnoreReleaseDate",VSIConstants.FLAG_Y);
+												api = YIFClientFactory.getInstance().getApi();
+												api.executeFlow(env, "VSIReleaseOrder_Q", docReleaseOrderInput);
+												break;
+											}
+											else
+											{	
+											//OMS-2965: End
 											eleDeatils= (Element) eleOrderStatus.getElementsByTagName(VSIConstants.ELE_DETAILS).item(0);
 											if (!YFCObject.isVoid(eleDeatils)) {
 												strExpectedShipmentDate=eleDeatils.getAttribute(VSIConstants.ATTR_EXPECTED_SHIPMENT_DATE);
@@ -64,7 +79,7 @@ public class VSICheckReleaseEligibility {
 												String currentdate = dateFormat.format(date);
 												Date dcurrentdate = dateFormat.parse(currentdate);
 												Date dstrExpectedShipmentDateFormat = dateFormat.parse(strExpectedShipmentDateFormat);
-												if(dstrExpectedShipmentDateFormat.before(dcurrentdate)||dstrExpectedShipmentDateFormat.equals(dcurrentdate)){
+												if((dstrExpectedShipmentDateFormat.before(dcurrentdate)||dstrExpectedShipmentDateFormat.equals(dcurrentdate))  ){
 													Document docReleaseOrderInput = XMLUtil.createDocument("ReleaseOrder");
 													Element eleReleaseOrder = docReleaseOrderInput.getDocumentElement();
 													eleReleaseOrder.setAttribute(VSIConstants.ATTR_ORDER_HEADER_KEY,strOrderHeaderKey);
@@ -74,7 +89,9 @@ public class VSICheckReleaseEligibility {
 
 												}
 
-											}					}
+											}					
+											}	
+										}
 									}
 								}
 							}

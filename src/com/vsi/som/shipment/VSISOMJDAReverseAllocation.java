@@ -28,7 +28,7 @@ import com.yantra.yfs.core.YFSSystem;
 import com.yantra.yfs.japi.YFSEnvironment;
 import com.yantra.yfs.japi.YFSException;
 
-public class VSISOMJDAReverseAllocation {
+public class VSISOMJDAReverseAllocation implements VSIConstants {
 	
 	private static YFCLogCategory log = YFCLogCategory.instance(VSISOMJDAReverseAllocation.class);
 	private static final String TAG = VSISOMJDAReverseAllocation.class.getSimpleName();
@@ -68,8 +68,8 @@ public class VSISOMJDAReverseAllocation {
 			putElementValue(eleMessage,"DateTimeStamp", strCreatets);
 			putElementValue(eleMessage,"OrderNo", strOrderNo);
 			putElementValue(eleMessage,"OrderType", "Ship_to_Home");
-			putElementValue(eleMessage,"IntOrderDate", strOrderDate);
-			putElementValue(eleMessage,"Store", strShipNode);
+			putElementValue(eleMessage,"IntOrderDate", strOrderDate);			
+			putElementValue(eleMessage,"Store", SHIP_NODE_6102_VALUE);			//OMS-3011 Change
 			putElementValue(eleMessage,"WhseNo", strShipNode);
 			putElementValue(eleMessage,"CustNo", strCustNo);
 			
@@ -185,7 +185,7 @@ public class VSISOMJDAReverseAllocation {
 	 	return doc;
   }
 	
-	private void putElementValue(Element childEle, String key, Object value) {
+	public void putElementValue(Element childEle, String key, Object value) {
 		Element ele = SCXmlUtil.createChild(childEle, key);
 		if(value instanceof String ) {
 			ele.setTextContent((String)value);

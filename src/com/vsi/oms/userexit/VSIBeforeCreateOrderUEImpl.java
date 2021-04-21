@@ -106,7 +106,7 @@ public class VSIBeforeCreateOrderUEImpl implements YFSBeforeCreateOrderUE,VSICon
 		if(!YFCObject.isVoid(eleExtn))
 		{
 			String strIsSubscriptionOrder = SCXmlUtil.getAttribute(eleExtn, "ExtnSubscriptionOrder");
-			if(strIsSubscriptionOrder.equalsIgnoreCase("Y") && !YFCObject.isVoid(strLineType1) && VSIConstants.LINETYPE_STH.equals(strLineType1)){
+			if(strIsSubscriptionOrder.equalsIgnoreCase("Y")){		//OMS-3108 Change
 				
 				orderElement.setAttribute(ATTR_ENTERPRISE_CODE, ENT_ADP);
 				orderElement.setAttribute(ATTR_SELLER_ORG_CODE, ENT_ADP);
@@ -162,6 +162,8 @@ public class VSIBeforeCreateOrderUEImpl implements YFSBeforeCreateOrderUE,VSICon
 		}
 		
 		String	poBoxPatternString = ".*[Pp][ ]*[.]?[ ]*[Oo][ ]*[-.]?[ ]*([Bb][Oo][Xx])+.*";
+		String postOfficeBoxPattern=".*([Pp][Oo][Ss][Tt])[ ]*[.]?[ ]*([Oo][Ff][Ff][Ii][Cc][Ee])[ ]*[-.]?[ ]*([Bb][Oo][Xx])+.*";
+
 		
 		if(log.isDebugEnabled()){
 			log.verbose("Printing Input XML :" + XmlUtils.getString(inXML));
@@ -602,7 +604,13 @@ public class VSIBeforeCreateOrderUEImpl implements YFSBeforeCreateOrderUE,VSICon
 	 			if(log.isDebugEnabled()){
 	 				log.debug("orderLinesElement has Child Nodes" +SCXmlUtil.getString(orderLinesElement));
 	 			}
-	 			String sDeliveryMethod = eleOrderLine.getAttribute(VSIConstants.ATTR_DELIVERY_METHOD);
+	 			NodeList orderLinesList = orderLinesElement.getElementsByTagName(ELE_ORDER_LINE);
+	 			for(int l=0;l<orderLinesList.getLength();l++)
+	 			{
+	 			Element orderLineElem = (Element) orderLinesList.item(l);
+	 			String sDeliveryMethod = orderLineElem.getAttribute(VSIConstants.ATTR_DELIVERY_METHOD);
+		 		Element eleLinePersonInfoShipTo = SCXmlUtil.getChildElement(orderLineElem, VSIConstants.ELE_PERSON_INFO_SHIP_TO);	 			
+	 			String strOrderLineKey1 = orderLineElem.getAttribute(ATTR_ORDER_LINE_KEY);
 	 			
 	 			if(sDeliveryMethod.equalsIgnoreCase("SHP")){
 	 				
@@ -616,10 +624,20 @@ public class VSIBeforeCreateOrderUEImpl implements YFSBeforeCreateOrderUE,VSICon
 			 		}
 	 				Element elePersonInfoShipToHeader = SCXmlUtil.getChildElement(rootElement, VSIConstants.ELE_PERSON_INFO_SHIP_TO);
 	 				if(Pattern.matches(poBoxPatternString, addressLine1)
-	 						|| Pattern.matches(poBoxPatternString, addressLine2)){
+	 						|| Pattern.matches(poBoxPatternString, addressLine2) || Pattern.matches(postOfficeBoxPattern, addressLine1) || Pattern.matches(postOfficeBoxPattern, addressLine2)){
 	 					//elePersonInfoShipTo.setAttribute("AddressLine6", "Y");
 	 					elePersonInfoShipToHeader.setAttribute("AddressLine6", "Y");
 	 				}
+	 				if(!YFCObject.isVoid(eleLinePersonInfoShipTo)) {
+	 					
+	 					String lineLeveladdressLine1 = SCXmlUtil.getAttribute(eleLinePersonInfoShipTo, VSIConstants.ATTR_ADDRESS1);
+	 					String lineLeveladdressLine2= SCXmlUtil.getAttribute(eleLinePersonInfoShipTo, VSIConstants.ATTR_ADDRESS2);
+	 					if(Pattern.matches(poBoxPatternString, lineLeveladdressLine1)
+	 		 						|| Pattern.matches(poBoxPatternString, lineLeveladdressLine2) || Pattern.matches(postOfficeBoxPattern, lineLeveladdressLine1) || Pattern.matches(postOfficeBoxPattern, lineLeveladdressLine2)){
+							log.info("Setting AddressLine6 for linelevel personInfoShipTo");
+	 						eleLinePersonInfoShipTo.setAttribute("AddressLine6", "Y");
+	 					}
+	 				}					
 	 			boolean flag = false;
 	 			//String sEnterpriseCode = SCXmlUtil.getAttribute(rootElement, VSIConstants.ATTR_ENTERPRISE_CODE);
 	 			
@@ -710,9 +728,15 @@ public class VSIBeforeCreateOrderUEImpl implements YFSBeforeCreateOrderUE,VSICon
 	 					strCD = eleFTCRule.getAttribute(ATTR_CODE_LONG_DESCRIPTION);
 	 				}
 					
-					for(Element orderLineElement1:alOrderLines){	 				
-		 				SCXmlUtil.setAttribute(orderLineElement1, VSIConstants.ATTR_LINE_TYPE, "SHIP_TO_HOME");
-		 				SCXmlUtil.setAttribute(orderLineElement1, VSIConstants.ATTR_FULFILLMENT_TYPE, "SHIP_TO_HOME");
+					for(Element orderLineElement1:alOrderLines){
+						if(orderLineElement1.getAttribute(ATTR_DELIVERY_METHOD).equalsIgnoreCase("SHP"))
+						{
+						//OMS-3145 Changes -- Start
+						if(MARKETPLACE.equals(orderType) && MARKETPLACE.equals(entryType)){
+							SCXmlUtil.setAttribute(orderLineElement1, VSIConstants.ATTR_LINE_TYPE, "SHIP_TO_HOME"); 
+							SCXmlUtil.setAttribute(orderLineElement1, VSIConstants.ATTR_FULFILLMENT_TYPE, "SHIP_TO_HOME");
+						}
+						//OMS-3145 Changes -- End
 						
 		 				String strOrderLineKey = orderLineElement1.getAttribute(ATTR_ORDER_LINE_KEY);
 		 				
@@ -801,7 +825,7 @@ public class VSIBeforeCreateOrderUEImpl implements YFSBeforeCreateOrderUE,VSICon
 			 						if(commonCodeListElement.hasChildNodes()){
 			 							SCXmlUtil.setAttribute(rootElement, "SourcingClassification", "US_Territories");
 			 						}//end of if
-			 						else if((addressLine6.equalsIgnoreCase(FLAG_Y)) || (orderTypeValue.equalsIgnoreCase(ATTR_ORDER_TYPE_POS)) || (!carrierServiceCode.isEmpty() && (carrierServiceCode.equalsIgnoreCase(CSC_NEXTDAY) || carrierServiceCode.equalsIgnoreCase(CSC_TWODAY))))
+			 						else if((addressLine6.equalsIgnoreCase(FLAG_Y)) || (orderTypeValue.equalsIgnoreCase(ATTR_ORDER_TYPE_POS)))
 			 						{		 							
 			 							SCXmlUtil.setAttribute(rootElement, ATTR_SOURCING_CLASSIFICATION, NO_SFS_CLASSIFICATION);
 			 						}
@@ -826,7 +850,7 @@ public class VSIBeforeCreateOrderUEImpl implements YFSBeforeCreateOrderUE,VSICon
 		 					addressLine1 = SCXmlUtil.getAttribute(elePersonInfoShipTo, VSIConstants.ATTR_ADDRESS1);
 			 		 		addressLine2 = SCXmlUtil.getAttribute(elePersonInfoShipTo, VSIConstants.ATTR_ADDRESS2);
 		 					if(Pattern.matches(poBoxPatternString, addressLine1)
-		 							|| Pattern.matches(poBoxPatternString, addressLine2)){
+		 							|| Pattern.matches(poBoxPatternString, addressLine2) || Pattern.matches(postOfficeBoxPattern, addressLine1) || Pattern.matches(postOfficeBoxPattern, addressLine2)){
 		 						elePersonInfoShipToLine.setAttribute("AddressLine6", "Y");
 
 		 					}
@@ -835,90 +859,87 @@ public class VSIBeforeCreateOrderUEImpl implements YFSBeforeCreateOrderUE,VSICon
 			 			
 			 			
 		 				
-		 				if(arrFTCRules.size()>0){
-							
-		 					if(orderType.equals("WEB")){
-								Element eleOrderDates = SCXmlUtil.getChildElement(orderLineElement1, VSIConstants.ELE_ORDER_DATES );
-								if(!YFCObject.isNull(eleOrderDates)){
-									ArrayList<Element> arrOrderDates = SCXmlUtil.getChildren(eleOrderDates, ELE_ORDER_DATE);
-									for(Element eleOrderDate : arrOrderDates){
-										String sDateTypeId = SCXmlUtil.getAttribute(eleOrderDate, VSIConstants.ATTR_DATE_TYPE_ID);
-										if(sDateTypeId.equals("YCD_FTC_PROMISE_DATE")){
-											String sActualDate = SCXmlUtil.getAttribute(eleOrderDate, VSIConstants.ATTR_ACTUAL_DATE);
-											if(YFCCommon.isVoid(sActualDate)){
-												sActualDate = SCXmlUtil.getAttribute(eleOrderDate, VSIConstants.ATTR_EXPECTED_DATE);
-											}
-											if(!YFCCommon.isVoid(sActualDate)&& VSIUtils.differenceBetweenDates(sActualDate,sOrderDate)>0){
-												Element eleFirstFTCPromiseDate = XMLUtil.getElementByXPath(inXML,
-														"Order/OrderLines/OrderLine[@OrderLineKey='"+strOrderLineKey+"']/OrderDates/OrderDate[@DateTypeId='YCD_FTC_FIRST_PROMISE_DATE']");
-												if(YFCCommon.isVoid(eleFirstFTCPromiseDate)){
-													eleFirstFTCPromiseDate = SCXmlUtil.createChild(eleOrderDates, ELE_ORDER_DATE);
-												}	
-												eleFirstFTCPromiseDate.setAttribute(ATTR_DATE_TYPE_ID, "YCD_FTC_FIRST_PROMISE_DATE");
-												eleFirstFTCPromiseDate.setAttribute(ATTR_EXPECTED_DATE, sActualDate);
-											}else{
-												eleOrderDate.setAttribute(VSIConstants.ATTR_DATE_TYPE_ID, "YCD_FTC_FIRST_PROMISE_DATE");
-												eleOrderDate.setAttribute(ATTR_EXPECTED_DATE, sActualDate);
-											}
-											//Set ReqCancelDate
-											String sReqCancelDate = VSIUtils.addDaysToPassedDateTime(sActualDate, strCD);
-											SCXmlUtil.setAttribute(orderLineElement1, VSIConstants.ATTR_REQ_CANCEL_DATE, sReqCancelDate);
-										}
-										if(sDateTypeId.equals("YCD_FTC_FIRST_PROMISE_DATE")){
-											String sExpectedDate = SCXmlUtil.getAttribute(eleOrderDate, ATTR_EXPECTED_DATE);
-											
-											if(YFCCommon.isVoid(sExpectedDate)){
-												sExpectedDate = SCXmlUtil.getAttribute(eleOrderDate, VSIConstants.ATTR_ACTUAL_DATE);
-											}
-											
-											if(!YFCCommon.isVoid(sExpectedDate) && VSIUtils.differenceBetweenDates(sExpectedDate,sOrderDate)>0){
-												Element eleFTCPromiseDate = XMLUtil.getElementByXPath(inXML,
-														"Order/OrderLines/OrderLine[@OrderLineKey='"+strOrderLineKey+"']/OrderDates/OrderDate[@DateTypeId='YCD_FTC_PROMISE_DATE']");
-												if(YFCCommon.isVoid(eleFTCPromiseDate)){
-													eleFTCPromiseDate = SCXmlUtil.createChild(eleOrderDates, ELE_ORDER_DATE);
-												}
-												eleFTCPromiseDate.setAttribute(ATTR_DATE_TYPE_ID, "YCD_FTC_PROMISE_DATE");
-												eleFTCPromiseDate.setAttribute(VSIConstants.ATTR_ACTUAL_DATE, sExpectedDate);
-											}
-											
-											//Set ReqCancelDate
-											String sReqCancelDate = VSIUtils.addDaysToPassedDateTime(sExpectedDate, strCD);
-											SCXmlUtil.setAttribute(orderLineElement1, VSIConstants.ATTR_REQ_CANCEL_DATE, sReqCancelDate);
-										}
-									}// end of checking if for sDateTypeId	
-								}//end of checking eleOrderDates
-							}//end of if checking for enterprise code and orderType
-							
-							if(orderType.equals("Marketplace")||orderType.equals("POS") ){
-								Element eleOrderDates = SCXmlUtil.createChild(orderLineElement1, ELE_ORDER_DATES);
-								
-								//set First FTC date
-								Element eleFirstFTCPromiseDate = SCXmlUtil.createChild(eleOrderDates, ELE_ORDER_DATE);
-								eleFirstFTCPromiseDate.setAttribute(ATTR_DATE_TYPE_ID, "YCD_FTC_FIRST_PROMISE_DATE");
-								eleFirstFTCPromiseDate.setAttribute(ATTR_EXPECTED_DATE, sOrderDate);
-								
-								//set FTC Promise date only for POS. this is to make sure FTC Delay email is sent right then and there post schedule. 
-								if(!orderType.equals("Marketplace"))
-								{
-									Element eleFTCPromiseDate = SCXmlUtil.createChild(eleOrderDates, ELE_ORDER_DATE);
-									eleFTCPromiseDate.setAttribute(ATTR_DATE_TYPE_ID, "YCD_FTC_PROMISE_DATE");
-									if(!YFCCommon.isVoid(strFDD)){
-										eleFTCPromiseDate.setAttribute(ATTR_ACTUAL_DATE, VSIUtils.addDaysToPassedDateTime(sOrderDate, strFDD)); 
-									}	
-								}	
-								
-								//set FTC cancel date
-								Element eleFTCCancelDate = SCXmlUtil.createChild(eleOrderDates, ELE_ORDER_DATE);
-								eleFTCCancelDate.setAttribute(ATTR_DATE_TYPE_ID, "YCD_FTC_CANCEL_DATE");
-								if(!YFCCommon.isVoid(strCD)){
-									eleFTCCancelDate.setAttribute(ATTR_ACTUAL_DATE, VSIUtils.addDaysToPassedDateTime(sOrderDate, strCD)); 
-								}	
-								
-								SCXmlUtil.setAttribute(orderLineElement1, VSIConstants.ATTR_REQ_CANCEL_DATE, VSIUtils.addDaysToPassedDateTime(sOrderDate, strCD));
-							
-							}//end of checking marketplace enterprise code
-						}//end of checking commonCodeListElement
-						
+						/*
+						 * if(arrFTCRules.size()>0){
+						 * 
+						 * if(orderType.equals("WEB")){ Element eleOrderDates =
+						 * SCXmlUtil.getChildElement(orderLineElement1, VSIConstants.ELE_ORDER_DATES );
+						 * if(!YFCObject.isNull(eleOrderDates)){ ArrayList<Element> arrOrderDates =
+						 * SCXmlUtil.getChildren(eleOrderDates, ELE_ORDER_DATE); for(Element
+						 * eleOrderDate : arrOrderDates){ String sDateTypeId =
+						 * SCXmlUtil.getAttribute(eleOrderDate, VSIConstants.ATTR_DATE_TYPE_ID);
+						 * if(sDateTypeId.equals("YCD_FTC_PROMISE_DATE")){ String sActualDate =
+						 * SCXmlUtil.getAttribute(eleOrderDate, VSIConstants.ATTR_ACTUAL_DATE);
+						 * if(YFCCommon.isVoid(sActualDate)){ sActualDate =
+						 * SCXmlUtil.getAttribute(eleOrderDate, VSIConstants.ATTR_EXPECTED_DATE); }
+						 * if(!YFCCommon.isVoid(sActualDate)&&
+						 * VSIUtils.differenceBetweenDates(sActualDate,sOrderDate)>0){ Element
+						 * eleFirstFTCPromiseDate = XMLUtil.getElementByXPath(inXML,
+						 * "Order/OrderLines/OrderLine[@OrderLineKey='"+strOrderLineKey+
+						 * "']/OrderDates/OrderDate[@DateTypeId='YCD_FTC_FIRST_PROMISE_DATE']");
+						 * if(YFCCommon.isVoid(eleFirstFTCPromiseDate)){ eleFirstFTCPromiseDate =
+						 * SCXmlUtil.createChild(eleOrderDates, ELE_ORDER_DATE); }
+						 * eleFirstFTCPromiseDate.setAttribute(ATTR_DATE_TYPE_ID,
+						 * "YCD_FTC_FIRST_PROMISE_DATE");
+						 * eleFirstFTCPromiseDate.setAttribute(ATTR_EXPECTED_DATE, sActualDate); }else{
+						 * eleOrderDate.setAttribute(VSIConstants.ATTR_DATE_TYPE_ID,
+						 * "YCD_FTC_FIRST_PROMISE_DATE"); eleOrderDate.setAttribute(ATTR_EXPECTED_DATE,
+						 * sActualDate); } //Set ReqCancelDate String sReqCancelDate =
+						 * VSIUtils.addDaysToPassedDateTime(sActualDate, strCD);
+						 * SCXmlUtil.setAttribute(orderLineElement1, VSIConstants.ATTR_REQ_CANCEL_DATE,
+						 * sReqCancelDate); } if(sDateTypeId.equals("YCD_FTC_FIRST_PROMISE_DATE")){
+						 * String sExpectedDate = SCXmlUtil.getAttribute(eleOrderDate,
+						 * ATTR_EXPECTED_DATE);
+						 * 
+						 * if(YFCCommon.isVoid(sExpectedDate)){ sExpectedDate =
+						 * SCXmlUtil.getAttribute(eleOrderDate, VSIConstants.ATTR_ACTUAL_DATE); }
+						 * 
+						 * if(!YFCCommon.isVoid(sExpectedDate) &&
+						 * VSIUtils.differenceBetweenDates(sExpectedDate,sOrderDate)>0){ Element
+						 * eleFTCPromiseDate = XMLUtil.getElementByXPath(inXML,
+						 * "Order/OrderLines/OrderLine[@OrderLineKey='"+strOrderLineKey+
+						 * "']/OrderDates/OrderDate[@DateTypeId='YCD_FTC_PROMISE_DATE']");
+						 * if(YFCCommon.isVoid(eleFTCPromiseDate)){ eleFTCPromiseDate =
+						 * SCXmlUtil.createChild(eleOrderDates, ELE_ORDER_DATE); }
+						 * eleFTCPromiseDate.setAttribute(ATTR_DATE_TYPE_ID, "YCD_FTC_PROMISE_DATE");
+						 * eleFTCPromiseDate.setAttribute(VSIConstants.ATTR_ACTUAL_DATE, sExpectedDate);
+						 * }
+						 * 
+						 * //Set ReqCancelDate String sReqCancelDate =
+						 * VSIUtils.addDaysToPassedDateTime(sExpectedDate, strCD);
+						 * SCXmlUtil.setAttribute(orderLineElement1, VSIConstants.ATTR_REQ_CANCEL_DATE,
+						 * sReqCancelDate); } }// end of checking if for sDateTypeId }//end of checking
+						 * eleOrderDates }//end of if checking for enterprise code and orderType
+						 * 
+						 * if(orderType.equals("Marketplace")||orderType.equals("POS") ){ Element
+						 * eleOrderDates = SCXmlUtil.createChild(orderLineElement1, ELE_ORDER_DATES);
+						 * 
+						 * //set First FTC date Element eleFirstFTCPromiseDate =
+						 * SCXmlUtil.createChild(eleOrderDates, ELE_ORDER_DATE);
+						 * eleFirstFTCPromiseDate.setAttribute(ATTR_DATE_TYPE_ID,
+						 * "YCD_FTC_FIRST_PROMISE_DATE");
+						 * eleFirstFTCPromiseDate.setAttribute(ATTR_EXPECTED_DATE, sOrderDate);
+						 * 
+						 * //set FTC Promise date only for POS. this is to make sure FTC Delay email is
+						 * sent right then and there post schedule. if(!orderType.equals("Marketplace"))
+						 * { Element eleFTCPromiseDate = SCXmlUtil.createChild(eleOrderDates,
+						 * ELE_ORDER_DATE); eleFTCPromiseDate.setAttribute(ATTR_DATE_TYPE_ID,
+						 * "YCD_FTC_PROMISE_DATE"); if(!YFCCommon.isVoid(strFDD)){
+						 * eleFTCPromiseDate.setAttribute(ATTR_ACTUAL_DATE,
+						 * VSIUtils.addDaysToPassedDateTime(sOrderDate, strFDD)); } }
+						 * 
+						 * //set FTC cancel date Element eleFTCCancelDate =
+						 * SCXmlUtil.createChild(eleOrderDates, ELE_ORDER_DATE);
+						 * eleFTCCancelDate.setAttribute(ATTR_DATE_TYPE_ID, "YCD_FTC_CANCEL_DATE");
+						 * if(!YFCCommon.isVoid(strCD)){ eleFTCCancelDate.setAttribute(ATTR_ACTUAL_DATE,
+						 * VSIUtils.addDaysToPassedDateTime(sOrderDate, strCD)); }
+						 * 
+						 * SCXmlUtil.setAttribute(orderLineElement1, VSIConstants.ATTR_REQ_CANCEL_DATE,
+						 * VSIUtils.addDaysToPassedDateTime(sOrderDate, strCD));
+						 * 
+						 * }//end of checking marketplace enterprise code }//end of checking
+						 * commonCodeListElement
+						 */						
 						//creating document to call getItemList API for checking if the item IsSignReqdItem
 						Document docgetItemListOutput = null;
 						Element ItemElement = SCXmlUtil.getChildElement(orderLineElement1, VSIConstants.ELE_ITEM);
@@ -978,8 +999,93 @@ public class VSIBeforeCreateOrderUEImpl implements YFSBeforeCreateOrderUE,VSICon
 								}//end of if for checking extnElement
 							}//end of checking itemElement
 						}
-		 			}//end of for 
+						}//end of if
+		 			}//end of for
+	 				if(arrFTCRules.size()>0){
+						
+	 					if(orderType.equals("WEB")){
+							Element eleOrderDates = SCXmlUtil.getChildElement(orderLineElem, VSIConstants.ELE_ORDER_DATES );
+							if(!YFCObject.isNull(eleOrderDates)){
+								ArrayList<Element> arrOrderDates = SCXmlUtil.getChildren(eleOrderDates, ELE_ORDER_DATE);
+								for(Element eleOrderDate : arrOrderDates){
+									String sDateTypeId = SCXmlUtil.getAttribute(eleOrderDate, VSIConstants.ATTR_DATE_TYPE_ID);
+									if(sDateTypeId.equals("YCD_FTC_PROMISE_DATE")){
+										String sActualDate = SCXmlUtil.getAttribute(eleOrderDate, VSIConstants.ATTR_ACTUAL_DATE);
+										if(YFCCommon.isVoid(sActualDate)){
+											sActualDate = SCXmlUtil.getAttribute(eleOrderDate, VSIConstants.ATTR_EXPECTED_DATE);
+										}
+										if(!YFCCommon.isVoid(sActualDate)&& VSIUtils.differenceBetweenDates(sActualDate,sOrderDate)>0){
+											Element eleFirstFTCPromiseDate = XMLUtil.getElementByXPath(inXML,
+													"Order/OrderLines/OrderLine[@OrderLineKey='"+strOrderLineKey1+"']/OrderDates/OrderDate[@DateTypeId='YCD_FTC_FIRST_PROMISE_DATE']");
+											if(YFCCommon.isVoid(eleFirstFTCPromiseDate)){
+												eleFirstFTCPromiseDate = SCXmlUtil.createChild(eleOrderDates, ELE_ORDER_DATE);
+											}	
+											eleFirstFTCPromiseDate.setAttribute(ATTR_DATE_TYPE_ID, "YCD_FTC_FIRST_PROMISE_DATE");
+											eleFirstFTCPromiseDate.setAttribute(ATTR_EXPECTED_DATE, sActualDate);
+										}else{
+											eleOrderDate.setAttribute(VSIConstants.ATTR_DATE_TYPE_ID, "YCD_FTC_FIRST_PROMISE_DATE");
+											eleOrderDate.setAttribute(ATTR_EXPECTED_DATE, sActualDate);
+										}
+										//Set ReqCancelDate
+										String sReqCancelDate = VSIUtils.addDaysToPassedDateTime(sActualDate, strCD);
+										SCXmlUtil.setAttribute(orderLineElem, VSIConstants.ATTR_REQ_CANCEL_DATE, sReqCancelDate);
+									}
+									if(sDateTypeId.equals("YCD_FTC_FIRST_PROMISE_DATE")){
+										String sExpectedDate = SCXmlUtil.getAttribute(eleOrderDate, ATTR_EXPECTED_DATE);
+										
+										if(YFCCommon.isVoid(sExpectedDate)){
+											sExpectedDate = SCXmlUtil.getAttribute(eleOrderDate, VSIConstants.ATTR_ACTUAL_DATE);
+										}
+										
+										if(!YFCCommon.isVoid(sExpectedDate) && VSIUtils.differenceBetweenDates(sExpectedDate,sOrderDate)>0){
+											Element eleFTCPromiseDate = XMLUtil.getElementByXPath(inXML,
+													"Order/OrderLines/OrderLine[@OrderLineKey='"+strOrderLineKey1+"']/OrderDates/OrderDate[@DateTypeId='YCD_FTC_PROMISE_DATE']");
+											if(YFCCommon.isVoid(eleFTCPromiseDate)){
+												eleFTCPromiseDate = SCXmlUtil.createChild(eleOrderDates, ELE_ORDER_DATE);
+											}
+											eleFTCPromiseDate.setAttribute(ATTR_DATE_TYPE_ID, "YCD_FTC_PROMISE_DATE");
+											eleFTCPromiseDate.setAttribute(VSIConstants.ATTR_ACTUAL_DATE, sExpectedDate);
+										}
+										
+										//Set ReqCancelDate
+										String sReqCancelDate = VSIUtils.addDaysToPassedDateTime(sExpectedDate, strCD);
+										SCXmlUtil.setAttribute(orderLineElem, VSIConstants.ATTR_REQ_CANCEL_DATE, sReqCancelDate);
+									}
+								}// end of checking if for sDateTypeId	
+							}//end of checking eleOrderDates
+						}//end of if checking for enterprise code and orderType
+						
+						if(orderType.equals("Marketplace")||orderType.equals("POS") ){
+							Element eleOrderDates = SCXmlUtil.createChild(orderLineElem, ELE_ORDER_DATES);
+							
+							//set First FTC date
+							Element eleFirstFTCPromiseDate = SCXmlUtil.createChild(eleOrderDates, ELE_ORDER_DATE);
+							eleFirstFTCPromiseDate.setAttribute(ATTR_DATE_TYPE_ID, "YCD_FTC_FIRST_PROMISE_DATE");
+							eleFirstFTCPromiseDate.setAttribute(ATTR_EXPECTED_DATE, sOrderDate);
+							
+							//set FTC Promise date only for POS. this is to make sure FTC Delay email is sent right then and there post schedule. 
+							if(!orderType.equals("Marketplace"))
+							{
+								Element eleFTCPromiseDate = SCXmlUtil.createChild(eleOrderDates, ELE_ORDER_DATE);
+								eleFTCPromiseDate.setAttribute(ATTR_DATE_TYPE_ID, "YCD_FTC_PROMISE_DATE");
+								if(!YFCCommon.isVoid(strFDD)){
+									eleFTCPromiseDate.setAttribute(ATTR_ACTUAL_DATE, VSIUtils.addDaysToPassedDateTime(sOrderDate, strFDD)); 
+								}	
+							}	
+							
+							//set FTC cancel date
+							Element eleFTCCancelDate = SCXmlUtil.createChild(eleOrderDates, ELE_ORDER_DATE);
+							eleFTCCancelDate.setAttribute(ATTR_DATE_TYPE_ID, "YCD_FTC_CANCEL_DATE");
+							if(!YFCCommon.isVoid(strCD)){
+								eleFTCCancelDate.setAttribute(ATTR_ACTUAL_DATE, VSIUtils.addDaysToPassedDateTime(sOrderDate, strCD)); 
+							}	
+							
+							SCXmlUtil.setAttribute(orderLineElem, VSIConstants.ATTR_REQ_CANCEL_DATE, VSIUtils.addDaysToPassedDateTime(sOrderDate, strCD));
+						
+						}//end of checking marketplace enterprise code
+					}//end of checking commonCodeListElement
 		 		}//end of if
+	 			}//end of for
 	 		}//end of Checking orderlines
 	 		
 	 		/**
@@ -1073,7 +1179,11 @@ public class VSIBeforeCreateOrderUEImpl implements YFSBeforeCreateOrderUE,VSICon
 					"EXTN_ERROR",
 					"EXTN_ERROR",
 					"Exception");
-		} 	
+		}
+		
+		log.info("Output XML from BCOUE : "+ XMLUtil.getXMLString(inXML));
+		log.info("Exiting VSIBeforeCreateOrderUEImpl Class");
+		
 		    	return inXML;
 	}
 	

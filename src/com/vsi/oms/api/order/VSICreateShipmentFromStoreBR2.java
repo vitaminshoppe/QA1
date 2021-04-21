@@ -251,7 +251,10 @@ public class VSICreateShipmentFromStoreBR2 implements YIFCustomApi {
 										}
 									if (!orderLinekeyMap.containsValue(orderLineKey)){
 										Node copyNode = inXML.importNode(shipmentLineElement, true);
-										shipmentLineElement.getParentNode().appendChild(copyNode);
+										//OMS-2763:Start
+										//shipmentLineElement.getParentNode().appendChild(copyNode);
+										shipmentLineElement.getParentNode().insertBefore(copyNode, shipmentLineElement);
+										//OMS-2763:End
 										Element eleShipNew = (Element) copyNode;
 										//Node eleShipNew = inXML.importNode(shipmentLineElement, true);
 										//shipmentLineElement.getParentNode().appendChild(eleShipNew);

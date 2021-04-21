@@ -53,7 +53,10 @@ public class VSIBeforeChangeOrder implements VSIConstants {
 		HashMap mapLineQty = new HashMap();
 		try{
 			//System.out.println("inXML"+ XmlUtils.getString(inXML));
-
+			
+			//Mixed cart Call Center Changes -- Start
+			boolean bIsCOMDraftOrder=false;
+			//Mixed cart Call Center Changes -- End
 			//OMS-1333 : Start
 			if(log.isDebugEnabled()){
 				log.debug("Start of country validation");
@@ -175,6 +178,9 @@ public class VSIBeforeChangeOrder implements VSIConstants {
 			}
 			//END- task ARS-276
 				String attrDraftOrderFlag = "";
+				//Mixed cart Call Center Changes -- Start
+				String strEntryType = null;
+				//Mixed cart Call Center Changes -- End
 				boolean bCheckShipToHomeStatus = false;
 				boolean bPromotionsReset = false;
 				String progId = env.getProgId(); 
@@ -184,6 +190,15 @@ public class VSIBeforeChangeOrder implements VSIConstants {
 				if(!YFCCommon.isVoid(eleOrderDetails)){
 					if(!YFCCommon.isVoid(eleOrderDetails)){
 						attrDraftOrderFlag = eleOrderDetails.getAttribute(VSIConstants.ATTR_DRAFT_ORDER_FLAG);
+						//Mixed cart Call Center Changes -- Start						
+						strEntryType = eleOrderDetails.getAttribute(VSIConstants.ATTR_ENTRY_TYPE);
+						if(VSIConstants.FLAG_Y.equals(attrDraftOrderFlag) && VSIConstants.ENTRYTYPE_CC.equals(strEntryType)){
+							bIsCOMDraftOrder=true;
+							if(log.isDebugEnabled()){
+								log.debug("Its a COM Draft Order, setting bIsCOMDraftOrder as true");
+							}
+						}
+						//Mixed cart Call Center Changes -- End
 						orderType = eleOrderDetails.getAttribute("OrderType");
 						VSIConditionToCheckShipToHomeOrderStatus VSIConditionToCheckShipToHomeOrderStatus=new VSIConditionToCheckShipToHomeOrderStatus();
 						bCheckShipToHomeStatus = VSIConditionToCheckShipToHomeOrderStatus.evaluateCondition(env,"VSIConditionToCheckShipToHomeOrderStatus",null, docOrderDetails);
@@ -756,6 +771,16 @@ public class VSIBeforeChangeOrder implements VSIConstants {
 //					}
 				}
 			}
+			
+			//Mixed cart Call Center Changes -- Start
+			if(bIsCOMDraftOrder){
+				eleOrderFromIp.setAttribute("IsCOMDraftOrder", "Y");
+				if(log.isDebugEnabled()){
+					log.debug("bIsCOMDraftOrder is true, setting IsCOMDraftOrder as Y in Input");
+					log.debug("Updated Input Document is: "+XmlUtils.getString(inXML));
+				}
+			}
+			//Mixed cart Call Center Changes -- End
 
 		}catch (YFSException e) {
 			e.printStackTrace();
@@ -969,8 +994,8 @@ public class VSIBeforeChangeOrder implements VSIConstants {
 							log.debug("Line is newly created, reserving the inventory");
 						}
 						Element eleOrderLineReservations=SCXmlUtil.createChild(eleOrderLine, "OrderLineReservations");
-						String strDeliveryMethod=eleOrderLine.getAttribute("DeliveryMethod");
-						if(!YFCCommon.isStringVoid(strDeliveryMethod)&& "SHP".equals(strDeliveryMethod)){
+						/*String strDeliveryMethod=eleOrderLine.getAttribute("DeliveryMethod");
+						if(!YFCCommon.isStringVoid(strDeliveryMethod)&& "SHP".equals(strDeliveryMethod)){*/
 							Document docReserveInvOP=reserveAvailableInvetory(env,eleOrderLine,elePersonInfoShipTo,strOrganizationCode,
 									strAllocationRuleID);
 							NodeList nlReservation=docReserveInvOP.getElementsByTagName("Reservation");
@@ -1001,10 +1026,10 @@ public class VSIBeforeChangeOrder implements VSIConstants {
 							Element eleInventoryActivity1=SCXmlUtil.createChild(eleInventoryActivityList, "InventoryActivity");
 							eleInventoryActivity1.setAttribute("CreateForInvItemsAtNode", "N");
 							eleInventoryActivity1.setAttribute("ItemID", strItemID);
-							eleInventoryActivity1.setAttribute("OrganizationCode", "MCL");
+							eleInventoryActivity1.setAttribute("OrganizationCode", "VSI.com");
 							eleInventoryActivity1.setAttribute("ProductClass", strProductClass);
 							eleInventoryActivity1.setAttribute("UnitOfMeasure", strUnitOfMeasure);
-						}
+						//}
 					}
 					
 				}

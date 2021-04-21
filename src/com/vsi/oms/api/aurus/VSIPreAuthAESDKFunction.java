@@ -195,6 +195,9 @@ public class VSIPreAuthAESDKFunction {
 		Element transRequestEle = transRequestDoc.getDocumentElement();
 
 		putElementValue(transRequestEle,"CorpID", transRequestObj.getCorpID());
+		//OMS-3365 Changes -- Start
+		putElementValue(transRequestEle,"POSEnvironmentIndicator", transRequestObj.getPOSEnvIndicator());
+		//OMS-3365 Changes -- End
 		putElementValue(transRequestEle,"ADSDKSpecVer", transRequestObj.getaDSDKSpecVer());
 		putElementValue(transRequestEle,"KI", transRequestObj.getKi());
 		putElementValue(transRequestEle,"CardType", transRequestObj.getCardType());
@@ -400,6 +403,9 @@ public Document postAuthAPI(Document transRequestDoc) throws ParserConfiguration
 		private String inputIdData;
 		private String approvalCode;
 		private String subTransType;
+		//OMS-3365 Changes -- Start
+		private String posEnvIndicator;
+		//OMS-3365 Changes -- End
 		private String currencyCode="840";
 		private String clerkID;
 		private String transactionDate;
@@ -748,6 +754,14 @@ public Document postAuthAPI(Document transRequestDoc) throws ParserConfiguration
 		public void setSubTransType(String subTransType) {
 			this.subTransType = subTransType;
 		}
+		//OMS-3365 Changes -- Start
+		public String getPOSEnvIndicator() {
+			return posEnvIndicator;
+		}
+		public void setPOSEnvIndicator(String posEnvIndicator) {
+			this.posEnvIndicator = posEnvIndicator;
+		}
+		//OMS-3365 Changes -- End
 		public String getCurrencyCode() {
 			return currencyCode;
 		}

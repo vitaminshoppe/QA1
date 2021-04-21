@@ -7,6 +7,11 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.rmi.RemoteException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -81,7 +86,21 @@ public class VSISFSPrintShipmentPackedXML {
 				printLogs("Output from getSortedShipmentDetails API: "+SCXmlUtil.getString(docSortedShpmntOut));
 
 				Element eleSortedShpmntOut=docSortedShpmntOut.getDocumentElement();
-				String strOrderNumber=eleSortedShpmntOut.getAttribute(VSIConstants.ATTR_ORDER_NO);			
+								//Changes for OMS-2804- 07Sep2020- Start
+				String strOrderNumber="";
+				strOrderNumber=eleSortedShpmntOut.getAttribute(VSIConstants.ATTR_ORDER_NO);	
+
+				
+				if(YFCCommon.isVoid(strOrderNumber)){
+					Element eleShipmentLns=SCXmlUtil.getChildElement(eleSortedShpmntOut, VSIConstants.ELE_SHIPMENT_LINES);				
+					Element eleShipmentLn=SCXmlUtil.getChildElement(eleShipmentLns, VSIConstants.ELE_SHIPMENT_LINE);				
+					Element eleShipLnOrder=SCXmlUtil.getChildElement(eleShipmentLn, VSIConstants.ELE_ORDER);
+					strOrderNumber=eleShipLnOrder.getAttribute(VSIConstants.ATTR_ORDER_NO);
+				}
+				//Changes for OMS-2804- 07Sep2020- End
+				//Changes for OMS-2804- Start
+				String strShipmentNo=eleSortedShpmntOut.getAttribute(VSIConstants.ATTR_SHIPMENT_NO);
+				//Changes for OMS-2804- End					
 				
 				Document docInputgetCommonCodeList=XMLUtil.createDocument(VSIConstants.ELE_COMMON_CODE);
 				Element eleCommonCode = docInputgetCommonCodeList.getDocumentElement();
@@ -98,6 +117,9 @@ public class VSISFSPrintShipmentPackedXML {
 				putElementValue(eleShipmentPackedXML,"DocumentType", strDocType);
 							
 				String strShipFromFacilityID=eleSortedShpmntOut.getAttribute(VSIConstants.ATTR_SHIP_NODE);
+				//changes for OMS-2844- start
+				String strStoreNumber=("0000" + strShipFromFacilityID).substring(strShipFromFacilityID.length());
+				//changes for OMS-2844- end
 				String strService=eleSortedShpmntOut.getAttribute(VSIConstants.ATTR_CARRIER_SERVICE_CODE);
 				
 				Element eleFromAddr = SCXmlUtil.getChildElement(eleSortedShpmntOut, "FromAddress");
@@ -109,7 +131,27 @@ public class VSISFSPrintShipmentPackedXML {
 				String strShipFromPhone=eleFromAddr.getAttribute(VSIConstants.ATTR_DAY_PHONE);
 				String strShipFromCompany=eleFromAddr.getAttribute(VSIConstants.ATTR_COMPANY);
 				String strShipFromCountryCode=eleFromAddr.getAttribute(VSIConstants.ATTR_COUNTRY);
-				String strShipFromPerson=eleFromAddr.getAttribute("PersonID");
+				//Changes for SFS Pack- 25Aug2020- Start
+				//String strShipFromPerson=eleFromAddr.getAttribute("PersonID");
+				String strShipFromFirstName= eleFromAddr.getAttribute(VSIConstants.ATTR_FIRST_NAME);
+				String strShipFromLastName= eleFromAddr.getAttribute(VSIConstants.ATTR_LAST_NAME);
+				String strShipFromPerson= strShipFromFirstName+" "+strShipFromLastName;				
+				//Changes for SFS Pack- 25Aug2020- End
+				
+				//Changes for SFS Pack- 26Aug2020- Start
+				Element eleBillToAddr = SCXmlUtil.getChildElement(eleSortedShpmntOut, "BillToAddress");
+				String strBillToAddressLine1=eleBillToAddr.getAttribute(VSIConstants.ATTR_ADDRESS1);
+				String strBillToAddressLine2=eleBillToAddr.getAttribute(VSIConstants.ATTR_ADDRESS2);
+				String strBillToCity=eleBillToAddr.getAttribute(VSIConstants.ATTR_CITY);
+				String strBillToState=eleBillToAddr.getAttribute(VSIConstants.ATTR_STATE);
+				String strBillToZip=eleBillToAddr.getAttribute(VSIConstants.ATTR_ZIPCODE);
+				String strBillToPhone=eleBillToAddr.getAttribute(VSIConstants.ATTR_DAY_PHONE);
+				String strBillToFirstName= eleBillToAddr.getAttribute(VSIConstants.ATTR_FIRST_NAME);
+				String strBillToLastName= eleBillToAddr.getAttribute(VSIConstants.ATTR_LAST_NAME);
+				String strBillToPerson= strBillToFirstName+" "+strBillToLastName;							
+				String strBillToCountryCode=eleBillToAddr.getAttribute(VSIConstants.ATTR_COUNTRY);
+				//Changes for SFS Pack- 26Aug2020- End
+				
 				Element eleToAddr = SCXmlUtil.getChildElement(eleSortedShpmntOut, "ToAddress");
 				String strShipToAddressLine1=eleToAddr.getAttribute(VSIConstants.ATTR_ADDRESS1);
 				String strShipToAddressLine2=eleToAddr.getAttribute(VSIConstants.ATTR_ADDRESS2);
@@ -117,16 +159,26 @@ public class VSISFSPrintShipmentPackedXML {
 				String strShipToState=eleToAddr.getAttribute(VSIConstants.ATTR_STATE);
 				String strShipToZip=eleToAddr.getAttribute(VSIConstants.ATTR_ZIPCODE);
 				String strShipToPhone=eleToAddr.getAttribute(VSIConstants.ATTR_DAY_PHONE);
-				String strShipToPerson=eleToAddr.getAttribute("PersonID");
+				//Changes for SFS Pack- 25Aug2020- Start
+				//String strShipToPerson=eleToAddr.getAttribute("PersonID");
+				String strShipToFirstName= eleToAddr.getAttribute(VSIConstants.ATTR_FIRST_NAME);
+				String strShipToLastName= eleToAddr.getAttribute(VSIConstants.ATTR_LAST_NAME);
+				String strShipToPerson= strShipToFirstName+" "+strShipToLastName;				
+				//Changes for SFS Pack- 25Aug2020- End	
 				String strShipToCountryCode=eleToAddr.getAttribute(VSIConstants.ATTR_COUNTRY);
 				Element eleContainers = SCXmlUtil.getChildElement(eleSortedShpmntOut, VSIConstants.ELE_CONTAINERS);
 				NodeList nlContainer=eleContainers.getElementsByTagName(VSIConstants.ELE_CONTAINER);
 				
+				//Changes for OMS-2804- Start				
+				putElementValue(eleShipmentPackedXML,"ShipmentID", strShipmentNo);
+				//Changes for OMS-2804- End
 				putElementValue(eleShipmentPackedXML,"OrderNumber", strOrderNumber);
 				putElementValue(eleShipmentPackedXML,"ContainerType", "VS");
 				putElementValue(eleShipmentPackedXML,"Service", strService);
 				putElementValue(eleShipmentPackedXML,"OrderType", "STH");
-				putElementValue(eleShipmentPackedXML,"ShipFromFacilityID", strShipFromFacilityID);
+				//Changes for OMS-2844- Start
+				putElementValue(eleShipmentPackedXML,"ShipFromFacilityID", strStoreNumber);
+				//Changes for OMS-2844- End
 				putElementValue(eleShipmentPackedXML,"ShipFromCompany", strShipFromCompany);
 				putElementValue(eleShipmentPackedXML,"ShipFromAddressLine1", strShipFromAddressLine1);
 				putElementValue(eleShipmentPackedXML,"ShipFromAddressLine2", strShipFromAddressLine2);
@@ -198,6 +250,71 @@ public class VSISFSPrintShipmentPackedXML {
 				putElementValue(eleShipmentPackedXML,"ShipToZip", strShipToZip);
 				putElementValue(eleShipmentPackedXML,"ShipToCountryCode", strShipToCountryCode);
 				putElementValue(eleShipmentPackedXML,"ShipToPhone", strShipToPhone);
+				
+				//Changes for SFS Pack- 26Aug2020- Start				
+				putElementValue(eleShipmentPackedXML,"BillToPerson", strBillToPerson);
+				putElementValue(eleShipmentPackedXML,"BillToAddressLine1", strBillToAddressLine1);
+				putElementValue(eleShipmentPackedXML,"BillToAddressLine2", strBillToAddressLine2);
+				putElementValue(eleShipmentPackedXML,"BillToCity", strBillToCity);
+				putElementValue(eleShipmentPackedXML,"BillToState", strBillToState);
+				putElementValue(eleShipmentPackedXML,"BillToZip", strBillToZip);
+				putElementValue(eleShipmentPackedXML,"BillToCountryCode", strBillToCountryCode);
+				putElementValue(eleShipmentPackedXML,"BillToPhone", strBillToPhone);
+				
+				Element eleShipmentLines=SCXmlUtil.getChildElement(eleSortedShpmntOut, VSIConstants.ELE_SHIPMENT_LINES);				
+				Element eleShipmentLine=SCXmlUtil.getChildElement(eleShipmentLines, VSIConstants.ELE_SHIPMENT_LINE);				
+				Element eleOrder=SCXmlUtil.getChildElement(eleShipmentLine, VSIConstants.ELE_ORDER);
+				
+				Element eleShipNode = SCXmlUtil.getChildElement(eleSortedShpmntOut, VSIConstants.ELE_SHIP_NODE);
+				String strLocalecode=eleShipNode.getAttribute("Localecode");
+				String strTimeZone="";
+				if(VSIConstants.ATTR_EN_US_EST.equals(strLocalecode)){
+					strTimeZone="US/Eastern";
+				}else if("en_US_CST".equals(strLocalecode)){
+					strTimeZone="US/Central";
+				}else if("en_US_PST".equals(strLocalecode)){
+					strTimeZone="US/Pacific";
+				}else if("en_US_HAST".equals(strLocalecode)){
+					strTimeZone="US/Hawaii";
+				}else if("en_US_MST".equals(strLocalecode)){
+					strTimeZone="US/Mountain";
+				}else if("en_US_MDT".equals(strLocalecode)){
+					strTimeZone="US/Mountain";
+				}
+				
+	     		Element eleShipmnt = null;
+				String strOrderDateOnly ="";
+				String strStatusDateOnly ="";
+				eleShipmnt= eleSortedShpmntOut;
+
+				String strOrderDate= eleOrder.getAttribute("OrderDate");	
+			  	String strStatusDate= eleShipmnt.getAttribute("StatusDate");
+			  	
+				if (strOrderDate != null) {
+				Date formattedOrderDate =formatToGeneralDateFormat(env, strOrderDate);			
+
+				SimpleDateFormat orderDateOnly = new SimpleDateFormat("MM/dd/yyyy");
+				orderDateOnly.setTimeZone(TimeZone.getTimeZone(strTimeZone));
+		        strOrderDateOnly = orderDateOnly.format(formattedOrderDate);
+
+				}
+		    	
+		    	if (strStatusDate != null && eleShipmnt != null) {
+		    	Date formattedStatusDate =formatToGeneralDateFormat(env, strStatusDate);
+		        
+				SimpleDateFormat statusDateOnly = new SimpleDateFormat("MM/dd/yyyy");
+				statusDateOnly.setTimeZone(TimeZone.getTimeZone(strTimeZone));
+		        strStatusDateOnly = statusDateOnly.format(formattedStatusDate);
+
+		    	}
+
+				log.info("PICK PACK Order Date  is "+strOrderDateOnly);		
+				log.info("PICK PACK Pick Date  is "+strStatusDateOnly);
+				
+				putElementValue(eleShipmentPackedXML,"OrderDate", strOrderDateOnly);
+				putElementValue(eleShipmentPackedXML,"ShipDate", strStatusDateOnly);
+
+				//Changes for SFS Pack- 26Aug2020- End
 							
 				String strSignatureRequired="";
 				String strAdultSignatureRequired="";
@@ -222,15 +339,23 @@ public class VSISFSPrintShipmentPackedXML {
 				String strReference3Value="";
 				String strReference4Type="";
 				String strReference4Value="";
+				//changes for re-packing scenarios-11Sep2020-Ashutosh-Start
+				String strTrackingNo="";
+					//changes for re-packing scenarios-11Sep2020-Ashutosh-End
 				
 				for(int i=0; i<nlContainer.getLength(); i++){
 					Element eleContainer = (Element) nlContainer.item(i);
+					//changes for re-packing scenarios-11Sep2020-Ashutosh-Start
+					strTrackingNo=eleContainer.getAttribute(VSIConstants.ATTR_TRACKING_NO);
+					if (strTrackingNo.isEmpty()) {
 					Element elePackage=SCXmlUtil.createChild(elePackages, "Package");
 					iBoxNumber=iBoxNumber+1;
 					strBoxNumber=Integer.toString(iBoxNumber);
 					elePackage.setAttribute("BoxNumber", strBoxNumber);
 					strCartonID=eleContainer.getAttribute("ContainerNo");
-					strPackageWeight=eleContainer.getAttribute("ContainerNetWeight");
+					//Changes for SFS Pack- 26Aug2020- Start
+					strPackageWeight=eleContainer.getAttribute("ContainerGrossWeight");
+					//Changes for SFS Pack- 26Aug2020- End
 					strPackageDimHeight=eleContainer.getAttribute("ContainerHeight");
 					strPackageDimWidth=eleContainer.getAttribute("ContainerWidth");
 					strPackageDimLength=eleContainer.getAttribute("ContainerLength");
@@ -275,9 +400,31 @@ public class VSISFSPrintShipmentPackedXML {
 						Element eleItem=SCXmlUtil.getChildElement(eleCntnrDtlOrdLn, VSIConstants.ELE_ITEM);
 						String strItemID=eleItem.getAttribute(VSIConstants.ATTR_ITEM_ID);
 						String strItemDesc=eleItem.getAttribute(VSIConstants.ATTR_ITEM_DESC);
-						String strQuantity=eleCntnrDtlOrdLn.getAttribute(VSIConstants.ATTR_ORD_QTY);
+						//Changes for OMS-2804- Start
+						//String strQuantity=eleCntnrDtlOrdLn.getAttribute(VSIConstants.ATTR_ORD_QTY);
+						//Changes for OMS-2804- End
 						Element eleLinePriceInfo=SCXmlUtil.getChildElement(eleCntnrDtlOrdLn, VSIConstants.ELE_LINE_PRICE);
 						String strUnitPrice=eleLinePriceInfo.getAttribute(VSIConstants.ATTR_UNIT_PRICE);
+						
+						//Changes for SFS Pack- 26Aug2020- Start
+						Element eleCntnrShipmentLine = SCXmlUtil.getChildElement(eleContainerDtl, VSIConstants.ELE_SHIPMENT_LINE);
+						String strOrderQty= "";
+						String strShipQty="";
+						
+						//Changes for OMS-2804- Start
+						String strQuantity=eleContainerDtl.getAttribute(VSIConstants.ATTR_QUANTITY);
+						strOrderQty=eleCntnrShipmentLine.getAttribute("OriginalQuantity");
+						strShipQty=eleCntnrShipmentLine.getAttribute(VSIConstants.ATTR_QUANTITY);
+						//Changes for OMS-2804- End
+						
+						if (strOrderQty != null) {
+						putElementValue(eleOrderLineOut,"OrderQty", strOrderQty);
+						}
+						if (strShipQty != null) {
+						putElementValue(eleOrderLineOut,"ShipQty", strShipQty);
+						}
+						//Changes for SFS Pack- 26Aug2020- End
+						
 						Element eleOrdLnOverallTotals = SCXmlUtil.getChildElement(eleCntnrDtlOrdLn, VSIConstants.ELE_LINE_OVERALL_TOTALS);
 						String strExtendedPrice=eleOrdLnOverallTotals.getAttribute(VSIConstants.ATTR_EXTENDED_PRICE);
 						String strLnTtl=eleOrdLnOverallTotals.getAttribute(VSIConstants.ATTR_LINE_TOTAL);
@@ -300,16 +447,36 @@ public class VSISFSPrintShipmentPackedXML {
 						putElementValue(eleOrderLineOut,"Quantity", strQuantity);
 						putElementValue(eleOrderLineOut,"UnitPrice", strUnitPrice);
 						putElementValue(eleOrderLineOut,"ExtendedPrice", strExtendedPrice);
-						Element eleLnDiscounts=SCXmlUtil.createChild(eleOrderLineOut, "LineDiscounts");
+						//Changes for SFS Pack- 25Aug2020- Start
+						//Element eleLnDiscounts=SCXmlUtil.createChild(eleOrderLineOut, "LineDiscounts");
+						//Changes for SFS Pack- 25Aug2020- End
 						Element eleOrdLnChrgs=SCXmlUtil.getChildElement(eleCntnrDtlOrdLn, VSIConstants.ELE_LINE_CHARGES);
 						NodeList nlOrdLnChrg=eleOrdLnChrgs.getElementsByTagName(VSIConstants.ELE_LINE_CHARGE);
 						for(int n=0; n<nlOrdLnChrg.getLength(); n++){						
 							Element eleOrdLnChrg = (Element) nlOrdLnChrg.item(n);
-							Element eleLnDiscount=SCXmlUtil.createChild(eleLnDiscounts, "LineDiscount");
-							String strChargeName=eleOrdLnChrg.getAttribute(VSIConstants.ATTR_CHARGE_NAME);
+							
+							//Changes for SFS Pack- 25Aug2020- Start
+							//Element eleLnDiscount=SCXmlUtil.createChild(eleLnDiscounts, "LineDiscount");
+							String strChargName="";
+							strChargName=eleOrdLnChrg.getAttribute(VSIConstants.ATTR_CHARGE_NAME);
+
+							if (strChargName!="" && strChargName!= null) {							
+								int x= strChargName.lastIndexOf('-');
+								strChargName = strChargName.substring(x+1);
+								
+								/*	int x = strChargeName.lastIndexOf('-');
+									String first= strChargeName.substring(0,x);
+									int y = first.lastIndexOf('-');
+									strChargeName = strChargeName.substring(y+1);	
+									 
+								 */
+							}
+							
+							//String strChargeName=eleOrdLnChrg.getAttribute(VSIConstants.ATTR_CHARGE_NAME);
 							String strChargeAmount=eleOrdLnChrg.getAttribute(VSIConstants.ATTR_CHARGE_AMOUNT);
-							putElementValue(eleLnDiscount,"LineDiscountDescription", strChargeName);
-							putElementValue(eleLnDiscount,"LineDiscountAmount", strChargeAmount);						
+							putElementValue(eleOrderLineOut,"LineDiscountDescription", strChargName);
+							putElementValue(eleOrderLineOut,"LineDiscountAmount", strChargeAmount);	
+							//Changes for SFS Pack- 25Aug2020- End						
 						}
 						putElementValue(eleOrderLineOut,"LineYourPrice", strLnTtl);
 					}
@@ -323,13 +490,14 @@ public class VSISFSPrintShipmentPackedXML {
 					putElementValue(elePackage,"Reference4Type", strReference4Type);
 					putElementValue(elePackage,"Reference4Value", strReference4Value);
 				}
+				}
 				
 				putElementValue(eleShipmentPackedXML,"SignatureRequired", strSignatureRequired);
 				putElementValue(eleShipmentPackedXML,"AdultSignatureRequired", strAdultSignatureRequired);
 				
 				log.info("Printing Shipment Packed XML :"+SCXmlUtil.getString(docShipmentPackedXML));			
 				
-				Document docMiniSoftOut=invokeMiniSoftWebService(env, docShipmentPackedXML);
+				Document docMiniSoftOut=invokeMiniSoftWebService(env, docShipmentPackedXML, strShipFromFacilityID);     //OMS-2988 Changes
 				
 				processMiniSoftResponse(env,docMiniSoftOut,strShipmentKey);
 				
@@ -371,6 +539,14 @@ public class VSISFSPrintShipmentPackedXML {
 				String strService=eleService.getTextContent();
 				
 				eleChangeShipmentIn.setAttribute(VSIConstants.ATTR_SHIPMENT_KEY, strShipmentKey);
+				//changes for Ship packages issue: 17th Aug 2020- Start
+				if(strSCAC.equalsIgnoreCase("UPS")) {
+					strSCAC = "UPSN";
+				}
+				else if (strSCAC.equalsIgnoreCase("FEDEX")) {
+					strSCAC = "FEDEX";
+				}
+				//changes for Ship packages issue: 17th Aug 2020- End
 				eleChangeShipmentIn.setAttribute(VSIConstants.ATTR_SCAC, strSCAC);
 				eleChangeShipmentIn.setAttribute(VSIConstants.ATTR_CARRIER_SERVICE_CODE, strService);
 				
@@ -388,6 +564,27 @@ public class VSISFSPrintShipmentPackedXML {
 					String strTrackingNo=eleTrackingNumber.getTextContent();
 					if(!YFCCommon.isVoid(strTrackingNo)){
 						eleContainer.setAttribute(VSIConstants.ATTR_TRACKING_NO, strTrackingNo);
+						//OMS-3074 Changes -- Start
+						printLogs("Tracking No is: "+strTrackingNo);
+						Document docInputgetCommonCodeList=XMLUtil.createDocument(VSIConstants.ELE_COMMON_CODE);
+						Element eleCommonCode = docInputgetCommonCodeList.getDocumentElement();
+						eleCommonCode.setAttribute(VSIConstants.ATTR_CODE_TYPE, "FEDEX");
+						
+						printLogs("Input to getCommonCodeList API: "+XMLUtil.getXMLString(docInputgetCommonCodeList));
+						Document docCommonCodeListOP=VSIUtils.invokeAPI(env,VSIConstants.API_COMMON_CODE_LIST, docInputgetCommonCodeList);
+						printLogs("Output from getCommonCodeList API: "+XMLUtil.getXMLString(docCommonCodeListOP));
+						
+						Element eleCCOut=(Element)docCommonCodeListOP
+								.getElementsByTagName(VSIConstants.ELE_COMMON_CODE).item(0);
+						
+						String strURL=eleCCOut.getAttribute(VSIConstants.ATTR_CODE_LONG_DESCRIPTION);
+						printLogs("Tracking URL from Common Code is: "+strURL);
+						String strExtnTrackingURL=strURL+strTrackingNo;
+						printLogs("ExtnTrackingURL is: "+strExtnTrackingURL);
+						Element eleCntnrExtn=SCXmlUtil.createChild(eleContainer, VSIConstants.ELE_EXTN);
+						eleCntnrExtn.setAttribute("ExtnTrackingURL", strExtnTrackingURL);
+						printLogs("Container after adding ExtnTrackingURL is: "+SCXmlUtil.getString(eleContainer));
+						//OMS-3074 Changes -- End
 					}
 				}
 				
@@ -400,81 +597,136 @@ public class VSISFSPrintShipmentPackedXML {
 				
 	}
 
-	private Document invokeMiniSoftWebService(YFSEnvironment env, Document docShipmentPackedXML) throws Exception {
+	private Document invokeMiniSoftWebService(YFSEnvironment env, Document docShipmentPackedXML, String strShipFromFacilityID){     //OMS-2988 Changes
 		
 		printLogs("================Inside invokeMiniSoftWebService Method================");
 		
-		String strMinisoftURL=YFSSystem.getProperty("MINISOFT_SFS_WEBSERVICE_URL");
+		Document responseDoc=null;
 		
-		printLogs("URL obtained from COP file: "+strMinisoftURL);		
+		try{
 		
-		String inDocString=XMLUtil.getXMLString(docShipmentPackedXML);
-		printLogs("inDocString: "+inDocString);
+			String strMinisoftURL=YFSSystem.getProperty("MINISOFT_SFS_WEBSERVICE_URL");
+			
+			printLogs("URL obtained from COP file: "+strMinisoftURL);		
+			
+			String inDocString=XMLUtil.getXMLString(docShipmentPackedXML);
+			printLogs("inDocString: "+inDocString);
+			
+			DataOutputStream wr=null;		
+			
+			URL url = new URL (strMinisoftURL);
+			
+			HttpURLConnection connection =  (HttpURLConnection) url.openConnection();
+			
+			connection.setRequestMethod("POST");
+			byte[] bContent = inDocString.getBytes();	
+			connection.setRequestProperty("Content-Type", "application/xml;charset=utf-8");
+			connection.setRequestProperty("Content-Length", String.valueOf(bContent.length));
+			connection.setDefaultUseCaches(false);
+			connection.setDoOutput(true);		
+			
+			printLogs("Invoking the MiniSoft web service");
+			
+			wr = new DataOutputStream (connection.getOutputStream());
+			wr.write(bContent);
+			
+			printLogs("Invoked the MiniSoft web service");
+			
+			wr.flush();
+	        wr.close();
+	        
+	        printLogs("Before reading ResponseMessage");
+	        
+	        String responseStatus = connection.getResponseMessage();
+	        printLogs("responseStatus: "+responseStatus);
+	        
+	        BufferedReader in = new BufferedReader(new InputStreamReader(
+	        		connection.getInputStream()));
+	        printLogs("After reading InputStream");
+	        String inputLine;
+	        StringBuffer response = new StringBuffer();
+	        while ((inputLine = in.readLine()) != null) {
+	            response.append(inputLine);
+	        }
+	        in.close();
+	        
+	        printLogs("response: " + response.toString());
+	        
+	        String strResponse=response.toString();
+	        
+	        printLogs("strResponse: " + strResponse);				
+			
+			responseDoc=SCXmlUtil.createFromString(strResponse);	
+			
+			VSIUtils.invokeService(env, "VSISOMPrintXML_DB", docShipmentPackedXML);
+			
+			printLogs("MiniSoft Request is stored in DB");
+			
+			printLogs("MiniSoft Response will be stored in DB");
+			
+			VSIUtils.invokeService(env, "VSISOMPrintXML_DB", responseDoc);
+			
+			printLogs("MiniSoft Response is stored in DB");
+			
+			printLogs("Response from MiniSoft WebService: "+XMLUtil.getXMLString(responseDoc));		
 		
-		DataOutputStream wr=null;		
-		
-		URL url = new URL (strMinisoftURL);
-		
-		HttpURLConnection connection =  (HttpURLConnection) url.openConnection();
-		
-		connection.setRequestMethod("POST");
-		byte[] bContent = inDocString.getBytes();	
-		connection.setRequestProperty("Content-Type", "application/xml;charset=utf-8");
-		connection.setRequestProperty("Content-Length", String.valueOf(bContent.length));
-		connection.setDefaultUseCaches(false);
-		connection.setDoOutput(true);		
-		
-		printLogs("Invoking the MiniSoft web service");
-		
-		wr = new DataOutputStream (connection.getOutputStream());
-		wr.write(bContent);
-		
-		printLogs("Invoked the MiniSoft web service");
-		
-		wr.flush();
-        wr.close();
-        
-        printLogs("Before reading ResponseMessage");
-        
-        String responseStatus = connection.getResponseMessage();
-        printLogs("responseStatus: "+responseStatus);
-        
-        BufferedReader in = new BufferedReader(new InputStreamReader(
-        		connection.getInputStream()));
-        printLogs("After reading InputStream");
-        String inputLine;
-        StringBuffer response = new StringBuffer();
-        while ((inputLine = in.readLine()) != null) {
-            response.append(inputLine);
-        }
-        in.close();
-        
-        printLogs("response: " + response.toString());
-        
-        String strResponse=response.toString();
-        
-        printLogs("strResponse: " + strResponse);
-		
-		Document responseDoc=null;		
-		
-		responseDoc=SCXmlUtil.createFromString(strResponse);	
-		
-		VSIUtils.invokeService(env, "VSISOMPrintXML_DB", docShipmentPackedXML);
-		
-		printLogs("MiniSoft Request is stored in DB");
-		
-		printLogs("MiniSoft Response will be stored in DB");
-		
-		VSIUtils.invokeService(env, "VSISOMPrintXML_DB", responseDoc);
-		
-		printLogs("MiniSoft Response is stored in DB");
-		
-		printLogs("Response from MiniSoft WebService: "+XMLUtil.getXMLString(responseDoc));
+		}catch (Exception e){
+			printLogs("Exception occurred in VSISFSPrintShipmentPackedXML.invokeMiniSoftWebService method");
+			printLogs("The exception xml is [ "+ e.getMessage() +" ]");
+			printLogs("Minisoft Down Email Triggering service will be Invoked");
+			try {
+				//OMS-2988 Changes -- Start
+				Document docEmailTrigger=XMLUtil.createDocument("Order");
+				Element eleEmailTrigger=docEmailTrigger.getDocumentElement();
+				eleEmailTrigger.setAttribute("StoreNo", strShipFromFacilityID);
+				//OMS-2988 Changes -- End
+				printLogs("Invoking VSIMinisoftDownEmailTrigger Service with input: "+SCXmlUtil.getString(docEmailTrigger));
+				VSIUtils.invokeService(env, "VSIMinisoftDownEmailTrigger", docEmailTrigger);
+				printLogs("VSIMinisoftDownEmailTrigger service was invoked successfully");
+			} catch (ParserConfigurationException e1) {			
+				printLogs("ParserConfigurationException thrown in VSISFSPrintShipmentPackedXML.invokeMiniSoftWebService method's catch block ");
+				printLogs("The exception xml is [ "+ e1.getMessage() +" ]");;
+			} catch (Exception e1) {	
+				printLogs("Exception thrown in VSISFSPrintShipmentPackedXML.invokeMiniSoftWebService method's catch block ");
+				printLogs("The exception xml is [ "+ e1.getMessage() +" ]");;
+			}
+		}
 		
 		printLogs("================Exiting invokeMiniSoftWebService Method================");
 		
-		return responseDoc;
+		return responseDoc;		
 	}
+	
+	//Changes for SFS Pack- 26Aug2020- Start
+	private Date formatToGeneralDateFormat(YFSEnvironment env, String inputDate) throws Exception {
+		// Input date will be passed to sterling in below format
+		DateFormat sdf_tz = new SimpleDateFormat(VSIConstants.DT_STR_TS_FORMAT);
+		DateFormat sdf = new SimpleDateFormat(VSIConstants.YYYY_MM_DD_T_HH_MM_SS);
+		Date parsedDate = null;
+
+		// If input date is passed use it else use the current time stamp
+		if (inputDate != null && !"".equals(inputDate)) {
+			try {
+				try {
+					parsedDate = sdf_tz.parse(inputDate);
+				} catch (ParseException pe) {
+					parsedDate = sdf.parse(inputDate);
+				}
+			} catch (ParseException pe) {
+				DateFormat sdf2 = new SimpleDateFormat(VSIConstants.YYYY_MM_DD); // time will become 00:00:00
+				parsedDate = sdf2.parse(inputDate);
+				String strTemp = sdf.format(parsedDate);
+				parsedDate = sdf.parse(strTemp);
+			}
+		} else {
+			Date date = new Date();
+			String strCurrDate = sdf.format(date);
+			parsedDate = sdf.parse(strCurrDate);
+		} // end if/else
+		return parsedDate;
+		
+	}
+	//Changes for SFS Pack- 26Aug2020- End
 
 	private void printLogs(String mesg) {
 		if(log.isDebugEnabled()){

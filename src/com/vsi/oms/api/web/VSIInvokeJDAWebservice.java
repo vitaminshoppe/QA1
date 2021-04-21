@@ -120,7 +120,7 @@ public class VSIInvokeJDAWebservice implements VSIConstants {
 				log.info("exceptionType =>  "+ exceptionType + "exceptionDescription => "+exceptionDescription+"queueId => "+queueId);
 				alertForJDASendReleaseFailure(env, itemId, orderNo, "", exceptionType, exceptionDescription, queueId);
 				VSIProcessRelease processReleaseObj = new VSIProcessRelease();
-				processReleaseObj.invokeChangeRelease(env, docReleasexml, "");
+				processReleaseObj.invokeChangeRelease(env, docReleasexml, "","");
 				log.info("Before throwing exception");
 				throw new YFSException(JDA_ALLOCATION_EXCEPTION_ERROR_CODE,JDA_ALLOCATION_EXCEPTION_ERROR_CODE,JDA_ALLOCATION_EXCEPTION_ERROR_MSG);
 			}
@@ -139,6 +139,7 @@ public class VSIInvokeJDAWebservice implements VSIConstants {
 			if(log.isDebugEnabled()){
 				log.info("ExtnTransferNo Updated Release Form"+SCXmlUtil.getString(docReleasexml));
 			}
+			log.info("ExtnTransferNo Updated Release Form => "+SCXmlUtil.getString(docReleasexml));
 		return docReleasexml;
 	}
 	
@@ -182,7 +183,7 @@ public class VSIInvokeJDAWebservice implements VSIConstants {
 	 * @throws SAXException
 	 * @throws IOException
 	 */
-	 		private  Document parseDoc(InputStream instream) throws ParserConfigurationException, SAXException, IOException{
+	 		public  Document parseDoc(InputStream instream) throws ParserConfigurationException, SAXException, IOException{
 		 	DocumentBuilderFactory factory =DocumentBuilderFactory.newInstance();
 			factory.isIgnoringElementContentWhitespace();
 			DocumentBuilder builder = factory.newDocumentBuilder();
@@ -287,9 +288,6 @@ public class VSIInvokeJDAWebservice implements VSIConstants {
 						 VSIUtils.invokeService(env, SERVICE_JDA_ALLOCATION_RESPONSE, responseDoc);
 						 transferNo=responseDoc.getElementsByTagName(ATTR_TRANSFER_NO).item(0).getTextContent().toString();
 						 log.info("transferNo in Success Response => " +transferNo+"sfsAllocation in success response => "+sfsAllocation);
-						 if(sfsAllocation && (transferNo.equalsIgnoreCase("")))
-							 transferNo="Nil";
-						 log.info("transferNo in SFS Success Response => " +transferNo);
 					}
 					else
 					{

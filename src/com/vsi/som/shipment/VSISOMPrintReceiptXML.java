@@ -10,8 +10,11 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.rmi.RemoteException;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.TimeZone;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -43,7 +46,7 @@ public class VSISOMPrintReceiptXML {
 		
 		printLogs("================Inside VSISOMPrintReceiptXML Class and printPickPackReceipt Method================");
 		printLogs("Printing Input XML :"+SCXmlUtil.getString(inXML));
-		
+		log.info("Printing Input XML :"+SCXmlUtil.getString(inXML));
 		try{
 			
 			Element eleShipment=inXML.getDocumentElement();			
@@ -52,8 +55,9 @@ public class VSISOMPrintReceiptXML {
 			Document docGetShipmentListIn=XMLUtil.createDocument(VSIConstants.ELE_SHIPMENT);
 			Element eleGetShipmentList = docGetShipmentListIn.getDocumentElement();
 			eleGetShipmentList.setAttribute(VSIConstants.ATTR_SHIPMENT_KEY, strShipmentKey);	
-			
+			log.info("Calling API:"+VSIConstants.API_GET_SHIPMENT_LIST);
 			Document docGetShipmentListOut = VSIUtils.invokeAPI(env,VSIConstants.SHIPMENT_LIST_PICK_PACK_TEMPLATE,VSIConstants.API_GET_SHIPMENT_LIST, docGetShipmentListIn);
+			log.info("Output from Get Shipment List"+SCXmlUtil.getString(docGetShipmentListOut));
 			Element eleGetShipmentListOut = (Element) docGetShipmentListOut.getElementsByTagName(VSIConstants.ELE_SHIPMENTS).item(0);			
 			
 			int intTotalNoOfShipment= Integer.parseInt(eleGetShipmentListOut.getAttribute(VSIConstants.ATTR_TOTAL_NUMBER_OF_RECORDS));
@@ -67,8 +71,36 @@ public class VSISOMPrintReceiptXML {
 			String lineType= null;
 			String delMethod=null;
 			//NewChanges-14Aug2020- END	
+			// Changes for User id : 21Aug2020- START
+			String userId= "";
 			if (intTotalNoOfShipment > 0) {
-				 eleShipmentOut= (Element) docGetShipmentListOut.getElementsByTagName(VSIConstants.ELE_SHIPMENT).item(0);
+				eleShipmentOut= (Element) docGetShipmentListOut.getElementsByTagName(VSIConstants.ELE_SHIPMENT).item(0);
+				Element ShipmentStatusAudits = SCXmlUtil.getChildElement(eleShipmentOut, "ShipmentStatusAudits");
+				int totalNoOfRecords= Integer.parseInt(ShipmentStatusAudits.getAttribute(VSIConstants.ATTR_TOTAL_NUMBER_OF_RECORDS));
+
+					if (totalNoOfRecords>0) {
+						NodeList nlShipmentStatusAudit= ShipmentStatusAudits.getElementsByTagName("ShipmentStatusAudit");
+							for (int i = 0; i < nlShipmentStatusAudit.getLength(); i++) {
+								Element ShipmentStatusAudit = (Element) nlShipmentStatusAudit.item(i);
+								if (ShipmentStatusAudit.getAttribute("NewStatus").equalsIgnoreCase("1100.70.06.30")) {
+									userId= ShipmentStatusAudit.getAttribute("Createuserid");
+									if(!userId.isEmpty()) {
+										break;
+									}
+								}
+								else if (ShipmentStatusAudit.getAttribute("NewStatus").equalsIgnoreCase("1100.70.06.50")) {
+									userId= ShipmentStatusAudit.getAttribute("Createuserid");
+									if(!userId.isEmpty()) {
+										break;
+									}
+								}
+								
+							}
+							
+							
+						}
+				// Changes for User id : 21Aug2020- END
+				 
 				 eleShpmntExtn=SCXmlUtil.getChildElement(eleShipmentOut, VSIConstants.ELE_EXTN);
 				//NewChanges-14Aug2020- START
 				 eleShipmntLines=SCXmlUtil.getChildElement(eleShipmentOut, VSIConstants.ELE_SHIPMENT_LINES);
@@ -90,7 +122,8 @@ public class VSISOMPrintReceiptXML {
 				return inXML;
 		}else{
 			//NewChanges-14Aug2020- START
-			if((strShipmentStatus.equalsIgnoreCase("1100.70.06.30") || strShipmentStatus.equalsIgnoreCase("1100.70.06.50")) && ( (delMethod.equalsIgnoreCase("PICK")) || (lineType.equalsIgnoreCase("PICK_IN_STORE")))) {
+			//Enabled PickPack for SHP orders also-28thAug2020
+			if((strShipmentStatus.equalsIgnoreCase("1100.70.06.30") || strShipmentStatus.equalsIgnoreCase("1100.70.06.50"))) {
 			//NewChanges-14Aug2020- END	
 				Document docPickPackXML=XMLUtil.createDocument("OrderData");
 				Element elePickPackXML=docPickPackXML.getDocumentElement();
@@ -108,12 +141,19 @@ public class VSISOMPrintReceiptXML {
 				String strStoreNo=eleSortedShpmntOut.getAttribute(VSIConstants.ATTR_SHIP_NODE);
 				String strStoreNumber=("0000" + strStoreNo).substring(strStoreNo.length());			
 				String strOrderNumber="";
-				String strCustPONo=eleSortedShpmntOut.getAttribute(VSIConstants.ATTR_SHIP_CUST_PO_NO);
-				if(!YFCCommon.isVoid(strCustPONo)){
-					strOrderNumber=strCustPONo;
-				}else{
-					strOrderNumber=eleSortedShpmntOut.getAttribute(VSIConstants.ATTR_ORDER_NO);
-				}
+				//OMS-3364 Changes -- Start
+				/*
+				 * String
+				 * strCustPONo=eleSortedShpmntOut.getAttribute(VSIConstants.ATTR_SHIP_CUST_PO_NO
+				 * );
+				 * 
+				 * if(!YFCCommon.isVoid(strCustPONo)){ strOrderNumber=strCustPONo; }else{
+				 */
+				//OMS-3364 Changes -- End
+				strOrderNumber=eleSortedShpmntOut.getAttribute(VSIConstants.ATTR_ORDER_NO);
+				//OMS-3364 Changes -- Start
+				//}
+				//OMS-3364 Changes -- End
 				Element eleFromAddr = SCXmlUtil.getChildElement(eleSortedShpmntOut, "FromAddress");
 				String strStoreAddressLine1=eleFromAddr.getAttribute(VSIConstants.ATTR_ADDRESS1);
 				String strStoreAddressLine2=eleFromAddr.getAttribute(VSIConstants.ATTR_ADDRESS2);
@@ -126,7 +166,17 @@ public class VSISOMPrintReceiptXML {
 				Element eleShipmentLine=SCXmlUtil.getChildElement(eleShipmentLines, VSIConstants.ELE_SHIPMENT_LINE);				
 				Element eleOrder=SCXmlUtil.getChildElement(eleShipmentLine, VSIConstants.ELE_ORDER);
 				
-				String strCustomerName=eleOrder.getAttribute(VSIConstants.ATTR_CUSTOMER_FIRST_NAME);
+				//Changes for OMS-2804- 07Sep2020- Start
+				if(YFCCommon.isVoid(strOrderNumber)){
+					strOrderNumber=eleOrder.getAttribute(VSIConstants.ATTR_ORDER_NO);
+				}
+				//Changes for OMS-2804- 07Sep2020- End
+				
+				//NewChanges-OMS-2798- START
+				String strCustomerFirstName=eleOrder.getAttribute(VSIConstants.ATTR_CUSTOMER_FIRST_NAME);
+				String strCustomerLastName=eleOrder.getAttribute(VSIConstants.ATTR_CUSTOMER_LAST_NAME);
+				String strCustomerName=strCustomerFirstName+" "+strCustomerLastName;
+				//NewChanges-OMS-2798- END
 				String strCustomerNumber=eleOrder.getAttribute(VSIConstants.ATTR_BILL_TO_ID);
 				
 				//NewChanges-14Aug2020- START		
@@ -140,10 +190,32 @@ public class VSISOMPrintReceiptXML {
 				String strCustomerPhoneNumber=eleBillTo.getAttribute(VSIConstants.ATTR_DAY_PHONE);
 				//NewChanges-14Aug2020- END
 				
+				//OMS-2766- START
+
+				if (strCustomerPhoneNumber.isEmpty()) {
+					strCustomerPhoneNumber= eleBillTo.getAttribute(VSIConstants.ATTR_EVENING_PHONE);
+				}
+				//OMS-2766- END
+				
 				String strEntryType=eleOrder.getAttribute(VSIConstants.ATTR_ENTRY_TYPE);			
 				Element elePaymentMethods=SCXmlUtil.getChildElement(eleOrder, VSIConstants.ELE_PAYMENT_METHODS);
 				Element eleOrderExtn=SCXmlUtil.getChildElement(eleOrder, VSIConstants.ELE_EXTN);
 				String strMembershipStatus=eleOrderExtn.getAttribute(VSIConstants.ATTR_CUSTOMER_TIER);
+				//OMS-2920 Changes -- Start
+				if(!YFCCommon.isVoid(strMembershipStatus)){
+					if("premium-gold".equals(strMembershipStatus)){
+						strMembershipStatus="Gold";
+					}else if("premium-silver".equals(strMembershipStatus)){
+						strMembershipStatus="Silver";
+					}else if("premium-bronze".equals(strMembershipStatus)){
+						strMembershipStatus="Bronze";
+					}else{
+						strMembershipStatus="N/A";
+					}
+				}else{
+					strMembershipStatus="N/A";
+				}
+				//OMS-2920 Changes -- End
 				String strPointsEarned=eleOrderExtn.getAttribute("ExtnPointsEarned");
 				String strTotalPointsEarned=eleOrderExtn.getAttribute("ExtnTotalPointsEarned");
 				String strOrderPoints="";
@@ -215,7 +287,10 @@ public class VSISOMPrintReceiptXML {
 					strTimeZone="US/Mountain";
 				}
 				
-				Calendar calendar = Calendar.getInstance(); 
+				//Changes for Order Date and Pick Date- 17th Aug 2020 - START
+				
+				
+				/*Calendar calendar = Calendar.getInstance(); 
 				
 				SimpleDateFormat sysDt = new SimpleDateFormat("dd MMM yyyy");
 		        sysDt.setTimeZone(TimeZone.getTimeZone(strTimeZone));
@@ -223,7 +298,49 @@ public class VSISOMPrintReceiptXML {
 		        
 		        SimpleDateFormat sysTm = new SimpleDateFormat("HH:mm:ss z");
 		        sysTm.setTimeZone(TimeZone.getTimeZone(strTimeZone));
-		        String sysTime = sysTm.format(calendar.getTime());
+		        String sysTime = sysTm.format(calendar.getTime()); */
+		        
+		        
+				Element eleShipmnt = null;
+				String strOrderDateOnly ="";
+				String strOrderTimeOnly ="";
+				String strStatusDateOnly ="";
+				String strStatusTimeOnly ="";
+				eleShipmnt= eleSortedShpmntOut;
+
+				String strOrderDate= eleOrder.getAttribute("OrderDate");	
+			  	String strStatusDate= eleShipmnt.getAttribute("StatusDate");
+			  	
+				if (strOrderDate != null) {
+				Date formattedOrderDate =formatToGeneralDateFormat(env, strOrderDate);			
+
+				SimpleDateFormat orderDateOnly = new SimpleDateFormat("MM/dd/yyyy");
+				orderDateOnly.setTimeZone(TimeZone.getTimeZone(strTimeZone));
+		        strOrderDateOnly = orderDateOnly.format(formattedOrderDate);
+		        
+		        SimpleDateFormat orderTimeOnly = new SimpleDateFormat("hh:mm:ss aa");
+		        orderTimeOnly.setTimeZone(TimeZone.getTimeZone(strTimeZone));
+		        strOrderTimeOnly = orderTimeOnly.format(formattedOrderDate);
+				}
+		    	
+		    	if (strStatusDate != null && eleShipmnt != null) {
+		    	Date formattedStatusDate =formatToGeneralDateFormat(env, strStatusDate);
+		        
+				SimpleDateFormat statusDateOnly = new SimpleDateFormat("MM/dd/yyyy");
+				statusDateOnly.setTimeZone(TimeZone.getTimeZone(strTimeZone));
+		        strStatusDateOnly = statusDateOnly.format(formattedStatusDate);
+		        
+		        SimpleDateFormat statusTimeOnly = new SimpleDateFormat("hh:mm:ss aa");
+		        statusTimeOnly.setTimeZone(TimeZone.getTimeZone(strTimeZone));
+		        strStatusTimeOnly = statusTimeOnly.format(formattedStatusDate);
+		    	}
+
+				log.info("PICK PACK Order Date  is "+strOrderDateOnly);
+				log.info("PICK PACK Order Time is "+strOrderTimeOnly);				
+				log.info("PICK PACK Pick Date  is "+strStatusDateOnly);
+				log.info("PICK PACK Pick Time is "+strStatusTimeOnly);
+				
+			    //Changes for Order Date and Pick Date- 17th Aug 2020- END
 		        
 		        Element elePayments=SCXmlUtil.createChild(elePickPackXML, "Payments");
 				NodeList nlPaymentMethod=elePaymentMethods.getElementsByTagName(VSIConstants.ELE_PAYMENT_METHOD);
@@ -234,9 +351,13 @@ public class VSISOMPrintReceiptXML {
 					String strPaymentMethod="";
 					String strPaymentDetail="";
 					String strPaymentAmount="";
+					String strCCMask="XXXXXXXXXXXX";
 					if(VSIConstants.PAYMENT_MODE_CC.equals(strPaymentType)){
 						strPaymentMethod=elePaymentMethod.getAttribute(VSIConstants.ATTR_CREDIT_CARD_TYPE);
 						strPaymentDetail=elePaymentMethod.getAttribute("CreditCardNo");
+						if (strPaymentDetail!="") {
+							strPaymentDetail=strCCMask.concat(strPaymentDetail.substring(strPaymentDetail.length()-4));
+							}
 						//NewChanges-14Aug2020- START
 						//strPaymentAmount=elePaymentMethod.getAttribute("RequestedChargeAmount");
 						//strPaymentDetail=strPaymentDetail.substring(strPaymentDetail.length()-4);
@@ -262,8 +383,16 @@ public class VSISOMPrintReceiptXML {
 				putElementValue(elePickPackXML,"OrderPoints", strOrderPoints);
 				putElementValue(elePickPackXML,"CurrentBalance", strCurrentBalance);
 				putElementValue(elePickPackXML,"TranNumber", "");
-				putElementValue(elePickPackXML,"Date", sysDate);
-				putElementValue(elePickPackXML,"Time", sysTime);
+
+				//Changes for Order Date and Pick Date- 17th Aug 2020 - START
+				//putElementValue(elePickPackXML,"Date", sysDate);
+				//putElementValue(elePickPackXML,"Time", sysTime);
+				putElementValue(elePickPackXML,"OrderDate", strOrderDateOnly);
+				putElementValue(elePickPackXML,"OrderTime", strOrderTimeOnly);
+				putElementValue(elePickPackXML,"PickDate", strStatusDateOnly);
+				putElementValue(elePickPackXML,"PickTime", strStatusTimeOnly);
+				 //Changes for Order Date and Pick Date- 17th Aug 2020 - END
+				
 				//putElementValue(elePickPackXML,"Associate", "");
 				putElementValue(elePickPackXML,"FooterMessage", strFooterMessage);
 							
@@ -283,8 +412,12 @@ public class VSISOMPrintReceiptXML {
 					eleOrderLineOut.setAttribute("LineNumber", strLineNumber);				
 					putElementValue(eleOrderLineOut,"ItemID", strItemID);								
 					Element eleShpmntOrdLn=SCXmlUtil.getChildElement(eleShpmntLn, VSIConstants.ELE_ORDER_LINE);
-					String strQuantityOrdered=eleShpmntOrdLn.getAttribute(VSIConstants.ATTR_ORIGINAL_ORDERED_QTY);
-					String strQuantityPU=eleShpmntOrdLn.getAttribute(VSIConstants.ATTR_ORD_QTY);
+					//Changes for OMS-2804 -Start
+					//String strQuantityOrdered=eleShpmntOrdLn.getAttribute(VSIConstants.ATTR_ORIGINAL_ORDERED_QTY);
+					//String strQuantityPU=eleShpmntOrdLn.getAttribute(VSIConstants.ATTR_ORD_QTY);
+					String strQuantityOrdered=eleShpmntLn.getAttribute("OriginalQuantity");
+					String strQuantityPU=eleShpmntLn.getAttribute(VSIConstants.ATTR_QUANTITY);
+					//Changes for OMS-2804 -End
 					Element eleItemDtls=SCXmlUtil.getChildElement(eleShpmntOrdLn, VSIConstants.ELE_ITEM_DETAILS);
 					Element eleItemAliasList=SCXmlUtil.getChildElement(eleItemDtls, VSIConstants.ELE_ITEM_ALIAS_LIST);
 					NodeList nlItemAlias=eleItemAliasList.getElementsByTagName(VSIConstants.ELE_ITEM_ALIAS);
@@ -320,7 +453,9 @@ public class VSISOMPrintReceiptXML {
 					dTotal=dTotal+dLnTtl;
 					
 					//NewChanges-14Aug2020- START
-					//Element eleLnDiscounts=SCXmlUtil.createChild(eleOrderLineOut, "LineDiscounts");
+					//NewChange-OMS2795-03Sep2020 - START
+					Element eleLnDiscounts=SCXmlUtil.createChild(eleOrderLineOut, "Discounts");
+					//NewChange-OMS2795-03Sep2020 - END
 					//NewChanges-14Aug2020- END
 					Element eleOrdLnChrgs=SCXmlUtil.getChildElement(eleShpmntOrdLn, VSIConstants.ELE_LINE_CHARGES);
 					NodeList nlOrdLnChrg=eleOrdLnChrgs.getElementsByTagName(VSIConstants.ELE_LINE_CHARGE);
@@ -328,29 +463,63 @@ public class VSISOMPrintReceiptXML {
 						
 						Element eleOrdLnChrg = (Element) nlOrdLnChrg.item(j);
 						//NewChanges-14Aug2020- START
-						//Element eleLnDiscount=SCXmlUtil.createChild(eleLnDiscounts, "LineDiscount");
+						//NewChange-OMS2795-03Sep2020 - START
+						Element eleLnDiscount=SCXmlUtil.createChild(eleLnDiscounts, "LineDiscount");
+						//NewChange-OMS2795-03Sep2020 - END
 						//NewChanges-14Aug2020- END
-						String strChargeName=eleOrdLnChrg.getAttribute(VSIConstants.ATTR_CHARGE_NAME);
+						// changes for Tax Percentage: 21Aug2020- START
+						String strChargeName="";
+					    strChargeName=eleOrdLnChrg.getAttribute(VSIConstants.ATTR_CHARGE_NAME);
+
+						if (strChargeName!="" && strChargeName!= null) {							
+							int x= strChargeName.lastIndexOf('-');
+							strChargeName = strChargeName.substring(x+1);
+							
+							/*	int x = strChargeName.lastIndexOf('-');
+								String first= strChargeName.substring(0,x);
+								int y = first.lastIndexOf('-');
+								strChargeName = strChargeName.substring(y+1);	
+								 
+							 */
+						}
+							
+						// changes for Tax Percentage: 21Aug2020- END
 						String strChargeAmount=eleOrdLnChrg.getAttribute(VSIConstants.ATTR_CHARGE_AMOUNT);
 						//NewChanges-14Aug2020- START
-						putElementValue(eleOrderLineOut,"LineDiscountDescription", strChargeName);
-						putElementValue(eleOrderLineOut,"LineDiscountAmount", strChargeAmount);
+						//NewChange-OMS2795-03Sep2020 - START
+						putElementValue(eleLnDiscount,"LineDiscountDescription", strChargeName);
+						putElementValue(eleLnDiscount,"LineDiscountAmount", strChargeAmount);
+						//NewChange-OMS2795-03Sep2020 - END
 						//NewChanges-14Aug2020- END
 						double dChargeAmount=Double.parseDouble(strChargeAmount);
 						dTotalChargeAmount=dTotalChargeAmount+dChargeAmount;
 					}
 					//NewChanges-14Aug2020- START
+					//Changes for Line Tax Rate: 25Aug2020- Start
+					Element eleOrdrLnTaxes=SCXmlUtil.getChildElement(eleShpmntOrdLn, VSIConstants.ELE_LINE_TAXES);
+					Element eleOrdrLnTax=SCXmlUtil.getChildElement(eleOrdrLnTaxes, VSIConstants.ELE_LINE_TAX);	
+					//Changes for Line Tax Rate: 25Aug2020- End
 					Element eleOrderLineOverAllTotals=SCXmlUtil.getChildElement(eleShpmntOrdLn, VSIConstants.ELE_LINE_OVERALL_TOTALS);
-					String LineTax = "";
-					String LinesTaxRate="";
+					String LineTax = "0";
+					String LinesTaxRate="0";
 
 					if (eleOrderLineOverAllTotals != null) {
 						LineTax= eleOrderLineOverAllTotals.getAttribute(VSIConstants.ATTR_TAX);
 							
 					}					
-					if (eleOrdLnTax != null) {
-						LinesTaxRate = eleOrdLnTax.getAttribute("TaxPercentage");	
+					//Changes for Line Tax Rate: 25Aug2020- Start
+					if (eleOrdrLnTax != null) {
+						LinesTaxRate = eleOrdrLnTax.getAttribute("TaxPercentage");	
 					}
+					
+					//Changes for Line Tax Rate: 25Aug2020- End
+					// changes for Tax Percentage: 21Aug2020- START
+					double dLineTax= Double.parseDouble(LineTax);			
+					
+					if (dLineTax==0) {
+						LinesTaxRate="0.0";
+					}					
+					// changes for Tax Percentage: 21Aug2020- END
 					putElementValue(eleOrderLineOut,"LineTax", LineTax);
 					putElementValue(eleOrderLineOut,"LinesTaxRate", LinesTaxRate);
 					putElementValue(eleOrderLineOut,"LineTotal", strLnTtlWOTax);
@@ -365,19 +534,25 @@ public class VSISOMPrintReceiptXML {
 				
 				putElementValue(elePickPackXML,"YouSaved", strYouSaved);
 				putElementValue(elePickPackXML,"Subtotal", strSubtotal);
+				// changes for Tax Percentage: 21Aug2020- START
+				if (dSalesTaxAmnt==0) {
+					strTaxPercentage="0.0";
+				}
 				putElementValue(elePickPackXML,"SalesTaxRate", strTaxPercentage);
+				// changes for Tax Percentage: 21Aug2020- START
 				putElementValue(elePickPackXML,"SalesTaxAmount", strSalesTaxAmount);
 				putElementValue(elePickPackXML,"Total", strTotal);
 				//NewChanges-14Aug2020- START
-				String strAssociate= env.getUserId();
-				log.info("env.getUserId()"+env.getUserId()+" env.getProgId() "+env.getProgId()+" env.getTokenID() "+env.getTokenID());
-				putElementValue(elePickPackXML,"Associate", strAssociate);
+				// Changes for User id : 21Aug2020- START
+				putElementValue(elePickPackXML,"Associate", userId);
+				// Changes for User id : 21Aug2020- END
 				//NewChanges-14Aug2020- END
+				
 				
 				printLogs("Printing PickPack XML :"+SCXmlUtil.getString(docPickPackXML));		
 				log.info("Printing PickPack XML :"+SCXmlUtil.getString(docPickPackXML));
 							
-				invokeMiniSoftWebService(env,docPickPackXML);
+				invokeMiniSoftWebService(env,docPickPackXML,strStoreNo);  //OMS-2988 Changes
 				
 				updateShipmentFlag(env, strShipmentKey, "ExtnPickPackFlag");
 				
@@ -397,6 +572,35 @@ public class VSISOMPrintReceiptXML {
 			throw new YFSException();
 		}		
 	}
+	
+	private Date formatToGeneralDateFormat(YFSEnvironment env, String inputDate) throws Exception {
+		// Input date will be passed to sterling in below format
+		DateFormat sdf_tz = new SimpleDateFormat(VSIConstants.DT_STR_TS_FORMAT);
+		DateFormat sdf = new SimpleDateFormat(VSIConstants.YYYY_MM_DD_T_HH_MM_SS);
+		Date parsedDate = null;
+
+		// If input date is passed use it else use the current time stamp
+		if (inputDate != null && !"".equals(inputDate)) {
+			try {
+				try {
+					parsedDate = sdf_tz.parse(inputDate);
+				} catch (ParseException pe) {
+					parsedDate = sdf.parse(inputDate);
+				}
+			} catch (ParseException pe) {
+				DateFormat sdf2 = new SimpleDateFormat(VSIConstants.YYYY_MM_DD); // time will become 00:00:00
+				parsedDate = sdf2.parse(inputDate);
+				String strTemp = sdf.format(parsedDate);
+				parsedDate = sdf.parse(strTemp);
+			}
+		} else {
+			Date date = new Date();
+			String strCurrDate = sdf.format(date);
+			parsedDate = sdf.parse(strCurrDate);
+		} // end if/else
+		return parsedDate;
+		
+	}
 
 	private void updateShipmentFlag(YFSEnvironment env, String strShipmentKey, String strAttribute)
 			throws ParserConfigurationException, YIFClientCreationException,
@@ -414,79 +618,102 @@ public class VSISOMPrintReceiptXML {
 		printLogs("changeShipment api was invoked Successfully");
 	}
 
-	private void invokeMiniSoftWebService(YFSEnvironment env, Document docInXML)
-			throws Exception {
+	private void invokeMiniSoftWebService(YFSEnvironment env, Document docInXML, String strStoreNo){    //OMS-2988 Changes
 		
 		printLogs("================Inside invokeMiniSoftWebService Method================");
 		
-		String strMinisoftURL=YFSSystem.getProperty("MINISOFT_BOPUS_WEBSERVICE_URL");
+		try{
 		
-		printLogs("URL obtained from COP file: "+strMinisoftURL);		
-		
-		String inDocString=XMLUtil.getXMLString(docInXML);
-		printLogs("inDocString: "+inDocString);
-		
-		DataOutputStream wr=null;
-		
-		URL url = new URL (strMinisoftURL);
-		
-		HttpURLConnection connection =  (HttpURLConnection) url.openConnection();
-		
-		connection.setRequestMethod("POST");
-		byte[] bContent = inDocString.getBytes();
-		connection.setRequestProperty("Content-Type", "application/xml;charset=utf-8");
-		connection.setRequestProperty("Content-Length", String.valueOf(bContent.length));
-		connection.setDefaultUseCaches(false);
-		connection.setDoOutput(true);		
-		
-		printLogs("Invoking the MiniSoft web service");
-		
-		wr = new DataOutputStream (connection.getOutputStream());
-		wr.write(bContent);
-		
-		printLogs("Invoked the MiniSoft web service");	
-		
-		wr.flush();
-        wr.close();
-        
-        printLogs("Before reading ResponseMessage");
-        
-        String responseStatus = connection.getResponseMessage();
-        printLogs("responseStatus: "+responseStatus);
-        
-        BufferedReader in = new BufferedReader(new InputStreamReader(
-        		connection.getInputStream()));
-        printLogs("After reading InputStream");
-        String inputLine;
-        StringBuffer response = new StringBuffer();
-        while ((inputLine = in.readLine()) != null) {
-            response.append(inputLine);
-        }
-        in.close();
-        
-        printLogs("response: " + response.toString());
-        
-        String strResponse=response.toString();
-        
-        printLogs("strResponse: " + strResponse);
-		
-		Document responseDoc=null;		
-		
-		responseDoc=SCXmlUtil.createFromString(strResponse);				
-		
-		printLogs("Response from MiniSoft WebService: "+XMLUtil.getXMLString(responseDoc));
-		
-		printLogs("MiniSoft Request will be stored in DB");
-		
-		VSIUtils.invokeService(env, "VSISOMPrintXML_DB", docInXML);
-		
-		printLogs("MiniSoft Request is stored in DB");
-		
-		printLogs("MiniSoft Response will be stored in DB");
-		
-		VSIUtils.invokeService(env, "VSISOMPrintXML_DB", responseDoc);
-		
-		printLogs("MiniSoft Response is stored in DB");
+			String strMinisoftURL=YFSSystem.getProperty("MINISOFT_BOPUS_WEBSERVICE_URL");
+			
+			printLogs("URL obtained from COP file: "+strMinisoftURL);		
+			
+			String inDocString=XMLUtil.getXMLString(docInXML);
+			printLogs("inDocString: "+inDocString);
+			
+			DataOutputStream wr=null;
+			
+			URL url = new URL (strMinisoftURL);
+			
+			HttpURLConnection connection =  (HttpURLConnection) url.openConnection();
+			
+			connection.setRequestMethod("POST");
+			byte[] bContent = inDocString.getBytes();
+			connection.setRequestProperty("Content-Type", "application/xml;charset=utf-8");
+			connection.setRequestProperty("Content-Length", String.valueOf(bContent.length));
+			connection.setDefaultUseCaches(false);
+			connection.setDoOutput(true);		
+			
+			printLogs("Invoking the MiniSoft web service");
+			
+			wr = new DataOutputStream (connection.getOutputStream());
+			wr.write(bContent);
+			
+			printLogs("Invoked the MiniSoft web service");	
+			
+			wr.flush();
+	        wr.close();
+	        
+	        printLogs("Before reading ResponseMessage");
+	        
+	        String responseStatus = connection.getResponseMessage();
+	        printLogs("responseStatus: "+responseStatus);
+	        
+	        BufferedReader in = new BufferedReader(new InputStreamReader(
+	        		connection.getInputStream()));
+	        printLogs("After reading InputStream");
+	        String inputLine;
+	        StringBuffer response = new StringBuffer();
+	        while ((inputLine = in.readLine()) != null) {
+	            response.append(inputLine);
+	        }
+	        in.close();
+	        
+	        printLogs("response: " + response.toString());
+	        
+	        String strResponse=response.toString();
+	        
+	        printLogs("strResponse: " + strResponse);
+			
+			Document responseDoc=null;		
+			
+			responseDoc=SCXmlUtil.createFromString(strResponse);				
+			
+			printLogs("Response from MiniSoft WebService: "+XMLUtil.getXMLString(responseDoc));
+			
+			printLogs("MiniSoft Request will be stored in DB");
+			
+			VSIUtils.invokeService(env, "VSISOMPrintXML_DB", docInXML);
+			
+			printLogs("MiniSoft Request is stored in DB");
+			
+			printLogs("MiniSoft Response will be stored in DB");
+			
+			VSIUtils.invokeService(env, "VSISOMPrintXML_DB", responseDoc);
+			
+			printLogs("MiniSoft Response is stored in DB");
+			
+		}catch (Exception e){
+			printLogs("Exception occurred in VSISOMPrintReceiptXML.invokeMiniSoftWebService method");
+			printLogs("The exception xml is [ "+ e.getMessage() +" ]");
+			printLogs("Minisoft Down Email Triggering service will be Invoked");
+			try {
+				//OMS-2988 Changes -- Start
+				Document docEmailTrigger=XMLUtil.createDocument("Order");
+				Element eleEmailTrigger=docEmailTrigger.getDocumentElement();
+				eleEmailTrigger.setAttribute("StoreNo", strStoreNo);
+				//OMS-2988 Changes -- End
+				printLogs("Invoking VSIMinisoftDownEmailTrigger Service with input: "+SCXmlUtil.getString(docEmailTrigger));
+				VSIUtils.invokeService(env, "VSIMinisoftDownEmailTrigger", docEmailTrigger);
+				printLogs("VSIMinisoftDownEmailTrigger service was invoked successfully");
+			} catch (ParserConfigurationException e1) {			
+				printLogs("ParserConfigurationException thrown in VSISOMPrintReceiptXML.invokeMiniSoftWebService method's catch block ");
+				printLogs("The exception xml is [ "+ e1.getMessage() +" ]");;
+			} catch (Exception e1) {	
+				printLogs("Exception thrown in VSISOMPrintReceiptXML.invokeMiniSoftWebService method's catch block ");
+				printLogs("The exception xml is [ "+ e1.getMessage() +" ]");;
+			}
+		}
 		
 		printLogs("================Exiting invokeMiniSoftWebService Method================");
 	}
@@ -495,6 +722,7 @@ public class VSISOMPrintReceiptXML {
 		
 		printLogs("================Inside VSISOMPrintReceiptXML Class and printCustomerReceipt Method================");
 		printLogs("Printing Input XML :"+SCXmlUtil.getString(inXML));
+		log.info("Printing Input XML :"+SCXmlUtil.getString(inXML));
 		
 		try{
 			
@@ -516,8 +744,27 @@ public class VSISOMPrintReceiptXML {
 			Element eleShipmentOut=null;
 			Element eleShpmntExtn= null;
 			String strShipmentStatus = null;
+			// Changes for User id : 21Aug2020- START
+			String userId= "";
 			if (intTotalNoOfShipment > 0) {
-				 eleShipmentOut= (Element) docGetShipmentListOut.getElementsByTagName(VSIConstants.ELE_SHIPMENT).item(0);
+				eleShipmentOut= (Element) docGetShipmentListOut.getElementsByTagName(VSIConstants.ELE_SHIPMENT).item(0);
+				Element ShipmentStatusAudits = SCXmlUtil.getChildElement(eleShipmentOut, "ShipmentStatusAudits");
+				int totalNoOfRecords= Integer.parseInt(ShipmentStatusAudits.getAttribute(VSIConstants.ATTR_TOTAL_NUMBER_OF_RECORDS));
+
+					if (totalNoOfRecords>0) {
+						NodeList nlShipmentStatusAudit= ShipmentStatusAudits.getElementsByTagName("ShipmentStatusAudit");
+							for (int i = 0; i < nlShipmentStatusAudit.getLength(); i++) {
+								Element ShipmentStatusAudit = (Element) nlShipmentStatusAudit.item(i);
+								if (ShipmentStatusAudit.getAttribute("NewStatus").equalsIgnoreCase("1400")) {
+									userId= ShipmentStatusAudit.getAttribute("Createuserid");
+									break;
+								}
+								
+							}
+
+						}
+			// Changes for User id : 21Aug2020- END
+				
 				 eleShpmntExtn=SCXmlUtil.getChildElement(eleShipmentOut, VSIConstants.ELE_EXTN);
 				 
 				 if(!YFCCommon.isVoid(eleShpmntExtn)){
@@ -527,7 +774,7 @@ public class VSISOMPrintReceiptXML {
 			}
 			
 			log.info("Printing Customer Receipt Flag"+strCustRcptFlag);
-			log.info("Shipment Status for Customer Receipt"+strCustRcptFlag);
+			log.info("Shipment Status for Customer Receipt "+strShipmentStatus);
 			
 			if(VSIConstants.FLAG_Y.equals(strCustRcptFlag)){
 				printLogs("CustomerReceipt Process has already been completed for this Shipment");
@@ -554,6 +801,15 @@ public class VSISOMPrintReceiptXML {
 				String strStoreNo=eleSortedShpmntOut.getAttribute(VSIConstants.ATTR_SHIP_NODE);
 				String strStoreNumber=("0000" + strStoreNo).substring(strStoreNo.length());			
 				String strOrderNumber=eleSortedShpmntOut.getAttribute(VSIConstants.ATTR_SHIP_CUST_PO_NO);
+				//Changes to add transactionNo -01102020: start
+				
+				Element eleExtn = SCXmlUtil.getChildElement(eleSortedShpmntOut, "Extn");
+				String strTranscationNo="";
+				
+				if(eleExtn!=null) {
+					strTranscationNo= eleExtn.getAttribute("ExtnTransactionNo");
+				}
+				//Changes to add transactionNo -01102020: end
 				Element eleFromAddr = SCXmlUtil.getChildElement(eleSortedShpmntOut, "FromAddress");
 				String strStoreAddressLine1=eleFromAddr.getAttribute(VSIConstants.ATTR_ADDRESS1);
 				String strStoreAddressLine2=eleFromAddr.getAttribute(VSIConstants.ATTR_ADDRESS2);
@@ -567,7 +823,11 @@ public class VSISOMPrintReceiptXML {
 				Element eleShipmentLine=SCXmlUtil.getChildElement(eleShipmentLines, VSIConstants.ELE_SHIPMENT_LINE);
 				
 				Element eleOrder=SCXmlUtil.getChildElement(eleShipmentLine, VSIConstants.ELE_ORDER);
-				String strCustomerName=eleOrder.getAttribute(VSIConstants.ATTR_CUSTOMER_FIRST_NAME);
+				//NewChanges-OMS-2798- START
+				String strCustomerFirstName=eleOrder.getAttribute(VSIConstants.ATTR_CUSTOMER_FIRST_NAME);
+				String strCustomerLastName=eleOrder.getAttribute(VSIConstants.ATTR_CUSTOMER_LAST_NAME);
+				String strCustomerName=strCustomerFirstName+" "+strCustomerLastName;
+				//NewChanges-OMS-2798- END
 				String strCustomerNumber=eleOrder.getAttribute(VSIConstants.ATTR_BILL_TO_ID);
 				//NewChanges-14Aug2020- START		
 				Element eleBillTo = SCXmlUtil.getChildElement(eleSortedShpmntOut, VSIConstants.ELE_BILL_TO_ADDRESS);
@@ -579,10 +839,32 @@ public class VSISOMPrintReceiptXML {
 				String strCustomerZipCode=eleBillTo.getAttribute(VSIConstants.ATTR_ZIPCODE);
 				String strCustomerPhoneNumber=eleBillTo.getAttribute(VSIConstants.ATTR_DAY_PHONE);
 				//NewChanges-14Aug2020- END
+				
+				//OMS-2766- START
+
+				if (strCustomerPhoneNumber.isEmpty()) {
+					strCustomerPhoneNumber= eleBillTo.getAttribute(VSIConstants.ATTR_EVENING_PHONE);
+				}
+				//OMS-2766- END
 				String strEntryType=eleOrder.getAttribute(VSIConstants.ATTR_ENTRY_TYPE);			
 				Element elePaymentMethods=SCXmlUtil.getChildElement(eleOrder, VSIConstants.ELE_PAYMENT_METHODS);
 				Element eleOrderExtn=SCXmlUtil.getChildElement(eleOrder, VSIConstants.ELE_EXTN);
 				String strMembershipStatus=eleOrderExtn.getAttribute(VSIConstants.ATTR_CUSTOMER_TIER);
+				//OMS-2920 Changes -- Start
+				if(!YFCCommon.isVoid(strMembershipStatus)){
+					if("premium-gold".equals(strMembershipStatus)){
+						strMembershipStatus="Gold";
+					}else if("premium-silver".equals(strMembershipStatus)){
+						strMembershipStatus="Silver";
+					}else if("premium-bronze".equals(strMembershipStatus)){
+						strMembershipStatus="Bronze";
+					}else{
+						strMembershipStatus="N/A";
+					}
+				}else{
+					strMembershipStatus="N/A";
+				}
+				//OMS-2920 Changes -- End
 				String strPointsEarned=eleOrderExtn.getAttribute("ExtnPointsEarned");
 				String strTotalPointsEarned=eleOrderExtn.getAttribute("ExtnTotalPointsEarned");
 				String strOrderPoints="";
@@ -616,6 +898,11 @@ public class VSISOMPrintReceiptXML {
 				String strFooterMessage = getCommonCodeValues(env,"SOM_FOOTER_MESSAGE","FOOTERMESSAGE");
 				
 				putElementValue(eleCustomerReceiptXML,"StoreNumber", strStoreNumber);
+				//Changes to add transactionNo -01102020: start
+				if(!strTranscationNo.isEmpty()) {
+				putElementValue(eleCustomerReceiptXML,"TransactionNo", strTranscationNo);
+				}
+				//Changes to add transactionNo -01102020: end
 				putElementValue(eleCustomerReceiptXML,"StoreAddressLine1", strStoreAddressLine1);
 				putElementValue(eleCustomerReceiptXML,"StoreAddressLine2", strStoreAddressLine2);
 				putElementValue(eleCustomerReceiptXML,"StoreCity", strStoreCity);
@@ -634,8 +921,6 @@ public class VSISOMPrintReceiptXML {
 				putElementValue(eleCustomerReceiptXML,"CustomerNumber", strCustomerNumber);
 				putElementValue(eleCustomerReceiptXML,"CustomerPhoneNumber", strCustomerPhoneNumber);
 				//NewChanges-14Aug2020- END
-				putElementValue(eleCustomerReceiptXML,"CustomerName", strCustomerName);
-				putElementValue(eleCustomerReceiptXML,"CustomerNumber", strCustomerNumber);
 				putElementValue(eleCustomerReceiptXML,"OrderNumber", strOrderNumber);
 				
 				Element eleShipNode = SCXmlUtil.getChildElement(eleSortedShpmntOut, VSIConstants.ELE_SHIP_NODE);
@@ -655,15 +940,57 @@ public class VSISOMPrintReceiptXML {
 					strTimeZone="US/Mountain";
 				}
 				
-				Calendar calendar = Calendar.getInstance(); 
+		        //Changes for Order Date and Pick Date- 17th Aug 2020 - START
 				
+				
+				/*Calendar calendar = Calendar.getInstance(); 				
 				SimpleDateFormat sysDt = new SimpleDateFormat("dd MMM yyyy");
 		        sysDt.setTimeZone(TimeZone.getTimeZone(strTimeZone));
-		        String sysDate = sysDt.format(calendar.getTime());
-		        
+		        String sysDate = sysDt.format(calendar.getTime());		        
 		        SimpleDateFormat sysTm = new SimpleDateFormat("HH:mm:ss z");
 		        sysTm.setTimeZone(TimeZone.getTimeZone(strTimeZone));
-		        String sysTime = sysTm.format(calendar.getTime());
+		        String sysTime = sysTm.format(calendar.getTime()); */
+		        
+		        
+				Element eleShipmnt = null;
+				String strOrderDateOnly ="";
+				String strOrderTimeOnly ="";
+				String strStatusDateOnly ="";
+				String strStatusTimeOnly ="";
+				eleShipmnt= eleSortedShpmntOut;
+
+				String strOrderDate= eleOrder.getAttribute("OrderDate");	
+			  	String strStatusDate= eleShipmnt.getAttribute("StatusDate");
+			  	
+				if (strOrderDate != null) {
+				Date formattedOrderDate =formatToGeneralDateFormat(env, strOrderDate);			
+
+				SimpleDateFormat orderDateOnly = new SimpleDateFormat("MM/dd/yyyy");
+				orderDateOnly.setTimeZone(TimeZone.getTimeZone(strTimeZone));
+		        strOrderDateOnly = orderDateOnly.format(formattedOrderDate);
+		        
+		        SimpleDateFormat orderTimeOnly = new SimpleDateFormat("hh:mm:ss aa");
+		        orderTimeOnly.setTimeZone(TimeZone.getTimeZone(strTimeZone));
+		        strOrderTimeOnly = orderTimeOnly.format(formattedOrderDate);
+				}
+		    	
+		    	if (strStatusDate != null && eleShipmnt != null) {
+		    	Date formattedStatusDate =formatToGeneralDateFormat(env, strStatusDate);
+		        
+				SimpleDateFormat statusDateOnly = new SimpleDateFormat("MM/dd/yyyy");
+				statusDateOnly.setTimeZone(TimeZone.getTimeZone(strTimeZone));
+		        strStatusDateOnly = statusDateOnly.format(formattedStatusDate);
+		        
+		        SimpleDateFormat statusTimeOnly = new SimpleDateFormat("hh:mm:ss aa");
+		        statusTimeOnly.setTimeZone(TimeZone.getTimeZone(strTimeZone));
+		        strStatusTimeOnly = statusTimeOnly.format(formattedStatusDate);
+		    	}
+				log.info("Order Date  is "+strOrderDateOnly);
+				log.info("Order Time is "+strOrderTimeOnly);			
+				log.info("Pick Date  is "+strStatusDateOnly);
+				log.info("Pick Time is "+strStatusTimeOnly);
+				
+			    //Changes for Order Date and Pick Date- 17th Aug 2020- END
 		        
 		        Element elePayments=SCXmlUtil.createChild(eleCustomerReceiptXML, "Payments");
 				NodeList nlPaymentMethod=elePaymentMethods.getElementsByTagName(VSIConstants.ELE_PAYMENT_METHOD);
@@ -674,9 +1001,13 @@ public class VSISOMPrintReceiptXML {
 					String strPaymentMethod="";
 					String strPaymentDetail="";
 					String strPaymentAmount="";
+					String strCCMask="XXXXXXXXXXXX";
 					if(VSIConstants.PAYMENT_MODE_CC.equals(strPaymentType)){
 						strPaymentMethod=elePaymentMethod.getAttribute(VSIConstants.ATTR_CREDIT_CARD_TYPE);
 						strPaymentDetail=elePaymentMethod.getAttribute("CreditCardNo");
+						if (strPaymentDetail!="") {
+							strPaymentDetail=strCCMask.concat(strPaymentDetail.substring(strPaymentDetail.length()-4));
+							}
 						//NewChanges-14Aug2020- START
 						//strPaymentAmount=elePaymentMethod.getAttribute("RequestedChargeAmount");
 						//strPaymentDetail=strPaymentDetail.substring(strPaymentDetail.length()-4);
@@ -702,8 +1033,14 @@ public class VSISOMPrintReceiptXML {
 				putElementValue(eleCustomerReceiptXML,"OrderPoints", strOrderPoints);
 				putElementValue(eleCustomerReceiptXML,"CurrentBalance", strCurrentBalance);
 				putElementValue(eleCustomerReceiptXML,"TranNumber", "");
-				putElementValue(eleCustomerReceiptXML,"Date", sysDate);
-				putElementValue(eleCustomerReceiptXML,"Time", sysTime);
+				 //Changes for Order Date and Pick Date- 17th Aug 2020 - START
+				//putElementValue(elePickPackXML,"Date", sysDate);
+				//putElementValue(elePickPackXML,"Time", sysTime);
+				putElementValue(eleCustomerReceiptXML,"OrderDate", strOrderDateOnly);
+				putElementValue(eleCustomerReceiptXML,"OrderTime", strOrderTimeOnly);
+				putElementValue(eleCustomerReceiptXML,"PickDate", strStatusDateOnly);
+				putElementValue(eleCustomerReceiptXML,"PickTime", strStatusTimeOnly);
+				 //Changes for Order Date and Pick Date- 17th Aug 2020 - END
 				//putElementValue(eleCustomerReceiptXML,"Associate", "");
 				putElementValue(eleCustomerReceiptXML,"FooterMessage", strFooterMessage);
 							
@@ -723,8 +1060,12 @@ public class VSISOMPrintReceiptXML {
 					eleOrderLineOut.setAttribute("LineNumber", strLineNumber);				
 					putElementValue(eleOrderLineOut,"ItemID", strItemID);								
 					Element eleShpmntOrdLn=SCXmlUtil.getChildElement(eleShpmntLn, VSIConstants.ELE_ORDER_LINE);
-					String strQuantityOrdered=eleShpmntOrdLn.getAttribute(VSIConstants.ATTR_ORIGINAL_ORDERED_QTY);
-					String strQuantityPU=eleShpmntOrdLn.getAttribute(VSIConstants.ATTR_ORD_QTY);
+					//Changes for OMS-2804 -Start
+					//String strQuantityOrdered=eleShpmntOrdLn.getAttribute(VSIConstants.ATTR_ORIGINAL_ORDERED_QTY);
+					//String strQuantityPU=eleShpmntOrdLn.getAttribute(VSIConstants.ATTR_ORD_QTY);
+					String strQuantityOrdered=eleShpmntLn.getAttribute("OriginalQuantity");
+					String strQuantityPU=eleShpmntLn.getAttribute(VSIConstants.ATTR_QUANTITY);
+					//Changes for OMS-2804 -End
 					Element eleItemDtls=SCXmlUtil.getChildElement(eleShpmntOrdLn, VSIConstants.ELE_ITEM_DETAILS);
 					Element eleItemAliasList=SCXmlUtil.getChildElement(eleItemDtls, VSIConstants.ELE_ITEM_ALIAS_LIST);
 					NodeList nlItemAlias=eleItemAliasList.getElementsByTagName(VSIConstants.ELE_ITEM_ALIAS);
@@ -760,7 +1101,9 @@ public class VSISOMPrintReceiptXML {
 					dTotal=dTotal+dLnTtl;
 					
 					//NewChanges-14Aug2020- START
-					//Element eleLnDiscounts=SCXmlUtil.createChild(eleOrderLineOut, "LineDiscounts");
+					//NewChange-OMS2795-03Sep2020 - START
+					Element eleLnDiscounts=SCXmlUtil.createChild(eleOrderLineOut, "Discounts");
+					//NewChange-OMS2795-03Sep2020 - END
 					//NewChanges-14Aug2020- END
 					Element eleOrdLnChrgs=SCXmlUtil.getChildElement(eleShpmntOrdLn, VSIConstants.ELE_LINE_CHARGES);
 					NodeList nlOrdLnChrg=eleOrdLnChrgs.getElementsByTagName(VSIConstants.ELE_LINE_CHARGE);
@@ -768,30 +1111,64 @@ public class VSISOMPrintReceiptXML {
 						
 						Element eleOrdLnChrg = (Element) nlOrdLnChrg.item(j);
 						//NewChanges-14Aug2020- START
-						//Element eleLnDiscount=SCXmlUtil.createChild(eleLnDiscounts, "LineDiscount");
+						//NewChange-OMS2795-03Sep2020 - START
+						Element eleLnDiscount=SCXmlUtil.createChild(eleLnDiscounts, "LineDiscount");
+						//NewChange-OMS2795-03Sep2020 - END
 						//NewChanges-14Aug2020- END
-						String strChargeName=eleOrdLnChrg.getAttribute(VSIConstants.ATTR_CHARGE_NAME);
+												// changes for Tax Percentage: 21Aug2020- START
+						String strChargeName="";
+					    strChargeName=eleOrdLnChrg.getAttribute(VSIConstants.ATTR_CHARGE_NAME);
+
+						if (strChargeName!="" && strChargeName!= null) {							
+							int x= strChargeName.lastIndexOf('-');
+							strChargeName = strChargeName.substring(x+1);
+							
+							/*	int x = strChargeName.lastIndexOf('-');
+								String first= strChargeName.substring(0,x);
+								int y = first.lastIndexOf('-');
+								strChargeName = strChargeName.substring(y+1);	
+								 
+							 */
+						}
+							
+						// changes for Tax Percentage: 21Aug2020- END
 						String strChargeAmount=eleOrdLnChrg.getAttribute(VSIConstants.ATTR_CHARGE_AMOUNT);
 						//NewChanges-14Aug2020- START
-						putElementValue(eleOrderLineOut,"LineDiscountDescription", strChargeName);
-						putElementValue(eleOrderLineOut,"LineDiscountAmount", strChargeAmount);
+						//NewChange-OMS2795-03Sep2020 - START
+						putElementValue(eleLnDiscount,"LineDiscountDescription", strChargeName);
+						putElementValue(eleLnDiscount,"LineDiscountAmount", strChargeAmount);
+						//NewChange-OMS2795-03Sep2020 - END
 						//NewChanges-14Aug2020- END
 						double dChargeAmount=Double.parseDouble(strChargeAmount);
 						dTotalChargeAmount=dTotalChargeAmount+dChargeAmount;
 					}
 					//NewChanges-14Aug2020- START
+					//Changes for Line Tax Rate: 25Aug2020- Start
+					Element eleOrdrLnTaxes=SCXmlUtil.getChildElement(eleShpmntOrdLn, VSIConstants.ELE_LINE_TAXES);
+					Element eleOrdrLnTax=SCXmlUtil.getChildElement(eleOrdrLnTaxes, VSIConstants.ELE_LINE_TAX);	
+					//Changes for Line Tax Rate: 25Aug2020- End
 					Element eleOrderLineOverAllTotals=SCXmlUtil.getChildElement(eleShpmntOrdLn, VSIConstants.ELE_LINE_OVERALL_TOTALS);
-					String LineTax = "";
-					String LinesTaxRate="";
+					String LineTax = "0";
+					String LinesTaxRate="0";
 
 					if (eleOrderLineOverAllTotals != null) {
 						LineTax= eleOrderLineOverAllTotals.getAttribute(VSIConstants.ATTR_TAX);
 							
 					}					
-					if (eleOrdLnTax != null) {
-						LinesTaxRate = eleOrdLnTax.getAttribute("TaxPercentage");	
+					//Changes for Line Tax Rate: 25Aug2020- Start
+					if (eleOrdrLnTax != null) {
+						LinesTaxRate = eleOrdrLnTax.getAttribute("TaxPercentage");	
 					}
+					
+					//Changes for Line Tax Rate: 25Aug2020- End
 					putElementValue(eleOrderLineOut,"LineTax", LineTax);
+					// changes for Tax Percentage: 21Aug2020- START
+					double dLineTax= Double.parseDouble(LineTax);			
+					
+					if (dLineTax==0) {
+						LinesTaxRate="0.0";
+					}
+					// changes for Tax Percentage: 21Aug2020- END
 					putElementValue(eleOrderLineOut,"LinesTaxRate", LinesTaxRate);
 					putElementValue(eleOrderLineOut,"LineTotal", strLnTtlWOTax);
 					//NewChanges-14Aug2020- END
@@ -805,18 +1182,24 @@ public class VSISOMPrintReceiptXML {
 				
 				putElementValue(eleCustomerReceiptXML,"YouSaved", strYouSaved);
 				putElementValue(eleCustomerReceiptXML,"Subtotal", strSubtotal);
+				// changes for Tax Percentage: 21Aug2020- START
+				if (dSalesTaxAmnt==0) {
+					strTaxPercentage="0.0";
+				}
 				putElementValue(eleCustomerReceiptXML,"SalesTaxRate", strTaxPercentage);
+				// changes for Tax Percentage: 21Aug2020- START
 				putElementValue(eleCustomerReceiptXML,"SalesTaxAmount", strSalesTaxAmount);
 				putElementValue(eleCustomerReceiptXML,"Total", strTotal);
 				//NewChanges-14Aug2020- START
-				String strAssociate= env.getUserId();
-				log.info("env.getUserId()"+env.getUserId()+" env.getProgId() "+env.getProgId()+" env.getTokenID() "+env.getTokenID());
-				putElementValue(eleCustomerReceiptXML,"Associate", strAssociate);
+				// Changes for User id : 21Aug2020- START
+				putElementValue(eleCustomerReceiptXML,"Associate", userId);
+				// Changes for User id : 21Aug2020- END
 				//NewChanges-14Aug2020- END
 				
 				printLogs("Printing CustomerReceipt XML :"+SCXmlUtil.getString(docCustomerReceiptXML));
+				log.info("Printing CustomerReceipt XML :"+SCXmlUtil.getString(docCustomerReceiptXML));
 				
-				invokeMiniSoftWebService(env,docCustomerReceiptXML);
+				invokeMiniSoftWebService(env,docCustomerReceiptXML,strStoreNo);   //OMS-2988 Changes
 				
 				updateShipmentFlag(env, strShipmentKey, "ExtnCustomerReceiptFlag");
 				
@@ -852,8 +1235,10 @@ public class VSISOMPrintReceiptXML {
 		
 		Element eleCCOut=(Element)docCommonCodeListOP
 				.getElementsByTagName(VSIConstants.ELE_COMMON_CODE).item(0);
-		
-		String strCCValue=eleCCOut.getAttribute(VSIConstants.ATTR_CODE_SHORT_DESCRIPTION);
+		 //Changes for Order Date and Pick Date- 17th Aug 2020 - START
+			//String strCCValue=eleCCOut.getAttribute(VSIConstants.ATTR_CODE_SHORT_DESCRIPTION);
+			  String strCCValue=eleCCOut.getAttribute(VSIConstants.ATTR_CODE_LONG_DESCRIPTION);
+		 //Changes for Order Date and Pick Date- 17th Aug 2020 - END
 		
 		return strCCValue;
 	}

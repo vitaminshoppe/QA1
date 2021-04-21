@@ -68,7 +68,8 @@ public class VSIScheduleBackOrder implements VSIConstants {
 				String OHK = orderEle
 						.getAttribute(VSIConstants.ATTR_ORDER_HEADER_KEY);
 
-				//String orderType = orderEle.getAttribute(VSIConstants.ATTR_ORDER_TYPE);
+				String orderType = orderEle.getAttribute(ATTR_ORDER_TYPE);
+				//String entryType = orderEle.getAttribute(ATTR_ENTRY_TYPE);
 				String enterpriseCode = SCXmlUtil.getAttribute(orderEle, ATTR_ENTERPRISE_CODE);
 				// If MCL order, cancel entire order. Might revisit
 				if(enterpriseCode.equals(ENT_MCL)){
@@ -99,9 +100,7 @@ public class VSIScheduleBackOrder implements VSIConstants {
 				if(arrFTCRulesForCancelWindow.size()>0){
 					Element eleFTCRule = arrFTCRulesForCancelWindow.get(0);
 					strCancelReason = eleFTCRule.getAttribute(ATTR_CODE_SHORT_DESCRIPTION);
-				}
-				
-				
+				}				
 				for (int i = 0; i < orderLineLength; i++) {
 					
 					// TODO: Should all these api calls be done inside this loop, for each line, or should they
@@ -114,7 +113,7 @@ public class VSIScheduleBackOrder implements VSIConstants {
 							.getAttribute(VSIConstants.ATTR_LINE_TYPE);
 					String customerPoNo = orderLineEle
 							.getAttribute(VSIConstants.ATTR_CUST_PO_NO);
-
+					String orderLineKey = orderLineEle.getAttribute(ATTR_ORDER_LINE_KEY);
 					// This fix will schedule the POS STS orders without
 					// checking the inventory to avoid backordering again.
 					
@@ -465,9 +464,50 @@ public class VSIScheduleBackOrder implements VSIConstants {
 								VSIConstants.ATTR_ORDER_HEADER_KEY, OHK);
 						Element orderLinesEle = unScheduleOrderInput
 								.createElement("OrderLines");
-						unScheduleOrderElement.appendChild(orderLinesEle);
+						unScheduleOrderElement.appendChild(orderLinesEle);						
+						for (int k = 0; k < orderLineLength; k++) 
+						{
+							Element orderLineElem = (Element) inXML.getElementsByTagName(ELE_ORDER_LINE).item(k);
+							if (orderLineElem.getAttribute(ATTR_LINE_TYPE).equalsIgnoreCase("PICK_IN_STORE")
+									&& !(CustPoKey.containsValue(orderLineElem.getAttribute(ATTR_CUST_PO_NO)))) {
+							for (int l = 0; l < orderLineLen; l++) 
+							{
+								Element elementOrderLine = (Element) outDoc.getElementsByTagName(ELE_ORDER_LINE).item(l);
+								String strOrderLineKey = elementOrderLine.getAttribute(VSIConstants.ATTR_ORDER_LINE_KEY);
+						if(orderLineElem.getAttribute(ATTR_ORDER_LINE_KEY).equalsIgnoreCase(strOrderLineKey))
+						{
+						Document docGetCommonCodeList = XMLUtil.createDocument(ELEMENT_COMMON_CODE);
+						Element eleCommonCode = docGetCommonCodeList.getDocumentElement();
+						eleCommonCode.setAttribute(ATTR_CODE_TYPE, IS_STS_CANCEL_ENABLED);
+						Document docGetCommonCodeListOutput = VSIUtils.invokeAPI(env, API_COMMON_CODE_LIST, docGetCommonCodeList);
+						if(docGetCommonCodeListOutput != null) {
+							Element elemCommonCode = (Element) docGetCommonCodeListOutput.getElementsByTagName(ELEMENT_COMMON_CODE).item(0);
+							String stsCancelEnabled = elemCommonCode.getAttribute(ATTR_CODE_VALUE);
+							if(stsCancelEnabled.equalsIgnoreCase(FLAG_Y)) {
+								if(orderType.equalsIgnoreCase(WEB)) {
+									Document changeOrderDoc = SCXmlUtil.createDocument(ELE_ORDER);
+									Element eleOrder = changeOrderDoc.getDocumentElement();
+									eleOrder.setAttribute(ATTR_OVERRIDE, FLAG_Y);
+									eleOrder.setAttribute(ATTR_ORDER_HEADER_KEY, OHK);
+									eleOrder.setAttribute(ATTR_ENTERPRISE_CODE, orderEle.getAttribute(ATTR_ENTERPRISE_CODE));
+									eleOrder.setAttribute(ATTR_DOCUMENT_TYPE, orderEle.getAttribute(ATTR_DOCUMENT_TYPE));
+									Element eleOrderLines = SCXmlUtil.createChild(eleOrder, ELE_ORDER_LINES);
+									Element elemOrderLine = SCXmlUtil.createChild(eleOrderLines, ELE_ORDER_LINE);
+									elemOrderLine.setAttribute(ATTR_ORDER_LINE_KEY, strOrderLineKey);
+									elemOrderLine.setAttribute(ATTR_ACTION, ACTION_RELEASE_CANCEL);
+									eleOrder.setAttribute(ATTR_MODIFICATION_REASON_CODE, CANCEL_MODIFICATION_CODE);
+									eleOrder.setAttribute(ATTR_MODIFICATION_REASON_TEXT, CANCEL_MODIFICATION_CODE);
+								    if(log.isDebugEnabled())
+								    	log.debug("VSIScheduleBackOrder - Input for changeOrderDoc => "+XMLUtil.getXMLString(changeOrderDoc));
+									VSIUtils.invokeAPI(env, API_CHANGE_ORDER, changeOrderDoc);
+								}
+							}
+						}
+						}
+							}
+						}
+						}		
 						bPickDone = true;
-
 						for (int j = 0; j < orderLineLen; j++) {
 							Element elementOrderLine = (Element) outDoc
 									.getElementsByTagName(
@@ -487,7 +527,7 @@ public class VSIScheduleBackOrder implements VSIConstants {
 										VSIConstants.ATTR_ORDER_LINE_KEY,
 										strOrderLineKey);
 							}
-
+							
 							Element orderLineElement = changeOrderInput
 									.createElement("OrderLine");
 							orderLineElement.setAttribute(
@@ -503,13 +543,14 @@ public class VSIScheduleBackOrder implements VSIConstants {
 							
 							// Added logic to send out BOPUS to BOSTS conversation email
 						   //System.out.println("HAYYYYY"+customerPoNo);
-						    if(!YFCObject.isVoid(customerPoNo)){
+						//Commenting for OMS-3176 -> Start
+						   /* if(!YFCObject.isVoid(customerPoNo)){
 						    	//System.out.println("I AM HERE");
 								Document emailDoc = VSISendRdyForPckupAndReminderEmails.getEmailContent(env,VSIConstants.ATTR_CUST_PO_NO, customerPoNo); 
 								VSIUtils.invokeService(env,"VSISendBOPUSToBOSTSConversionEmail", emailDoc);
 								
-							}
-							 
+							}*/
+						//Commenting for OMS-3176 -> End	 
 							Element eleOrderLineSourcingControls = SCXmlUtil.createChild(orderLineElement, "OrderLineSourcingControls");
 							Element eleOrderLineSourcingCntrl =  SCXmlUtil.createChild(eleOrderLineSourcingControls, "OrderLineSourcingCntrl");
 							eleOrderLineSourcingCntrl.setAttribute("Node", orderLineEle.getAttribute("ShipNode"));
@@ -525,7 +566,7 @@ public class VSIScheduleBackOrder implements VSIConstants {
 							//OMS-815 Ends	
 							orderLinesElement.appendChild(orderLineElement);
 						}
-
+						
 						NodeList unorderLineEleList = unScheduleOrderInput
 								.getElementsByTagName(VSIConstants.ELE_ORDER_LINE);
 						int unOrderLineLength = unorderLineEleList.getLength();

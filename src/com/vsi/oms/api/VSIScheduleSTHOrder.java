@@ -9,6 +9,7 @@ import org.w3c.dom.NodeList;
 import com.sterlingcommerce.baseutil.SCUtil;
 import com.sterlingcommerce.tools.datavalidator.XmlUtils;
 import com.vsi.oms.utils.VSIConstants;
+import com.vsi.oms.utils.VSIUtils;
 import com.vsi.oms.utils.XMLUtil;
 import com.yantra.interop.japi.YIFApi;
 import com.yantra.interop.japi.YIFClientFactory;
@@ -18,7 +19,7 @@ import com.yantra.yfs.japi.YFSEnvironment;
 import com.yantra.yfs.japi.YFSException;
 
 //this class is used for scheduling STH order
-public class VSIScheduleSTHOrder {
+public class VSIScheduleSTHOrder implements VSIConstants {
 	private YFCLogCategory log = YFCLogCategory.instance(VSIScheduleBOPUSOrder.class);
 	YIFApi api;
 	public void vsiScheduleSTH(YFSEnvironment env, Document XML)
@@ -30,16 +31,18 @@ public class VSIScheduleSTHOrder {
 
 				Element rootElement = XML.getDocumentElement();
 				String orderHeaderKey = rootElement.getAttribute("OrderHeaderKey");
+				
 				Document getOrderListInput = XMLUtil.createDocument("Order");
 				Element eleOrder = getOrderListInput.getDocumentElement();
 				eleOrder.setAttribute("OrderHeaderKey", orderHeaderKey);
 
 				//Calling the getOrderList API 
+				log.debug("getOrderList API Input: "+XmlUtils.getString(getOrderListInput));
 				api = YIFClientFactory.getInstance().getApi();
 				env.setApiTemplate(VSIConstants.API_GET_ORDER_LIST, "global/template/api/VSIGetOrderListSOForHold.xml");
 				Document getOrderListOp = api.invoke(env, VSIConstants.API_GET_ORDER_LIST,getOrderListInput);
 				if(!YFCCommon.isVoid(getOrderListOp)){
-
+					log.debug("getOrderList API Output: "+XmlUtils.getString(getOrderListOp));
 					NodeList nlOrderHoldTypeList = XMLUtil.getNodeListByXpath(
 							getOrderListOp, "/OrderList/Order/OrderHoldTypes/OrderHoldType");
 
@@ -54,24 +57,42 @@ public class VSIScheduleSTHOrder {
 							break;
 						}
 					}
+					log.debug("Schedule Order API to be called: "+shouldInvokeApi);
 					if(shouldInvokeApi){
-						NodeList orderLineList = getOrderListOp.getElementsByTagName(VSIConstants.ELE_ORDER_LINE);
-						for(int i=0;i<orderLineList.getLength();i++){
-							Element eleOrderLine = (Element)orderLineList.item(i);	
-							String lineType = eleOrderLine.getAttribute(VSIConstants.ATTR_LINE_TYPE);
-							if("SHIP_TO_HOME".equals(lineType)){
-								Document scheduleOrderInput = XMLUtil.createDocument("ScheduleOrder");
-								Element sOrderElement = scheduleOrderInput.getDocumentElement();
-								sOrderElement.setAttribute(VSIConstants.ATTR_ORDER_HEADER_KEY, orderHeaderKey);
-								sOrderElement.setAttribute("CheckInventory", "Y");
-								log.debug("*** NOW PRINTING scheduleOrderInput "+XMLUtil.getXMLString(scheduleOrderInput));
-								api = YIFClientFactory.getInstance().getApi();
-								api.invoke(env, VSIConstants.API_SCHEDULE_ORDER,scheduleOrderInput);
+						Document scheduleOrderInput = XMLUtil.createDocument("ScheduleOrder");
+						Element sOrderElement = scheduleOrderInput.getDocumentElement();
+						sOrderElement.setAttribute(VSIConstants.ATTR_ORDER_HEADER_KEY, orderHeaderKey);
+						sOrderElement.setAttribute("CheckInventory", "Y");
+						log.debug("*** NOW PRINTING scheduleOrderInput "+XMLUtil.getXMLString(scheduleOrderInput));
+						api = YIFClientFactory.getInstance().getApi();
+						api.invoke(env, VSIConstants.API_SCHEDULE_ORDER,scheduleOrderInput);
+						log.debug("Schedule Order API invoked successfully");
+						//OMS-3068 Changes -- Start
+						boolean bIsMixCart=false;
+						NodeList nlOrderLine = XMLUtil.getNodeListByXpath(
+								getOrderListOp, "/OrderList/Order/OrderLines/OrderLine");
+						for(int i=0; i<nlOrderLine.getLength(); i++){
+							Element eleOrderLine=(Element)nlOrderLine.item(i);
+							String strLineType=eleOrderLine.getAttribute(ATTR_LINE_TYPE);
+							log.info("Line Type: "+strLineType);
+							if(LINETYPE_PUS.equals(strLineType) || LINETYPE_STS.equals(strLineType)){
+								log.info("There is a "+strLineType+" line present, It's a Mixcart scenario");
+								bIsMixCart=true;
 								break;
 							}
-
 						}
-
+						if(!bIsMixCart){
+							log.info("Task Queue Entry will be removed");
+							Document taskQueueInputDoc = XMLUtil.createDocument("TaskQueue");
+	                        Element taskQueueElement = taskQueueInputDoc.getDocumentElement();
+	                        taskQueueElement.setAttribute("DataKey", orderHeaderKey);
+	                        taskQueueElement.setAttribute("TransactionKey", "SCHEDULE.0001");
+	                        taskQueueElement.setAttribute("Operation", "Delete");
+	                        taskQueueElement.setAttribute("DataType", "OrderHeaderKey");
+	                        log.info("taskQueueInputDoc => "+XMLUtil.getXMLString(taskQueueInputDoc));
+	                        VSIUtils.invokeAPI(env, "manageTaskQueue",taskQueueInputDoc);
+						}
+                        //OMS-3068 Changes -- End
 					}
 				}
 			}
@@ -82,5 +103,6 @@ public class VSIScheduleSTHOrder {
 
 			}
 		}
+		log.info("================Exiting VSIScheduleSTHOrder================================");
 	}
 }
