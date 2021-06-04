@@ -352,15 +352,33 @@
                 Nullable="true" Size="100" Type="VARCHAR2" XMLName="ExtnRiskifiedCount"
                 XMLGroup="Extn"  SqlServerDataType="" />
 				<!--OMS-2419: END-->
-                
-
+				<Attribute ColumnName="EXTN_IS_MIXED_CART_ORDER" DecimalDigits="" DefaultValue="N"
+				Description="Indicates if the order is mixed cart" Nullable="true" Size="1" DataType="Flag" 
+				XMLName="ExtnIsMixedCartOrder" XMLGroup="Extn" SqlServerDataType="" />                
+				<Attribute ColumnName="EXTN_BOL_NO" DecimalDigits=""
+                DefaultValue="" Description="ExtnBolNo"
+                Nullable="true" Size="100" Type="VARCHAR2" XMLName="ExtnBolNo"
+                XMLGroup="Extn"  SqlServerDataType="" />  
+				<Attribute ColumnName="EXTN_DELIVERY_DATE"
+                    DataType="Date" DefaultValue=""
+                    Description="Delivery  date for wholesale order"
+                    Nullable="true" XMLName="ExtnDeliveryDate"  XMLGroup="Extn" />
 
 			</Attributes>
 			<Indices>
 				<Index Name="EXTN_YFS_ORDER_HEADER_001">
 					<Column Name="ORDER_NO_LC" />
 					<Column Name="DOCUMENT_TYPE" />
-				</Index>																			
+				</Index>
+				<!-- OMS-3407 : Start -->
+				<Index Name="EXTN_YFS_ORDER_HEADER_002">
+					<Column Name="DOCUMENT_TYPE" />
+					<Column Name="BILL_TO_ID" />
+					<Column Name="DRAFT_ORDER_FLAG" />
+					<Column Name="ORDER_DATE" />
+					<Column Name="ORDER_HEADER_KEY" />
+				</Index>
+				<!-- OMS-3407 : End -->
 			</Indices>
 		</Entity>
 	<Entity TableName="YFS_PAYMENT">
@@ -400,6 +418,18 @@
                     DefaultValue="" Description="ExtnAurusReauthorized"
                     Nullable="true" Size="100" Type="VARCHAR2" XMLName="ExtnAurusReauthorized"
                     XMLGroup="Extn"   />
+				<!--OMS-3187: START-->
+				<Attribute ColumnName="EXTN_CONTACTLESS" DecimalDigits=""
+                    DefaultValue="" Description="ExtnContactLess"
+                    Nullable="true" Size="100" Type="VARCHAR2" XMLName="ExtnContactLess"
+                    XMLGroup="Extn"   />
+				<!--OMS-3187: END-->
+				<!--OMS-3181: START-->
+				<Attribute ColumnName="EXTN_ORIGINAL_TRANID" DecimalDigits=""
+                    DefaultValue="" Description="ExtnOriginalTranID"
+                    Nullable="true" Size="100" Type="VARCHAR2" XMLName="ExtnOriginalTranID"
+                    XMLGroup="Extn"   />
+				<!--OMS-3181: END-->
 
 			</Attributes>
 			
@@ -414,6 +444,11 @@
 				<Attribute ColumnName="EXTN_CONTAINER_VOLUME" DecimalDigits="" DefaultValue=""
 				Description="Used to store container volume" Nullable="true" Size="15" Type="VARCHAR2" 
 				XMLName="ExtnContainerVolume" XMLGroup="Extn" SqlServerDataType="" />
+				<!--OMS-3074: START-->
+				<Attribute ColumnName="EXTN_TRACKING_URL" DecimalDigits="" DefaultValue=""
+				Description="Used to store Tracking URL" Nullable="true" Size="100" Type="VARCHAR2" 
+				XMLName="ExtnTrackingURL" XMLGroup="Extn" SqlServerDataType="" />
+				<!--OMS-3074: END-->
 			</Attributes>
 		</Entity>
 		
@@ -598,10 +633,27 @@
                     DataType="ShipNode" DefaultValue=""
                     Description="Mark For Store No"
                     Nullable="true" XMLName="ExtnMarkForStoreNo"  XMLGroup="Extn" />
+				<Attribute ColumnName="EXTN_SHIP_COMPLETE"
+                    Type="VARCHAR2" DefaultValue="" Size="3"
+                    Description="Flag to determine shipcomplete or not"
+                    Nullable="true" XMLName="ExtnShipComplete"  XMLGroup="Extn" />
+						<Attribute ColumnName="EXTN_SINGLE_CARTON"
+                    DataType="Flag" DefaultValue=" "
+                    Description="Information on Single Carton required or not"
+                    Nullable="true" XMLName="ExtnSingleCarton"  XMLGroup="Extn" />
+               <Attribute ColumnName="EXTN_REQ_CANCEL_DATE"
+                    DataType="TimeStamp" DefaultValue=""
+                    Description="Requested cancel date for wholesale order"
+                    Nullable="true" XMLName="ExtnReqCancelDate"  XMLGroup="Extn" />	
+                <Attribute ColumnName="EXTN_VENDOR_SKU"
+                    Type="VARCHAR2" DefaultValue="" Size="40"
+                    Description="To store the Vendor SKU information"
+                    Nullable="true" XMLName="ExtnVendorSKU"  XMLGroup="Extn" />
+					
 				<!-- Wholesale : End -->
 				<!-- Customer order line pickup changes: start-->
 				<Attribute ColumnName="EXTN_PICKUP_EMAIL_FLAG" DecimalDigits=""
-					DefaultValue="N" Description="Used to track customer pickup email"
+					DefaultValue="" Description="Used to track customer pickup email"
 					Nullable="true" Size="1" DataType="Flag" XMLName="ExtnPickupEmailFlag"
 					XMLGroup="Extn" SqlServerDataType="" />
 				<!-- Customer order line pickup changes: end-->
@@ -635,10 +687,21 @@
 			<Attributes>
 				<Attribute ColumnName="ADDRESS_LINE1"
 					CaseInsensitiveSearch="Y" />
-				<!--<Attribute ColumnName="EXTN_MARK_FOR_STORE_NO"
-                    DataType="ShipNode" DefaultValue=" "
+				<Attribute ColumnName="FIRST_NAME"
+					CaseInsensitiveSearch="Y" />
+				<Attribute ColumnName="LAST_NAME"
+					CaseInsensitiveSearch="Y" />
+				<Attribute ColumnName="EMAILID"
+					CaseInsensitiveSearch="Y" />
+				<Attribute ColumnName="EXTN_MARK_FOR_STORE_NO"
+                    DataType="Text-20" DefaultValue=" "
                     Description="Mark For Store No"
-                    Nullable="true" XMLName="ExtnMarkForStoreNo"  XMLGroup="Extn" />-->
+                    Nullable="true" XMLName="ExtnMarkForStoreNo"  XMLGroup="Extn" />
+			
+				<Attribute ColumnName="EXTN_DC_FOR_STORE"
+                    DataType="Text-20" DefaultValue=" " Type="VARCHAR2"
+                    Description="Stores the DC information for the store"
+                    Nullable="true" XMLName="ExtnDCForStore"  XMLGroup="Extn" />		
 			</Attributes>
 		</Entity>
 
@@ -1399,7 +1462,10 @@
 				<Attribute ColumnName="EXTN_SHIP_DATE" Size="50"
 					DefaultValue="" Description="ShipDate received from IIB" XMLName="ExtnShipDate" XMLGroup="Extn"
 					Type="VARCHAR2" Nullable="true" />
-				<!--OMS-1892 END--> 	
+				<!--OMS-1892 END-->
+				<Attribute ColumnName="EXTN_NAME" Size="128"
+					DefaultValue="" Description="FirstName and LastName" XMLName="ExtnName" XMLGroup="Extn"
+					Type="VARCHAR2" Nullable="true" />
 				<!--SOM and SFS Print Changes START-->
 				<Attribute ColumnName="EXTN_PICK_PACK_FLAG" Size="10"
 					DefaultValue="" Description="BackRoom Pick Completion Flag" XMLName="ExtnPickPackFlag" XMLGroup="Extn"
@@ -1411,6 +1477,20 @@
 					DefaultValue="" Description="Pack Ship Completion Flag" XMLName="ExtnPackShipFlag" XMLGroup="Extn"
 					Type="VARCHAR2" Nullable="true" />
 				<!--SOM and SFS Print Changes END-->
+				<Attribute ColumnName="EXTN_CASEINSENSITIVE_FIRSTNAME" Size="128"
+					DefaultValue="" Description="Case Insensitive FirstName" XMLName="ExtnCaseInsensitiveFirstName" XMLGroup="Extn"
+					Type="VARCHAR2" Nullable="true" />
+				<Attribute ColumnName="EXTN_CASEINSENSITIVE_LASTNAME" Size="128"
+					DefaultValue="" Description="Case Insensitive LastName" XMLName="ExtnCaseInsensitiveLastName" XMLGroup="Extn"
+					Type="VARCHAR2" Nullable="true" />
+				<Attribute ColumnName="EXTN_CASEINSENSITIVE_EMAIL" Size="128"
+					DefaultValue="" Description="Case Insensitive Email" XMLName="ExtnCaseInsensitiveEmail" XMLGroup="Extn"
+					Type="VARCHAR2" Nullable="true" />
+				<!-- OMS-2956 : Start -->
+				<Attribute ColumnName="EXTN_BOSTS_FLAG" Size="128"
+				DefaultValue="" Description="Flag to identify BOSTS shipments" XMLName="ExtnBOSTSFlag" XMLGroup="Extn"
+				Type="VARCHAR2" Nullable="true" />
+				<!-- OMS-2956 : End -->
 			</Attributes>
 			<Indices>
 				<Index Name="EXTN_SHIPMENT_I1" >
@@ -1460,7 +1540,23 @@
 					Description="Container tracking no of original shipment" Nullable="true"
 					Size="40" Type="VARCHAR2" XMLName="ExtnOriginalTrackingNo" XMLGroup="Extn"
 					SqlServerDataType="" />
-				
+				<Attribute ColumnName="EXTN_REGISTER_NO"
+					DecimalDigits="" DefaultValue=""
+					Description="Register to which the invoice will be accounted" Nullable="true"
+					Size="40" Type="VARCHAR2" XMLName="ExtnRegisterNo" XMLGroup="Extn"
+					SqlServerDataType="" />
+				<Attribute ColumnName="EXTN_STORE_NO"
+					DecimalDigits="" DefaultValue=""
+					Description="Store to which the invoice will be accounted" Nullable="true"
+					Size="40" Type="VARCHAR2" XMLName="ExtnStoreNo" XMLGroup="Extn"
+					SqlServerDataType="" />
+				<!-- OMS-3498 : Start -->
+				<Attribute ColumnName="EXTN_FLEX_RECEIPT_FLAG"
+					DecimalDigits="" DefaultValue=""
+					Description="Flex Receipt Flag" Nullable="true"
+					Size="40" Type="VARCHAR2" XMLName="ExtnFlexReceiptFlag" XMLGroup="Extn"
+					SqlServerDataType="" />
+				<!-- OMS-3498 : End -->
 			</Attributes>
 		</Entity>
 
@@ -1853,7 +1949,8 @@
 					Nullable="true" Size="20" Type="CHAR" XMLName="ExtnVertexEngine"
 					XMLGroup="Extn" SqlServerDataType="" />
 				<Attribute ColumnName="EXTN_COUNTY" DataType="Text-100"
-					DecimalDigits="" DefaultValue="null" Description="Used to capture County jurisdiction" Nullable="true" Size="100" Type="CHAR" XMLName="ExtnCounty" XMLGroup="Extn" SqlServerDataType=""/>	
+					DecimalDigits="" DefaultValue="null" Description="Used to capture County jurisdiction" Nullable="true" Size="100" Type="CHAR" XMLName="ExtnCounty" XMLGroup="Extn" SqlServerDataType=""/>
+				
 			</Attributes>
 		</Entity>
 
@@ -3276,6 +3373,82 @@
 					ParentColumnName="ORDER_HEADER_KEY" />
 			</Parent>
 		</Entity>
+		<!-- OMS-3407 : Start -->
+		<Entity TableName="YFS_ORDER_RELEASE_STATUS">
+			<Indices>
+				<Index Name="EXTN_YFS_ORD_RLS_STS_001">
+					<Column Name="STATUS" />
+					<Column Name="STATUS_QUANTITY" />
+					<Column Name="ORDER_HEADER_KEY" />
+				</Index>
+			</Indices>
+		</Entity>
+		<!-- OMS-3407 : End -->
+		<!-- OMS-3452 : Start -->
+		<Entity Name="" XMLName="AurusSettlementRecords" ApiNeeded="Y"
+			 AuditRequired="N"
+			 Description="Entity keeps the information related to Aurus settlement records"
+			 Prefix="VSI_" TableName="VSI_AURUS_SETTLEMENT">
+			 <!-- Table columns -->
+			<Attributes>
+				<Attribute ColumnName="VSI_AURUS_SETTLEMENT_KEY"
+								   DataType="Key" DefaultValue="" XMLName="AurusSettlementKey"
+								   Type="CHAR" Nullable="false" Description="" />
+				<Attribute ColumnName="ORDER_HEADER_KEY" DataType="Key"
+								   DefaultValue="" Type="CHAR" Nullable="false" Description=""
+								   XMLName="OrderHeaderKey" />
+				<Attribute ColumnName="TRANSACTION_AMOUNT" DataType=""
+								   DefaultValue="" Description="" XMLName="ExtnTransactionAmount"
+								   Type="VARCHAR2" Size="40" Nullable="true" />	
+				<Attribute ColumnName="AURUS_PAY_TICKETNUM" DataType=""
+								   DefaultValue="" Description="" XMLName="ExtnAurusPayTicketNum"
+								   Type="VARCHAR2" Size="40" Nullable="true" />
+				<Attribute ColumnName="CHARGE_TRANSACTION_KEY" DataType=""
+								   DefaultValue="" Description="" XMLName="ChargeTransactionKey"
+								   Type="VARCHAR2" Size="40" Nullable="true" />
+				<Attribute ColumnName="CREDIT_CARD_TYPE" DataType=""
+								   DefaultValue="" Description="Credit Card Type" XMLName="CreditCardType"
+								   Type="VARCHAR2" Size="40" Nullable="true" />
+				<Attribute ColumnName="RESPONSE" DataType=""
+								   DefaultValue="" Description="Settlement Response from Aurus" XMLName="Response"
+								   Type="VARCHAR2" Size="100" Nullable="true" />
+				<Attribute ColumnName="CREATETS" DataType="TimeStamp"
+							   DefaultValue="sysdate" Description="" XMLName="ChargeLineCreateTS"
+							   Type="DATE" />
+				<Attribute ColumnName="MODIFYTS" DataType="TimeStamp"
+							   DefaultValue="sysdate" Description="" XMLName="ChargeLineModifyTS"
+							   Type="DATE" />
+				<Attribute ColumnName="CREATEUSERID"
+							   DataType="Createuserid" DefaultValue="" Description=""
+							   XMLName="CreateUserID" Type="VARCHAR2" />
+				<Attribute ColumnName="MODIFYUSERID"
+							   DataType="Modifyuserid" DefaultValue="" Description=""
+							   XMLName="ModifyUserID" Type="VARCHAR2" />
+				<Attribute ColumnName="CREATEPROGID"
+							   DataType="Createprogid" DefaultValue="" Description=""
+							   XMLName="CreateProgID" Type="VARCHAR2" />
+				<Attribute ColumnName="MODIFYPROGID"
+							   DataType="Modifyprogid" DefaultValue="" Description=""
+							   XMLName="ModifyProgID" Type="VARCHAR2" />
+				<Attribute ColumnName="LOCKID" DataType="Lockid"
+							   DefaultValue="0" Description="" XMLName="LockID" Type="NUMBER" />
+			</Attributes>
+		 <!-- PrimaryKey is a mandatory attribute in entity definition. This element can have ONLY ONE attribute element -->
+		 <PrimaryKey Name="AurusSettleKey">
+		                <Attribute ColumnName="VSI_AURUS_SETTLEMENT_KEY" />
+		 </PrimaryKey>
+		 <Indices>
+		                <Index Name="EXTN_VSI_AURUS_SETTLE_001">
+		                            <Column Name="ORDER_HEADER_KEY" />
+									
+		                </Index>
+		 </Indices>
+		 <Parent ParentTableName="YFS_ORDER_HEADER">
+		                <Attribute ColumnName="ORDER_HEADER_KEY"
+		                ParentColumnName="ORDER_HEADER_KEY" />
+		 </Parent>
+	</Entity>
+	<!-- OMS-3452 : End -->
 	</Entities>
 	
 </DBSchema>
