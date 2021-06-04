@@ -36,8 +36,8 @@
                                     ImageID="" ImageLabel="" ImageLocation=""/>
                                 <ClassificationCodes Model=""/>
 								<ItemAliasList>
-								 <ItemAlias AliasValue="" AliasName=""/>
-								 </ItemAliasList>
+									<ItemAlias AliasValue="" AliasName=""/>
+                                </ItemAliasList>
                             </ItemDetails>
                         </OrderLine>
                     </ShipmentLine>

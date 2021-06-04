@@ -38,3 +38,14 @@ nohup /opt/sterling/build/agentserver_mod.sh VSIResolveTOBHold "-Xms512m -Xmx102
 
 nohup /opt/sterling/build/agentserver_mod.sh VSIResolveRemorseHold "-Xms512m -Xmx1024m -XX:PermSize=128m -XX:MaxPermSize=256m" > /dev/null 2>&1 &
 
+#nohup /opt/sterling/build/startIntegrationServer.sh VSIPrintPickPack "-Xms512m -Xmx1024m -XX:PermSize=128m -XX:MaxPermSize=256m" > /dev/null 2>&1 &
+#nohup /opt/sterling/build/startIntegrationServer.sh VSIPrintCustomerReceipt "-Xms512m -Xmx1024m -XX:PermSize=128m -XX:MaxPermSize=256m" > /dev/null 2>&1 &
+#nohup /opt/sterling/build/startIntegrationServer.sh VSIPrintPackShipLabel "-Xms512m -Xmx1024m -XX:PermSize=128m -XX:MaxPermSize=256m" > /dev/null 2>&1 &
+
+nohup /opt/sterling/build/startIntegrationServer.sh VSISOMReverseAllocation "-Xms512m -Xmx1024m -XX:PermSize=128m -XX:MaxPermSize=256m" > /dev/null 2>&1 &
+
+nohup /opt/sterling/build/startIntegrationServer.sh VSIMixedOrderFraudCheck "-Xms512m -Xmx1024m -XX:PermSize=128m -XX:MaxPermSize=256m" > /dev/null 2>&1 &
+
+nohup /opt/sterling/build/startIntegrationServer.sh VSIMixedCartJDAAllocation "-Xms512m -Xmx1024m -XX:PermSize=128m -XX:MaxPermSize=256m" > /dev/null 2>&1 &
+
+

@@ -288,7 +288,7 @@ public class VSIBeforeChangeOrder implements VSIConstants {
 			Map<String, String> orderLinekeyMap = new HashMap<String, String>();
 			//For uncommit coupon. Setting a  uncommit flag for IIB to determine.
 			HashMap<String, String> vcOrderLineStatus = new HashMap<String, String>();
-			String strUnCommitFlag="Y";
+			String strUnCommitFlag="N";
             
 			Element rootElement = inXML.getDocumentElement();
 			String sOrderType = rootElement.getAttribute(ATTR_ORDER_TYPE);
@@ -588,6 +588,7 @@ public class VSIBeforeChangeOrder implements VSIConstants {
 
 					Boolean lineCancelFlag = false;
 					Boolean publishFlag = false;
+					Boolean isOrderCancel = true;
 
 					for(int i =0;i<orderLineLen;i++){
 
@@ -646,11 +647,36 @@ public class VSIBeforeChangeOrder implements VSIConstants {
 								String status=vcOrderLineStatus.get(Key);
 									 if (!status.equalsIgnoreCase("Cancelled") && !status.equalsIgnoreCase("Restock") && !status.equalsIgnoreCase("Restock In Transit")){
 										 strUnCommitFlag="N";
+										 isOrderCancel = false;
 										 break;
 									 }
 									 
 								}
 						}
+						int iPromoCount = 0;
+						NodeList nPromotionList = outDoc.getElementsByTagName("Promotion");
+						if(nPromotionList!=null && isOrderCancel)
+						{
+								iPromoCount = nPromotionList.getLength();
+								Element elePromotion=null;
+								Element elePromoExtn=null;
+								String strCouponID="";
+								for (int iProCount = 0; iProCount < iPromoCount; iProCount++) 
+								{
+										elePromotion = (Element) nPromotionList.item(iProCount);
+										elePromoExtn=(Element) elePromotion.getElementsByTagName("Extn").item(0);
+										if(elePromoExtn!=null)
+										{
+											strCouponID = elePromoExtn.getAttribute("ExtnCouponID");
+											if (!YFCCommon.isVoid(strCouponID))
+											{
+												strUnCommitFlag="Y";
+												break;
+											}
+										}
+								}	
+						}
+						log.info("Setting coupon uncommit flag:::"+strUnCommitFlag);
 						eleOrderOut.setAttribute("Uncommit", strUnCommitFlag);
 
 						//End of:For uncommit coupon. Setting a  uncommit flag for IIB to determine.

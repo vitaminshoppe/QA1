@@ -1,0 +1,70 @@
+		<div>
+		 	<div data-dojo-type="idx/form/FilteringSelect" 
+		 					data-dojo-props="data_dojo_props_diff: {
+		 								renderHidden : true , 
+		_sc_extensibility_operation : 'change' , 
+		_sc_extensibility_referenceUId : 'cmbCustVerfMethod' , 
+		required : false  
+		 					}">
+		 	</div>  
+		 	<div data-dojo-type="idx/form/FilteringSelect" 
+		 					data-dojo-props="data_dojo_props_diff: {
+		 								uId : 'extn_CustomerVerification' , 
+		_sc_extensibility_moveOrder : '1' , 
+		_sc_extensibility_operation : 'insert' , 
+		'class' : 'zeroWidthLabelKey longTextbox nonEditable' , 
+		_sc_extensibility_position : 'after' , 
+		_sc_extensibility_referenceUId : 'cmbCustVerfMethod' , 
+		required : true  
+ 		,scExtensionDataFn :
+		 function() { 
+			return { 
+			 	bindingData : 	{
+		 optionsBinding : 	{
+		 namespace : 			'CustomerVerficationMethodList'
+,
+		 path : 			'CommonCodeList.CommonCode'
+,
+		 descriptionField : 			'CodeShortDescription'
+,
+		 valueField : 			'CodeValue'
+	}
+,
+		 targetBinding : 	[
+	 		{
+		 namespace : 			'CustomerVerificationNotes_Input'
+,
+		 path : 			'Notes.Note.NoteText'
+,
+		 scExtensibilityArrayItemId : 			'extn_TargetBindings_0'
+	}
+,
+	 		{
+		 namespace : 			'CustomerVerificationMethodSelected'
+,
+		 path : 			'CustomerVerification.Method'
+,
+		 scExtensibilityArrayItemId : 			'extn_TargetBindings_1'
+	}
+	]
+,
+		 sourceBinding : 	{
+		 namespace : 			'extn_custMethod'
+,
+		 path : 			'CustomerVerification.Method'
+	}
+	}
+,	
+			 	label : 			this.getSimpleBundleString('Label_Customer_Verification_Method')
+			}
+		}
+		 					}">
+		 	</div>  
+		 	<div data-dojo-type="sc/plat/dojo/widgets/DataLabel" 
+		 					data-dojo-props="data_dojo_props_diff: {
+		 								renderHidden : true , 
+		_sc_extensibility_operation : 'change' , 
+		_sc_extensibility_referenceUId : 'lblShipmentNo'  
+		 					}">
+		 	</div>  
+		</div>

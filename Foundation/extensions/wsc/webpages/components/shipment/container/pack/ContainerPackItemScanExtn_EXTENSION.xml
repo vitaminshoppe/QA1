@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ExtensionMetaData>
+    <ScreenExtension extnClassName="ContainerPackItemScanExtn"
+        extnPackage="extn.components.shipment.container.pack"
+        originalScreen="wsc.components.shipment.container.pack.ContainerPackItemScan"
+        originalScreenPackage="wsc.components.shipment.container.pack" type="diffrential">
+        <Items>
+            <Label _sc_extensibility_operation="change"
+                _sc_extensibility_referenceUId="lblnoProdscan" value="$(_scSimpleBundle:extn_Enter_products_to_be_packed_into_current_package_)"/>
+            <Label _sc_extensibility_operation="change"
+                _sc_extensibility_referenceUId="lblScan" value="$(_scSimpleBundle:extn_Enter_Products)"/>
+            <TextField _sc_extensibility_operation="change"
+                _sc_extensibility_referenceUId="txtScanField" hint="$(_scSimpleBundle:extn_Enter_Item_ID_or_UPC_Code)"/>
+            <Link _sc_extensibility_operation="change"
+                _sc_extensibility_referenceUId="scanButton" renderHidden="true"/>
+        </Items>
+    </ScreenExtension>
+</ExtensionMetaData>

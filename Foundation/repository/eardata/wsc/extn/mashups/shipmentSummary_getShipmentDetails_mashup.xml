@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mashups>
+    <mashup description="Get Shipment Details" endpoint="EP_CONFIG"
+        id="shipmentSummary_getShipmentDetails" mashuptype="XAPI"
+        skipDataProvider="false" transactional="true">
+        <classInformation name="com.ibm.wsc.shipment.details.WSCShipmentSummaryCustomMashup"/>
+        <API Name="getShipmentDetails">
+            <Input>
+                <Shipment
+                    DisplayLocalizedFieldInLocale="xml:CurrentUser:/User/@Localecode"
+                    SellerOrganizationCode="" ShipNode=""
+                    ShipmentKey="xml:scControllerInput:/Shipment/@ShipmentKey" ShipmentNo="xml:scControllerInput:/Shipment/@ShipmentNo"/>
+            </Input>
+            <Template>
+                <Shipment AssignedToUserId="" Currency=""
+                    DeliveryCode="" DeliveryMethod="" EnterpriseCode=""
+                    ExpectedShipmentDate="" OrderNo="" ShipmentKey="" ShipmentNo="">
+                    <Status Description="" Status=""/>
+                    <ShipNode ShipNode="" ShipNodeAddressKey=""
+                        ShipnodeKey="" ShipnodeType="" ShippingNode="">
+                        <ShipNodePersonInfo AddressLine1=""
+                            AddressLine2="" City="" Country=""
+                            CountryDesc="" DayFaxNo="" DayPhone=""
+                            EMailID="" EveningFaxNo="" EveningPhone=""
+                            FirstName="" IsCommercialAddress=""
+                            LastName="" MiddleName="" MobilePhone=""
+                            PersonInfoKey="" PreferredShipAddress=""
+                            State="" TitleDesc="" ZipCode=""/>
+                    </ShipNode>
+                    <BillToAddress AddressLine1="" AddressLine2=""
+                        City="" Country="" CountryDesc="" DayFaxNo=""
+                        DayPhone="" EMailID="" EveningFaxNo=""
+                        EveningPhone="" FirstName=""
+                        IsCommercialAddress="" LastName="" MiddleName=""
+                        MobilePhone="" PersonInfoKey=""
+                        PreferredShipAddress="" State="" TitleDesc="" ZipCode=""/>
+                    <ShipmentLines>
+                        <ShipmentLine>
+                            <OrderLine>
+                                <PersonInfoMarkFor Country=""
+                                    DayPhone="" EMailID="" FirstName=""
+                                    LastName="" PersonInfoKey=""/>
+                            </OrderLine>
+                            <Order>
+                                <PaymentMethods>
+                                    <PaymentMethod CreditCardName=""
+                                    CreditCardNo=""
+                                    CreditCardType=""
+                                    DisplayCreditCardNo=""
+                                    PaymentKey="" PaymentType="" PaymentTypeGroup="" PaymentReference1="" PaymentReference2="" PaymentReference3="" PaymentReference4="" PaymentReference5="" DisplaySvcNo="" />
+                                </PaymentMethods>
+                            </Order>
+                        </ShipmentLine>
+                    </ShipmentLines>
+                </Shipment>
+            </Template>
+        </API>
+        <APINamespace inputNS="getShipmentDetails_input" outputNS="getShipmentDetails_output"/>
+        <AlternateResourceIds>
+            <AlternateResourceId altResourceId="WSC000008"/>
+        </AlternateResourceIds>
+    </mashup>
+</mashups>

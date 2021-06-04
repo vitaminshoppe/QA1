@@ -1136,7 +1136,7 @@ public class VSIOrderRepricingUEImpl implements YFSOrderRepricingUE,
 			dfRMDown.setRoundingMode(RoundingMode.DOWN);
 
 			DecimalFormat dfRMUp = new DecimalFormat(DEC_FORMAT);
-
+			DecimalFormat dfRMThreeDecimals = new DecimalFormat("#.000");
 			double costperunit = attrChargePerLine / attrOrderedQty;
 			String strCostperunit = dfRMDown.format(costperunit);
 

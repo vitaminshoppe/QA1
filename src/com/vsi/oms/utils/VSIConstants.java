@@ -2173,6 +2173,14 @@ public static final String ATTR_USER_KEY="UserKey";
 	public static final String ATTR_ALL_WH_ORG="VSI_ALL_WH_ORG";
 	public static final String ATTR_EXTN_DC_FOR_STORE ="ExtnDCForStore";
 	public static final String ATTR_EXTN_SINGLE_CARTON ="ExtnSingleCarton";
+	public static final String ATTR_VSI_WH_CHANGE_ORDER="VSI_WH_CHANGE_ORDER";
+	public static final String ATTR_EXTN_BOL_NO="ExtnBolNo";
+	public static final String ATTR_EXTN_DELIVERY_DATE="ExtnDeliveryDate";
+	public static final String ATTR_BOL_NO="BolNo";
+	public static final String ATTR_VSI_WH_BOLNO_FROM_UI="VSI_WH_BOLNO_FROM_UI";
+	public static final String ATTR_INVOICE_DETAIL="InvoiceDetail";
+    public static final String SERVICE_GET_SHIPMENT_LIST_FOR_ORDER_INV="VSIWHOrderGetShipmentList";
+	public static final String SERVICE_GET_SHIPMENT_LINE="VSIWHGetShipmentLine";
 	//OMS-changes for wholesale Project : End
 
      //OMS-3278: Start

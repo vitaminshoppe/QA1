@@ -14,11 +14,11 @@
 		LineSubTotal="" MasterInvoiceNo="" OrderInvoiceKey="" Reference1=""
 		TotalAmount="" TotalCharges="" TotalDiscount="" TotalHeaderCharges=""
 		TotalTax="" InvoiceCreationReason="">
-		<Extn ExtnTransactionNo="" ExtnAppeaseAmount="" ExtnSendTrailerInvoice="" ExtnTrailerNo="" ExtnIsLastInvoiceForOrder=""/>
+		<Extn ExtnTransactionNo="" ExtnAppeaseAmount="" ExtnSendTrailerInvoice="" ExtnTrailerNo="" ExtnIsLastInvoiceForOrder="" ExtnFlexReceiptFlag=""/>
 		<Order CustomerPONo="" BuyerOrganizationCode="" BillToID="" DeliveryCode=""
 			EnteredBy="" EnterpriseCode="" EntryType="" OrderHeaderKey=""
 			DocumentType="" OrderNo="" SellerOrganizationCode="" TermsCode=""
-			OrderType="" OrderDate="" TaxExemptFlag="" TaxExemptionCertificate="">
+			OrderType="" OrderDate="" TaxExemptFlag="" TaxExemptionCertificate="" CustomerEMailID="">
 			<Extn ExtnDTCOrder="" ExtnSource="" ExtnSubscriptionOrder="" FirstName="" EmpLastName1="" EmpLastName2=""
 				ExtnEmpDiscLevel="" EmployeeID="" ExtnStoreNo="" ExtnOriginalADPOrder="" ExtnReOrder=""/>
 			<PriceInfo Currency="" />
@@ -82,7 +82,7 @@
 				<OrderLine DerivedFromOrderLineKey="" OrderLineKey="" ReshipParentLineKey=""
 					DeliveryMethod="" PrimeLineNo="" SubLineNo="" CustomerPONo="" LineType=""
 					DispositionCode="" ReturnReason="" ShipNode="">
-					<Extn ExtnSDKLine="" />
+					<Extn ExtnSDKLine="" ExtnVendorSKU=""  />
 					<Item ItemID="" ProductClass="" UnitOfMeasure="" ItemShortDesc=""
 						UPCCode="">
 						<LanguageDescriptionList>
@@ -193,7 +193,9 @@
 					PaymentReference2="" PaymentReference3="" PaymentType=""
 					RequestedAuthAmount="" RequestedChargeAmount=""
 					SuspendAnyMoreCharges="" SvcNo="" TotalAuthorized=""
-					TotalCharged="" TotalRefundedAmount="" UnlimitedCharges="" />
+					TotalCharged="" TotalRefundedAmount="" UnlimitedCharges="" FirstName="" LastName="" DisplaySvcNo="" >
+						<Extn ExtnContactLess="" />
+				</PaymentMethod>
 			</CollectionDetail>
 		</CollectionDetails>
 	</InvoiceHeader>

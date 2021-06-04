@@ -2,12 +2,10 @@
 <ScreenBundle screenBundleId="extn.mobile.home.MobileHomeExtnBundle" screenId="extn.mobile.home.MobileHomeExtn">
     <BundleEntries>
         <BundleEntry bundleEntryId="lblPickup_Label_value"
-            bundleKey="extn_Orders_for_Pickup"
-            bundleValueFn="_scSimpleBundle" property="value"
-            type="WIDGET" uId="lblPickup"/>
+            bundleKey="extn_BOPUS" bundleValueFn="_scSimpleBundle"
+            property="value" type="WIDGET" uId="lblPickup"/>
         <BundleEntry bundleEntryId="lblShip_Label_value"
-            bundleKey="extn_Orders_for_Shipping"
-            bundleValueFn="_scSimpleBundle" property="value"
-            type="WIDGET" uId="lblShip"/>
+            bundleKey="extn_BOSS" bundleValueFn="_scSimpleBundle"
+            property="value" type="WIDGET" uId="lblShip"/>
     </BundleEntries>
 </ScreenBundle>

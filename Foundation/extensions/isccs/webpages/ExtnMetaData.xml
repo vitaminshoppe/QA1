@@ -220,6 +220,9 @@
             <UIExtn
                 appScreen="isccs.shipment.shipmentTracking.ShipmentTracking"
                 extnScreen="extn.shipment.shipmentTracking.ShipmentTrackingExtn" type="diffrential"/>
+            <UIExtn
+                appScreen="isccs.order.create.additems.GetOrganizationList"
+                extnScreen="extn.order.create.additems.GetOrganizationListExtn" type="diffrential"/>
         </UIExtns>
     </Identifier>
 </Extensions>

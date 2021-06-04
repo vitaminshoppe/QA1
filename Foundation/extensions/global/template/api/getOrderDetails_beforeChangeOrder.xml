@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Order BuyerOrganizationCode="" SellerOrganizationCode="" DocumentType="" PaymentStatus="" EnterpriseCode="" OrderType="" OrderPurpose="" OrderName="" LevelOfService="" CurrentUserRole="" SourceType="" OrderNo="" OrderHeaderKey=""   AllocationRuleID="" DraftOrderFlag="" >
+<Order BuyerOrganizationCode="" SellerOrganizationCode="" DocumentType="" PaymentStatus="" EnterpriseCode="" OrderType="" OrderPurpose="" OrderName="" LevelOfService="" CurrentUserRole="" SourceType="" OrderNo="" OrderHeaderKey=""   AllocationRuleID="" DraftOrderFlag="" EntryType="">
 <OrderLines>
 <OrderLine LineType=""/>
 <Promotions>

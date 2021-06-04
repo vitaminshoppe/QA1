@@ -29,6 +29,25 @@ return _dojodeclare("extn.mobile.home.MobileHomeExtnUI",
 	
 	
 	
+					,	
+	namespaces : {
+		targetBindingNamespaces :
+		[
+		],
+		sourceBindingNamespaces :
+		[
+			{
+	  description: "Namespace to store the Ship Packages Count"
+						,
+	  scExtensibilityArrayItemId: 'extn_SourceNamespaces_7'
+						,
+	  value: 'extn_shipPackages_getShipmentListCount_output'
+						
+			}
+			
+		]
+	}
+
 	
 	,
 	hotKeys: [ 

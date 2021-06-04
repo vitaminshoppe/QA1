@@ -567,7 +567,8 @@ function(
                                     this, "saveCurrentPage", null, eventArg);
                                 }
                             },
-                    onRowDeselect: function(
+					/* Mixed Cart Implementation : Below code is commented */
+                    /*onRowDeselect: function(
                     event, bEvent, ctrl, args) {
                         var deselectedRow = null;
                         deselectedRow = _scBaseUtils.getBeanValueFromBean("rowIndex", args);
@@ -597,7 +598,8 @@ function(
             			_scScreenUtils.showErrorMessageBox(
             				this, errorMessage, "waringCallback", textObj, null);
             			
-                    },
+                    }, */
+					/* Mixed Cart - End */
                     getCarrierServiceDateRange: function(
                     gridReference, rowNumber, columnIndex, gridRowJSON, unformattedValue) {
                         var length = 0;

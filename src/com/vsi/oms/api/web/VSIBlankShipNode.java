@@ -23,7 +23,7 @@ public class VSIBlankShipNode extends VSIBaseCustomAPI implements VSIConstants
         String entryType=orderElement.getAttribute(ATTR_ENTRY_TYPE);
         int counter=0;
         try{
-            if(strDocumentType.equalsIgnoreCase(ATTR_DOCUMENT_TYPE_SALES) &&entryType.equalsIgnoreCase(ENTRYTYPE_WEB) )
+            if(ATTR_DOCUMENT_TYPE_SALES.equalsIgnoreCase(strDocumentType) &&ENTRYTYPE_WEB.equalsIgnoreCase(entryType) )
             {
                 NodeList orderLineList = orderElement
                         .getElementsByTagName(VSIConstants.ELE_ORDER_LINE);

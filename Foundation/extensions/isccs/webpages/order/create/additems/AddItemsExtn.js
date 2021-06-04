@@ -328,8 +328,10 @@ function(
 			//alert(isPickLine);
 			//console.log(map['PICK']);
 			if(isShipLine && isPickLine){
-					_isccsBaseTemplateUtils.showMessage(this, "extn_delivery_method_message", "error", null);
-					return;
+				/* Mixed Cart Implementation : Below code is commented */
+					// _isccsBaseTemplateUtils.showMessage(this, "extn_delivery_method_message", "error", null);
+					// return;
+				/* Mixed Cart - End */
 				}
 			
 			//return;		

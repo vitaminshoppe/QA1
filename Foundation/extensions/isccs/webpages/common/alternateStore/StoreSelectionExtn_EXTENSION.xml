@@ -4,6 +4,12 @@
         extnPackage="extn.common.alternateStore"
         originalScreen="isccs.common.alternateStore.StoreSelection"
         originalScreenPackage="isccs.common.alternateStore" type="diffrential">
+        <Namespaces>
+            <SourceNamespaces>
+                <Source isExtn="true"
+                    scExtensibilityArrayItemId="extn_SourceNamespaces_7" value="extn_getCommonCodeForBOSTS"/>
+            </SourceNamespaces>
+        </Namespaces>
         <Items>
             <ContentPane _sc_extensibility_operation="change"
                 _sc_extensibility_referenceUId="systemMessagePanelPopup" renderHidden="true"/>
@@ -29,9 +35,18 @@
                     isExtn="true" sequence="51">
                     <Handler methodName="handleLinkClicked"/>
                 </Subscriber>
+                <Subscriber eventId="beforeBehaviorSetModel"
+                    isExtn="true" sequence="51">
+                    <Handler methodName="beforeBehaviourSetModel"/>
+                </Subscriber>
             </Local>
         </Subscribers>
         <MashupRefs>
+            <Init>
+                <MashupRef extnType="ADD"
+                    mashupId="extn_getCommonCodeForBOSTS"
+                    mashupRefId="extn_getCommonCodeForBOSTS" sourceNamespace="extn_getCommonCodeForBOSTS"/>
+            </Init>
             <Behavior>
                 <MashupRef extnType="ADD"
                     mashupId="extn_getFulfillmentOptionForLines" mashupRefId="extn_getFulfillmentOptionForLines"/>

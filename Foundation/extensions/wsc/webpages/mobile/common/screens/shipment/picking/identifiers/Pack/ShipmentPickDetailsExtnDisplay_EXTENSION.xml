@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ExtensionMetaData>
+    <ScreenDisplayExtension extnClassName="ShipmentPickDetailsExtn"
+        identifierId="Pack"
+        originalScreen="wsc.mobile.common.screens.shipment.picking.ShipmentPickDetails" originalScreenPackage="wsc.mobile.common.screens.shipment.picking">
+        <Items>
+            <DataLabel __isCurrentOrgInsert="true"
+                _sc_extensibility_moveOrder="5"
+                _sc_extensibility_operation="insert"
+                _sc_extensibility_position="after"
+                _sc_extensibility_referenceUId="lbl_IncludedInBatch"
+                data-ibmsc-uid="extn_CustNameBOSS" uId="extn_CustNameBOSS"/>
+        </Items>
+    </ScreenDisplayExtension>
+</ExtensionMetaData>

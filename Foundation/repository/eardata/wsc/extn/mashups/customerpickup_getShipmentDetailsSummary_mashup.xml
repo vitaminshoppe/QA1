@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mashups>
+    <mashup description="Get Shipment details for Customer Pick wizard"
+        endpoint="EP_CONFIG"
+        id="customerpickup_getShipmentDetailsSummary" mashuptype="XAPI"
+        skipDataProvider="false" transactional="true">
+        <classInformation name="com.ibm.wsc.shipment.details.WSCShipmentSummaryCustomMashup"/>
+        <API Name="getShipmentDetails">
+            <Input>
+                <Shipment
+                    DisplayLocalizedFieldInLocale="xml:CurrentUser:/User/@Localecode"
+                    SellerOrganizationCode="" ShipNode=""
+                    ShipmentKey="xml:scControllerInput:/Shipment/@ShipmentKey" ShipmentNo="xml:scControllerInput:/Shipment/@ShipmentNo"/>
+            </Input>
+            <Template>
+                <Shipment AssignedToUserId="" Currency=""
+                    DeliveryCode="" DeliveryMethod="" DisplayOrderNo=""
+                    DisplayStatus="" EnterpriseCode=""
+                    ExpectedShipmentDate="" HoldLocation="" OrderNo=""
+                    OriginalShipmentKey="" ScacAndService="" ShipNode=""
+                    ShipmentKey="" ShipmentNo="" Status="">
+                    <BillToAddress AddressLine1="" AddressLine2=""
+                        City="" Country="" CountryDesc="" DayFaxNo=""
+                        DayPhone="" EMailID="" EveningFaxNo=""
+                        EveningPhone="" FirstName=""
+                        IsCommercialAddress="" LastName="" MiddleName=""
+                        MobilePhone="" PersonInfoKey=""
+                        PreferredShipAddress="" State="" TitleDesc="" ZipCode=""/>
+                    <ShipmentLines>
+                        <ShipmentLine ShipmentLineKey="">
+                            <OrderLine OrderLineKey="">
+                                <PersonInfoMarkFor DayPhone=""
+                                    EMailID="" FirstName="" LastName="" PersonInfoKey=""/>
+                            </OrderLine>
+                            <Order OrderNo="">
+                                <PaymentMethods>
+                                    <PaymentMethod CreditCardName=""
+                                    CreditCardNo=""
+                                    CreditCardType=""
+                                    DisplayCreditCardNo=""
+                                    PaymentKey="" PaymentType="" PaymentTypeGroup="" PaymentReference1="" PaymentReference2="" PaymentReference3="" PaymentReference4="" PaymentReference5="" DisplaySvcNo="" />
+                                </PaymentMethods>
+                            </Order>
+                        </ShipmentLine>
+                    </ShipmentLines>
+                </Shipment>
+            </Template>
+        </API>
+        <APINamespace inputNS="getShipmentDetails_input" outputNS="getShipmentDetails_output"/>
+        <AlternateResourceIds>
+            <AlternateResourceId altResourceId="WSCSYS00001"/>
+            <AlternateResourceId altResourceId="WSC000001"/>
+        </AlternateResourceIds>
+    </mashup>
+</mashups>

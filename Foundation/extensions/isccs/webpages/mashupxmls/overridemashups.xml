@@ -2682,4 +2682,221 @@
             <AlternateResourceId altResourceId="ISCCSSYS002"/>
         </AlternateResourceIds>
     </mashup>
+        <Mashup
+        description="This mashup gets the complete order details ,and based on the no of person info elements coming in the output, HasMultipleAddresses attribute is populated to yes or no. This is used in address display screen to show information that there are multiple addresses of type personInfoShipTo."
+        endpoint="EP_ORDER" id="orderSummary_getCompleteOrderDetails"
+        mashupClassName="com.ibm.isccs.order.mashups.SCCSGetCompleteOrderDetailsWithMultipleShipping"
+        mashuptype="XAPI" transactional="true">
+        <API Name="getCompleteOrderDetails"/>
+        <APINamespace inputNS="getCompleteOrderDetails_input" outputNS="getCompleteOrderDetails_output"/>
+        <Input>
+            <Order
+                ApplicationCode="xml:ApplicationInfo:/ApplicationInfo@ApplicationCode"
+                ApplicationVersion="xml:ApplicationInfo:/ApplicationInfo@ApplicationVersion"
+                DisplayLocalizedFieldInLocale="xml:CurrentUser:/User/@Localecode"
+                DocumentType="" EnterpriseCode=""
+                IgnorePendingChange="Y"
+                OrderHeaderKey="xml:scControllerInput:/Order/@OrderHeaderKey" OrderNo=""/>
+        </Input>
+        <Template>
+            <Order BillToID="" BuyerUserID="" CarrierServiceCode=""
+                CreatorOrganizationCode="" CustomerContactID=""
+                CustomerFirstName="" CustomerLastName=""
+                DisplayStatusDescription="" DocumentType=""
+                EnterpriseCode="" EntryType="" ExchangeType=""
+                HasPendingChanges="" HoldFlag="" MaxOrderStatusDesc=""
+                MultipleStatusesExist="" OrderDate="" OrderHeaderKey=""
+                OrderName="" OrderNo="" OverallStatus=""
+                ReturnOrderHeaderKeyForExchange=""
+                SellerOrganizationCode="" ShipToKey="" Status=""
+                SupportLevel="" isHistory="" CustomerPONo="">
+                <PersonInfoShipTo MashupTemplateRef="PersonInfoShipTo"/>
+                <PersonInfoBillTo MashupTemplateRef="PersonInfoBillTo"/>
+                <OrderLines>
+                    <OrderLine DeliveryMethod=""/>
+                </OrderLines>
+                <OverallTotals/>
+                <PriceInfo/>
+                <OrderHoldTypes>
+                    <OrderHoldType Status=""/>
+                </OrderHoldTypes>
+                <Modifications>
+                    <Modification ModificationAllowed="" ModificationType=""/>
+                </Modifications>
+                <ReturnOrders>
+                    <ReturnOrder CustomerFirstName=""
+                        CustomerLastName="" CustomerZipCode=""
+                        DisplayStatusDescription="" EntryType=""
+                        HoldFlag="" MashupTemplateRef="OrderEditorInput"
+                        MaxOrderStatusDesc="" MultipleStatusesExist=""
+                        OrderDate="" OverallStatus="" Status="">
+                        <PriceInfo Currency="" TotalAmount=""/>
+                        <OverallTotals GrandExchangeTotal=""
+                            GrandRefundTotal="" GrandTotal=""
+                            PendingRefundAmount="" RefundedAmount=""/>
+                        <PersonInfoBillTo AddressLine1=""/>
+                        <ExchangeOrders>
+                            <ExchangeOrder DocumentType=""
+                                DraftOrderFlag="" EnterpriseCode=""
+                                ExchangeType=""
+                                MashupTemplateRef="OrderEditorInput"
+                                MaxOrderStatusDesc=""
+                                MultipleStatusesExist=""
+                                OrderHeaderKey="" OrderNo=""
+                                OverallStatus="" Status=""/>
+                        </ExchangeOrders>
+                    </ReturnOrder>
+                </ReturnOrders>
+                <Extn ExtnBolNo="" ExtnDeliveryDate="" ExtnIsMigrated=""/>
+            </Order>
+        </Template>
+        <AlternateResourceIds>
+            <AlternateResourceId altResourceId="ISCORD0001"/>
+        </AlternateResourceIds>
+    </Mashup>
+    <mashup
+        description="This mashup gets the complete order details ,and based on the no of person info elements coming in the output, HasMultipleAddresses attribute is populated to yes or no. This is used in address display screen to show information that there are multiple addresses of type personInfoShipTo."
+        endpoint="EP_ORDER" id="orderSummary_getCompleteOrderDetails"
+        mashuptype="XAPI" resourceId="" transactional="true">
+        <API Name="getCompleteOrderDetails">
+            <Input>
+                <Order
+                    ApplicationCode="xml:ApplicationInfo:/ApplicationInfo@ApplicationCode"
+                    ApplicationVersion="xml:ApplicationInfo:/ApplicationInfo@ApplicationVersion"
+                    DisplayLocalizedFieldInLocale="xml:CurrentUser:/User/@Localecode"
+                    DocumentType="" EnterpriseCode=""
+                    IgnorePendingChange="Y"
+                    OrderHeaderKey="xml:scControllerInput:/Order/@OrderHeaderKey" OrderNo=""/>
+            </Input>
+            <Template>
+                <Order BillToID="" BuyerUserID="" CarrierServiceCode=""
+                    CreatorOrganizationCode="" CustomerContactID=""
+                    CustomerFirstName="" CustomerLastName=""
+                    DisplayStatusDescription="" DocumentType=""
+                    EnterpriseCode="" EntryType="" ExchangeType=""
+                    HasPendingChanges="" HoldFlag=""
+                    MaxOrderStatusDesc="" MultipleStatusesExist=""
+                    OrderDate="" OrderHeaderKey="" OrderName=""
+                    OrderNo="" OverallStatus=""
+                    ReturnOrderHeaderKeyForExchange=""
+                    SellerOrganizationCode="" ShipToKey="" Status=""
+                    SupportLevel="" isHistory="" CustomerPONo="">
+                    <OverallTotals/>
+                    <PriceInfo/>
+                    <Modifications>
+                        <Modification ModificationAllowed="" ModificationType=""/>
+                    </Modifications>
+                    <PersonInfoBillTo AddressID="" AddressLine1=""
+                        AddressLine2="" City="" Company="" Country=""
+                        CountryDesc="" DayPhone="" Department=""
+                        EMailID="" EveningPhone="" FirstName=""
+                        IsAddressVerified="" IsCommercialAddress=""
+                        LastName="" MiddleName="" MobilePhone=""
+                        PersonID="" PersonInfoKey="" State="" Suffix=""
+                        Title="" TitleDesc="" ZipCode="" isHistory=""/>
+                    <OrderHoldTypes>
+                        <OrderHoldType Status=""/>
+                    </OrderHoldTypes>
+                    <ReturnOrders>
+                        <ReturnOrder BillToID=""
+                            BuyerOrganizationCode="" BuyerUserId=""
+                            CustomerContactID="" CustomerEMailID=""
+                            CustomerFirstName="" CustomerLastName=""
+                            CustomerPONo="" CustomerPhoneNo=""
+                            CustomerZipCode=""
+                            DisplayStatusDescription="" DocumentType=""
+                            DraftOrderFlag="" EnterpriseCode=""
+                            EntryType="" HoldFlag=""
+                            MaxOrderStatusDesc=""
+                            MultipleStatusesExist="" OrderDate=""
+                            OrderHeaderKey="" OrderName="" OrderNo=""
+                            OverallStatus="" SellerOrganizationCode=""
+                            Status="" TaxExemptFlag=""
+                            TaxExemptionCertificate="" isHistory="">
+                            <OverallTotals GrandExchangeTotal=""
+                                GrandRefundTotal="" GrandTotal=""
+                                PendingRefundAmount="" RefundedAmount=""/>
+                            <PriceInfo Currency="" TotalAmount=""/>
+                            <ExchangeOrders>
+                                <ExchangeOrder BillToID=""
+                                    BuyerOrganizationCode=""
+                                    BuyerUserId="" CustomerContactID=""
+                                    CustomerEMailID=""
+                                    CustomerFirstName=""
+                                    CustomerLastName="" CustomerPONo=""
+                                    CustomerPhoneNo=""
+                                    CustomerZipCode="" DocumentType=""
+                                    DraftOrderFlag="" EnterpriseCode=""
+                                    EntryType="" ExchangeType=""
+                                    MaxOrderStatusDesc=""
+                                    MultipleStatusesExist=""
+                                    OrderHeaderKey="" OrderName=""
+                                    OrderNo="" OverallStatus=""
+                                    SellerOrganizationCode="" Status=""
+                                    TaxExemptFlag=""
+                                    TaxExemptionCertificate="" isHistory="">
+                                    <PriceInfo Currency="" TotalAmount=""/>
+                                    <PersonInfoBillTo AddressID=""
+                                    AddressLine1="" AddressLine2=""
+                                    City="" Company="" Country=""
+                                    CountryDesc="" DayPhone=""
+                                    Department="" EMailID=""
+                                    EveningPhone="" FirstName=""
+                                    IsAddressVerified=""
+                                    IsCommercialAddress=""
+                                    LastName="" MiddleName=""
+                                    MobilePhone="" PersonID=""
+                                    PersonInfoKey="" State=""
+                                    Suffix="" Title="" TitleDesc=""
+                                    ZipCode="" isHistory=""/>
+                                    <PersonInfoShipTo AddressID=""
+                                    AddressLine1="" AddressLine2=""
+                                    City="" Company="" Country=""
+                                    CountryDesc="" DayPhone=""
+                                    Department="" EMailID=""
+                                    EveningPhone="" FirstName=""
+                                    IsAddressVerified=""
+                                    IsCommercialAddress=""
+                                    LastName="" MiddleName=""
+                                    MobilePhone="" PersonID=""
+                                    PersonInfoKey="" State=""
+                                    Suffix="" Title="" TitleDesc=""
+                                    ZipCode="" isHistory=""/>
+                                </ExchangeOrder>
+                            </ExchangeOrders>
+                            <PersonInfoBillTo AddressLine1=""/>
+                            <PersonInfoShipTo AddressID=""
+                                AddressLine1="" AddressLine2="" City=""
+                                Company="" Country="" CountryDesc=""
+                                DayPhone="" Department="" EMailID=""
+                                EveningPhone="" FirstName=""
+                                IsAddressVerified=""
+                                IsCommercialAddress="" LastName=""
+                                MiddleName="" MobilePhone="" PersonID=""
+                                PersonInfoKey="" State="" Suffix=""
+                                Title="" TitleDesc="" ZipCode="" isHistory=""/>
+                        </ReturnOrder>
+                    </ReturnOrders>
+                    <PersonInfoShipTo AddressID="" AddressLine1=""
+                        AddressLine2="" City="" Company="" Country=""
+                        CountryDesc="" DayPhone="" Department=""
+                        EMailID="" EveningPhone="" FirstName=""
+                        IsAddressVerified="" IsCommercialAddress=""
+                        LastName="" MiddleName="" MobilePhone=""
+                        PersonID="" PersonInfoKey="" State="" Suffix=""
+                        Title="" TitleDesc="" ZipCode="" isHistory=""/>
+                    <OrderLines>
+                        <OrderLine DeliveryMethod=""/>
+                    </OrderLines>
+                    <Extn ExtnBolNo="" ExtnDeliveryDate="" ExtnIsMigrated=""/>
+                </Order>
+            </Template>
+        </API>
+        <classInformation name="com.ibm.isccs.order.mashups.SCCSGetCompleteOrderDetailsWithMultipleShipping"/>
+        <APINamespace
+            inputNS="orderSummary_getCompleteOrderDetails_input" outputNS="orderSummary_getCompleteOrderDetails_output"/>
+        <AlternateResourceIds>
+            <AlternateResourceId altResourceId="ISCORD0001"/>
+        </AlternateResourceIds>
+    </mashup>
 </mashups>

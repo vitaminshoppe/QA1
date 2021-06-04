@@ -23,6 +23,24 @@ return _dojodeclare("extn.editors.OrderEditorRTExtnBehaviorController",
 			
 			
 			
+			
+			
+						,
+
+			
+			
+			 mashupRefs : 	[
+	 		{
+		 mashupRefId : 			'extn_changeOrder_OrderEditorRT'
+,
+		 mashupId : 			'extn_changeOrder_OrderEditorRT'
+,
+		 extnType : 			'ADD'
+
+	}
+
+	]
+
 }
 );
 });

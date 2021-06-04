@@ -207,7 +207,11 @@ define({ root:
 	//OMS-1085 : Start //
 	"extn_Status":"Status Name",
 	"extn_Status_Quantity":"Status Quantity",
-	"extn_Status_Date":"Status Date"
+	"extn_Status_Date":"Status Date",
 	//OMS-1085 : End//
+	"extn_Update_BOL": "Update BOL/Delivery Date",
+	"extn_BOL_Number" : "BOL Number",
+	"extn_Delivery_Date":"Delivery Date" ,
+	"extn_Wholesale_Order": "Wholesale Order#"
 },
 });

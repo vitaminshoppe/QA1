@@ -80,7 +80,14 @@ function(
 	},
 	onApply: function(event, bEvent, ctrl, args) {
 		var selectedShipNode = null;
+		var bostsFlag;
+		var notAvailableFlag = "N";
 		selectedShipNode = _scScreenUtils.getModel(this, "selectedShipNode_output");
+		var commonCodeModel = _scScreenUtils.getModel(this,"extn_getCommonCodeForBOSTS");
+        if (!_scBaseUtils.isVoid(commonCodeModel)) {
+              var commonCodeList = _scModelUtils.getModelListFromPath("CommonCodeList.CommonCode", commonCodeModel);
+              bostsFlag = commonCodeList[0].CodeShortDescription;                	 
+           }
 		if (!(_scBaseUtils.isVoid(selectedShipNode))) {
 			if (_scModelUtils.getBooleanValueFromPath("Node.Availability.IsAvailable", selectedShipNode, false)) {
 				// Code Fix for Defect SU-74 - START
@@ -120,13 +127,24 @@ function(
 								_scModelUtils.setStringValueAtModelPath("Quantity", quantity, node);
 								_scModelUtils.setStringValueAtModelPath("ProcuredQty", procuredQty, node);
 								_scModelUtils.addModelObjectToModelList(node, newOrderLineList);
+								if(_scBaseUtils.equals(isFutureAvailability, "Y") && _scBaseUtils.equals(bostsFlag,"Y")){
+					                if(_scBaseUtils.isVoid(isAvailableOnStore)){
+						                 notAvailableFlag = "Y";
+					                }
+							    }
 							}
 						}
 					}
 				}
 				// Code Fix for Defect SU-74 - END
-				_scScreenUtils.setPopupOutput(this, selectedShipNode);
-				_scWidgetUtils.closePopup(this, "APPLY", false);
+				if(_scBaseUtils.equals(notAvailableFlag,"Y")){
+					_scScreenUtils.showErrorMessageBox(
+					this, _scScreenUtils.getString(
+					this, "The_Selected_Store_Has_No_Availability"), "waringCallback", null);
+				}else{				
+					_scScreenUtils.setPopupOutput(this, selectedShipNode);
+					_scWidgetUtils.closePopup(this, "APPLY", false);
+				}
 			} else {
 				_scScreenUtils.showErrorMessageBox(
 				this, _scScreenUtils.getString(
@@ -138,12 +156,43 @@ function(
 		//console.log("args", args);
 		var isAvailable = _scModelUtils.getStringValueFromPath("item.Availability.IsAvailable", args);
 		var dateText;
+		var bostsFlag;
 		//console.log("isAvailable", isAvailable);
 		if (_scBaseUtils.equals(isAvailable, "Y")){
 			var isFutureAvailable = _scModelUtils.getStringValueFromPath("item.Availability.IsFutureAvailability", args);
 			//console.log("isFutureAvailable", isFutureAvailable);
 			if (_scBaseUtils.equals(isFutureAvailable, "Y")){
-				dateText =  _scModelUtils.getStringValueFromPath("item.Availability.AvailableDate", args);
+                var commonCodeModel = _scScreenUtils.getModel(this,"extn_getCommonCodeForBOSTS");
+                if (!_scBaseUtils.isVoid(commonCodeModel)) {
+                	var commonCodeList = _scModelUtils.getModelListFromPath("CommonCodeList.CommonCode", commonCodeModel);
+                	bostsFlag = commonCodeList[0].CodeShortDescription;                	 
+                }
+				var shipNode = _scModelUtils.getStringValueFromPath("item.Availability.ShipNode",args);
+				var orderLineList = _scModelUtils.getStringValueFromPath("OrderLine", _scScreenUtils.getModel(this, "extn_alternateStoreOutput"));
+				console.log("orderLineList", orderLineList);
+                if(!_scBaseUtils.isVoid(orderLineList)){
+					for(var i in orderLineList){
+						var orderLine = orderLineList[i];						
+						var availabilityList = _scModelUtils.getStringValueFromPath("AvailabilityList.Availability", orderLine);						
+						for (var j = 0; j < _scBaseUtils.getAttributeCount(availabilityList); j = j + 1) {
+							var availability = availabilityList[j];
+							var orderLineShipNode = _scModelUtils.getStringValueFromPath("ShipNode",availability);
+							if (_scBaseUtils.equals(orderLineShipNode, shipNode)){
+								var isAvailableOnStore = _scModelUtils.getStringValueFromPath("IsAvailableOnStore",availability);								
+								break;
+							}
+						}
+					}
+				}				
+				if(_scBaseUtils.equals(bostsFlag,"Y")){
+					if(!_scBaseUtils.isVoid(isAvailableOnStore) && _scBaseUtils.equals(isAvailableOnStore,"Y")){
+						dateText = "Today";
+					}else{
+						dateText = "Not Available";
+					}	
+				}else{				
+					dateText =  _scModelUtils.getStringValueFromPath("item.Availability.AvailableDate", args);
+				}
 			}else{
 				dateText = "Today";
 			}
@@ -207,6 +256,17 @@ function(
 		_scBaseUtils.addModelValueToBean("screenInput", node, popupParams);
 		//Code Added for fix of Defect SU-31 - END
 		_isccsUIUtils.openSimplePopup("extn.custom.availabilityDetails.AvailabilityDetails", "Item Availability Details for ShipNode : "+selectedShipNode, this, popupParams, dialogParams);
+	},
+	
+	beforeBehaviourSetModel: function(event, bEvent, ctrlId, args) {
+		var nameSpace = _scModelUtils.getStringValueFromPath("namespace",args);
+		if(_scBaseUtils.equals(nameSpace,"getAlternateStoreAvailability_output")){
+			var modelOutput = _scBaseUtils.getValueFromPath("modelObject",args);
+			if (!(_scBaseUtils.isEmptyArray(_scModelUtils.getModelListFromPath("AlternateStores.NodeList.Node", modelOutput)))) {
+				var orderlines = _scModelUtils.getModelObjectFromPath("AlternateStores.OrderLines", modelOutput);
+				this.setModel("extn_alternateStoreOutput",orderlines);	
+			}	
+		}
 	}
 });
 });

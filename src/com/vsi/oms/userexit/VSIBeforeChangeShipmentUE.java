@@ -274,7 +274,8 @@ public class VSIBeforeChangeShipmentUE implements YDMBeforeChangeShipment,VSICon
 									eleShipment.setAttribute(ATTR_ACTION, ACTION_CANCEL);
 									printLogs("Setting Shipment Action as Cancel");
 								}
-							}else if(iNoofShpLns == 2) {
+							}else if(iNoofShpLns > 1) {
+								int noOfOpenShipments = 0;
 								for(int j=0; j<nlShpmntLn.getLength(); j++){
 									Element eleShipmentLn=(Element)nlShpmntLn.item(j);
 									String strShpmntLineKey=eleShipmentLn.getAttribute(ATTR_SHIPMENT_LINE_KEY);
@@ -284,10 +285,13 @@ public class VSIBeforeChangeShipmentUE implements YDMBeforeChangeShipment,VSICon
 										String strMaxLineSts=eleOrderLn.getAttribute(ATTR_MAX_LINE_STATUS);
 										String strMinLineSts=eleOrderLn.getAttribute(ATTR_MIN_LINE_STATUS);
 										if(quantity == 0 && STATUS_CANCEL.equals(strMinLineSts) && STATUS_CANCEL.equals(strMaxLineSts)) {
-											eleShipment.setAttribute(ATTR_ACTION, ACTION_CANCEL);
-											printLogs("Setting Shipment Action as Cancel");
+											noOfOpenShipments++;																			
 										}
 									}
+								}
+								if(noOfOpenShipments == (iNoofShpLns-1)) {
+									eleShipment.setAttribute(ATTR_ACTION, ACTION_CANCEL);
+									printLogs("Setting Shipment Action as Cancel, as the open shipmentlines are shorted.");
 								}
 							}
 						}

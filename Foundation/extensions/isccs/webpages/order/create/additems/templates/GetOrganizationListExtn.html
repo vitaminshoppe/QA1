@@ -1,0 +1,62 @@
+		<div>
+		 	<div data-dojo-type="idx/form/DateTextBox" 
+	 					data-dojo-props="data_dojo_props_diff: {
+	 								renderHidden : true , 
+		uId : 'extn_datetextbox_deliveryDate' , 
+		_sc_extensibility_moveOrder : '2' , 
+		_sc_extensibility_operation : 'insert' , 
+		'class' : 'isccsScreen autoLabelZeroWidth' , 
+		_sc_extensibility_position : 'after' , 
+		_sc_extensibility_referenceUId : 'extn_textfield_BOLNumber' , 
+		required : true  
+ 		,scExtensionDataFn :
+		 function() { 
+			return { 
+			 	bindingData : 	{
+		 targetBinding : 	[
+	 		{
+		 namespace : 			'getOrderOutput'
+,
+		 path : 			'Order.Extn.ExtnDeliveryDate'
+,
+		 scExtensibilityArrayItemId : 			'extn_TargetBindings_0'
+	}
+	]
+	}
+,	
+			 	label : 			'Delivery Date:'
+			}
+		}
+	 					}">
+		 	</div>  
+		 	<div data-dojo-type="idx/form/TextBox" 
+	 					data-dojo-props="data_dojo_props_diff: {
+	 								renderHidden : true , 
+		uId : 'extn_textfield_BOLNumber' , 
+		_sc_extensibility_operation : 'insert' , 
+		_sc_extensibility_moveOrder : '1' , 
+		'class' : 'isccsScreen autoLabelZeroWidth' , 
+		_sc_extensibility_position : 'before' , 
+		_sc_extensibility_referenceUId : 'Popup_navigationPanel' , 
+		required : true  
+ 		,scExtensionDataFn :
+		 function() { 
+			return { 
+			 	bindingData : 	{
+		 targetBinding : 	[
+	 		{
+		 namespace : 			'getOrderOutput'
+,
+		 path : 			'Order.Extn.ExtnBolNo'
+,
+		 scExtensibilityArrayItemId : 			'extn_TargetBindings_0'
+	}
+	]
+	}
+,	
+			 	label : 			'BOL Number:'
+			}
+		}
+	 					}">
+		 	</div>  
+		</div>

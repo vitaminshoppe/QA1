@@ -1,6 +1,6 @@
 <OrderList>
 	<Order  OrderHeaderKey="" DraftOrderFlag="" MaxOrderStatus="" MinOrderStatus="" DocumentType="" EntryType="" OrderType="">
-		<Extn ExtnAurusToken=""/>
+		<Extn ExtnAurusToken="" ExtnSubscriptionOrder="" ExtnOriginalADPOrder=""/>
 		<OrderLines>
 			<OrderLine OrderHeaderKey="" OrderLineKey="" LineType="" OrderedQty="" PrimeLineNo="" >
 				<DerivedFromOrder DocumentType="" EnterpriseCode="" OrderNo="" MaxOrderStatus="" MinOrderStatus="" OrderHeaderKey="">

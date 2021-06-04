@@ -1,0 +1,193 @@
+<div class="sc-platform-screen-default paymentcapture_other">
+
+    <div data-dojo-type="idx/layout/ContentPane" data-dojo-props="		spanLabel : true , 'class' : 'isccsScreen singlecolumntable' , uId : 'ContentPane3'   ">
+		
+		<div data-dojo-type="sc/plat/dojo/widgets/DataLabel" data-dojo-props="		'class' : 'blockComponent autoLabelZeroWidth comappsWrapWord orderNumber' , 
+				shouldEncodeValue : false , 
+				spanLabel : true,
+				uId : 'orderNoNew'  
+				,scParamDataFn :
+				 function() { 
+					return { 
+						label : 			this.getSimpleBundleString('Label_Order_number_mobile')
+		,	
+						bindingData : 	{
+				 sourceBinding : 	{
+				 path : 			'Order.OrderNo'
+		,
+				 namespace : 			'extn_getOrderDetailsNS'
+			}
+			}
+					}
+				}
+		" role='heading'>
+		</div>
+		<div data-dojo-type="idx/layout/ContentPane" data-dojo-props="		spanLabel : true , 
+		uId : 'extn_orderDetailsTableCP'  
+ 		,scParamDataFn :
+		 function() { 
+			return { 
+			 	'aria-label' : 			this.getSimpleBundleString('Order Details')
+			}
+		}
+" role='region'>
+		<div data-dojo-type="gridx/Grid" style="overflow-x:auto;overflow-y:auto;text-align: center;" data-dojo-props="		spanLabel : true , 
+		selectRowTriggerOnCell : true , 
+		autoWidth : false , 
+		uId : 'extn_OLST_listGrid' , 
+		autoHeight : true , 
+		cacheClass : 'gridx/core/model/cache/Async'  
+ 			 , modules : 	[
+	 		{
+		 moduleClass : 			'gridx/modules/Edit'
+	}
+,
+	 		{
+		 moduleClass : 			'gridx/modules/CellWidget'
+	}
+,
+	 		{
+		 moduleClass : 			'sc/plat/dojo/plugins/gridx/PaginationBar'
+	}
+,
+	 		{
+		 moduleClass : 			'sc/plat/dojo/plugins/gridx/Pagination'
+	}
+	]
+		,scParamDataFn :
+		 function() { 
+			return { 
+			 	structure : 	[
+	 	
+	 		{
+		 field : 			'ItemID'
+,
+		 uId : 			'extn_itemID'
+,
+		 bindingData : 	{
+		 sFieldBinding : 	{
+		 path : 			'Item.ItemID'
+,
+		 dynamicBindingFunc : 			''
+,
+		 dynamicBindingPackage : 			''
+,
+		 dynamicBindingClassName : 			''
+	}
+	}
+,
+		 aria_label : 			this.getSimpleBundleString('Item ID')
+,
+		 width : 			'30%'
+,
+		 name : 			this.getSimpleBundleString('Item ID')
+	}
+,
+	 		{
+		 field : 			'Quantity'
+,
+		 uId : 			'extn_StatusQuantity'
+,
+		 bindingData : 	{
+		 sFieldBinding : 	{
+		 path : 			'StatusQuantity'
+,
+		 dynamicBindingFunc : 			''
+,
+		 dynamicBindingPackage : 			''
+,
+		 dynamicBindingClassName : 			''
+	}
+	}
+,
+		 aria_label : 			this.getSimpleBundleString('Quantity')
+,
+		 width : 			'30%'
+,
+		 name : 			this.getSimpleBundleString('Quantity')
+	}
+,
+	 		{
+		 field : 			'Status'
+,
+		 uId : 			'extn_Status'
+,
+		 bindingData : 	{
+		 sFieldBinding : 	{
+		 path : 			'Status'
+,
+		 dynamicBindingFunc : 			''
+,
+		 dynamicBindingPackage : 			''
+,
+		 dynamicBindingClassName : 			''
+	}
+	}
+,
+		 width : 			'40%'
+,
+		 name : 			this.getSimpleBundleString('Status')
+	}
+
+	]
+,	
+			 	bindingData : 	{
+		 hiddenCustomColumns : 	[]
+
+,
+		 targetBinding : 	[
+	 		{
+		 path : 			'Order.OrderLines.OrderLine'
+,
+		 namespace : 			'extn_getOrderDetailsNS_input'
+	}
+	]
+,
+		 pagination : 	{
+		 pageSizesClassName : 			'UIUtils'
+,
+		 pageSizePackage : 			'ias.utils'
+,
+		 paginationActionsCustomImpl : 			true
+,
+		 pageSizesFunc : 			'getPageSizes'
+,
+		 strategy : 			'NEXTPAGE'
+,
+		 pageSizeFunc : 			'getPageSize'
+,
+		 pageSizeClassName : 			'UIUtils'
+,
+		 pageSizesPackage : 			'ias.utils'
+	}
+,
+		 sourceBinding : 	{
+		 path : 			'Order.OrderLines.OrderLine'
+,
+		 namespace : 			'extn_getOrderDetailsNS'
+	}
+	}
+,	
+			 	bodyLoadingInfo : 			this.getSimpleBundleString('Label_Loading')
+,	
+			 	bodyEmptyInfo : 			this.getSimpleBundleString('Label_NoSearchResults')
+			}
+		}
+"></div>
+		</div>
+		
+		<div data-dojo-type="dijit/form/Button" style="float: right;"
+		 data-dojo-props=" spanLabel : true ,  
+		'class' : 'idxSecondaryButton' , 
+		showLabel : true , 
+		uId : 'Popup_btnClose',
+		scParamDataFn : function() { 
+			return { 
+				label :this.getSimpleBundleString('Close')
+			}
+	}">
+	</div>
+
+    </div>
+
+</div>

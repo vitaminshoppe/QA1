@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ExtensionMetaData>
+    <ScreenExtension extnClassName="BackroomPickProductScanExtn"
+        extnPackage="extn.components.shipment.backroompick"
+        originalScreen="wsc.components.shipment.backroompick.BackroomPickProductScan"
+        originalScreenPackage="wsc.components.shipment.backroompick" type="diffrential">
+        <Items>
+            <TextField _sc_extensibility_operation="change"
+                _sc_extensibility_referenceUId="scanProductIdTxt" hint="$(_scSimpleBundle:extn_Enter_Item_ID_or_UPC_Code)"/>
+            <Link _sc_extensibility_operation="change"
+                _sc_extensibility_referenceUId="addProductButton" renderHidden="true"/>
+        </Items>
+    </ScreenExtension>
+</ExtensionMetaData>

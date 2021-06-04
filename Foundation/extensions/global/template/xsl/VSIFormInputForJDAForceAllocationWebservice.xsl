@@ -50,7 +50,7 @@
 						</xsl:when>
 						<!-- When STH then use Entered by as Store -->
 						<xsl:when test="OrderRelease/@SfsAllocation='Y'">
-							<xsl:value-of select="OrderRelease/@ShipNode" />
+							<xsl:value-of select="'6102'" />
 						</xsl:when>						
 						<xsl:otherwise>
 							<xsl:value-of select="OrderRelease/Order/@EnteredBy" />

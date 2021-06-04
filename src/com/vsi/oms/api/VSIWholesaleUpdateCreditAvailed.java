@@ -21,6 +21,8 @@ public class VSIWholesaleUpdateCreditAvailed implements VSIConstants{
 		
 		Element eleOrder = inXML.getDocumentElement();
 		
+		
+		
 		String strEnterpriseCode = eleOrder.getAttribute(ATTR_ENTERPRISE_CODE);
 		String strDocumentType = eleOrder.getAttribute(ATTR_DOCUMENT_TYPE);
 		//Element elePriceInfo = (Element) eleOrder.getElementsByTagName(ELE_PRICE_INFO).item(0);
@@ -29,7 +31,7 @@ public class VSIWholesaleUpdateCreditAvailed implements VSIConstants{
 		Double dblOldValue = 0.0;
 		Double dblChangeInTotalAmount = 0.0;
 		
-		if(!YFCObject.isVoid(eleOrder)){
+		if(!YFCObject.isVoid(eleOrder) && VSIConstants.ELE_ORDER.equals(eleOrder.getNodeName())){
 			
 			NodeList nlAttribute = eleOrder.getElementsByTagName(ELE_ATTRIBUTE);
 			for(int i = 0; i < nlAttribute.getLength(); i++){

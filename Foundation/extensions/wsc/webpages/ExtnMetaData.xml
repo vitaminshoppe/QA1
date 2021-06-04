@@ -7,27 +7,32 @@
                 extnScreen="extn.mobile.common.screens.shipment.picking.ShipmentPickDetailsExtn" type="diffrential">
                 <IdentifierList>
                     <Identifier identifierId="Pick" type="change"/>
+                    <Identifier identifierId="Ship" type="change"/>
+                    <Identifier identifierId="Pack" type="change"/>
                 </IdentifierList>
             </UIExtn>
             <UIExtn appScreen="wsc.mobile.home.search.Search"
                 extnScreen="extn.mobile.home.search.SearchExtn" type="diffrential"/>
-			<UIExtn appScreen="wsc.components.alerts.AlertDetails"
-                extnScreen="extn.components.alerts.AlertDetailsExtn" type="diffrential"/>
             <UIExtn
                 appScreen="wsc.components.shipment.container.pack.ContainerPackContainerList"
                 extnScreen="extn.components.shipment.container.pack.ContainerPackContainerListExtn" type="diffrential"/>
-			<UIExtn
+            <UIExtn
+                appScreen="wsc.components.shipment.container.pack.ContainerPack"
+                extnScreen="extn.components.shipment.container.pack.ContainerPackExtn" type="diffrential"/>
+            <UIExtn appScreen="wsc.components.alerts.AlertDetails"
+                extnScreen="extn.components.alerts.AlertDetailsExtn" type="diffrential"/>
+            <UIExtn
                 appScreen="wsc.components.shipment.summary.ShipmentRT"
                 extnScreen="extn.components.shipment.summary.ShipmentRTExtn" type="diffrential"/>
-			 <UIExtn appScreen="wsc.mobile.home.MobileHome"
+            <UIExtn appScreen="wsc.mobile.home.MobileHome"
                 extnScreen="extn.mobile.home.MobileHomeExtn" type="diffrential"/>
-			<UIExtn
+            <UIExtn
                 appScreen="wsc.components.shipment.container.pack.ContainerPackShipmentLineList"
                 extnScreen="extn.components.shipment.container.pack.ContainerPackShipmentLineListExtn" type="diffrential"/>
-			<UIExtn
+            <UIExtn
                 appScreen="wsc.components.shipment.common.screens.ShipmentLineDetails"
                 extnScreen="extn.components.shipment.common.screens.ShipmentLineDetailsExtn" type="diffrential"/>
-			<UIExtn
+            <UIExtn
                 appScreen="wsc.components.shipment.customerpickup.PickupOrderLineDetails"
                 extnScreen="extn.components.shipment.customerpickup.PickupOrderLineDetailsExtn" type="diffrential">
                 <IdentifierList>
@@ -36,6 +41,48 @@
                     <Identifier identifierId="PickedLine" type="change"/>
                 </IdentifierList>
             </UIExtn>
+            <UIExtn
+                appScreen="wsc.components.shipment.summary.ShipmentSummary"
+                extnScreen="extn.components.shipment.summary.ShipmentSummaryExtn" type="diffrential"/>
+            <UIExtn
+                appScreen="wsc.components.shipment.backroompick.BackroomPickProductScan"
+                extnScreen="extn.components.shipment.backroompick.BackroomPickProductScanExtn" type="diffrential"/>
+            <UIExtn
+                appScreen="wsc.components.shipment.customerpickup.ProductVerification"
+                extnScreen="extn.components.shipment.customerpickup.ProductVerificationExtn" type="diffrential"/>
+            <UIExtn
+                appScreen="wsc.components.shipment.container.pack.ContainerPackItemScan"
+                extnScreen="extn.components.shipment.container.pack.ContainerPackItemScanExtn" type="diffrential"/>
+            <UIExtn
+                appScreen="wsc.components.shipment.container.pack.ItemPack"
+                extnScreen="extn.components.shipment.container.pack.ItemPackExtn" type="diffrential"/>
+            <UIExtn
+                appScreen="wsc.components.shipment.summary.ShipmentSummaryContainerMoreOption"
+                extnScreen="extn.components.shipment.summary.ShipmentSummaryContainerMoreOptionExtn" type="diffrential"/>
+            <UIExtn
+                appScreen="wsc.mobile.home.subscreens.TasksInProgress"
+                extnScreen="extn.mobile.home.subscreens.TasksInProgressExtn" type="diffrential"/>
+            <UIExtn
+                appScreen="wsc.components.shipment.customerpickup.CustomerIdentification"
+                extnScreen="extn.components.shipment.customerpickup.CustomerIdentificationExtn" type="diffrential"/>
+            <UIExtn
+                appScreen="wsc.components.shipment.customerpickup.Summary"
+                extnScreen="extn.components.shipment.customerpickup.SummaryExtn" type="diffrential"/>
+            <UIExtn
+                appScreen="wsc.components.shipment.confirm.ConfirmShipmentContainerDetail"
+                extnScreen="extn.components.shipment.confirm.ConfirmShipmentContainerDetailExtn" type="diffrential"/>
+            <UIExtn
+                appScreen="wsc.components.shipment.confirm.ConfirmShipmentDetail"
+                extnScreen="extn.components.shipment.confirm.ConfirmShipmentDetailExtn" type="diffrential"/>
+            <UIExtn appScreen="wsc.mobile.home.search.AdvancedSearch"
+                extnScreen="extn.mobile.home.search.AdvancedSearchExtn" type="diffrential"/>
+            <UIExtn appScreen="wsc.mobile.home.subscreens.ShipFromStore"
+                extnScreen="extn.mobile.home.subscreens.ShipFromStoreExtn" type="diffrential"/>
+            <UIExtn
+                appScreen="wsc.mobile.home.subscreens.OrdersReadyForPacking"
+                extnScreen="extn.mobile.home.subscreens.OrdersReadyForPackingExtn" type="diffrential"/>
+            <UIExtn appScreen="wsc.mobile.home.subscreens.PickupInStore"
+                extnScreen="extn.mobile.home.subscreens.PickupInStoreExtn" type="diffrential"/>
         </UIExtns>
     </Identifier>
 </Extensions>

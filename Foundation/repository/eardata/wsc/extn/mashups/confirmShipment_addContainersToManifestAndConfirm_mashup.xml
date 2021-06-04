@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mashups>
+    <mashup
+        description="Used to add containers to manifest and close the manifest"
+        endpoint="EP_CONFIG"
+        id="confirmShipment_addContainersToManifestAndConfirm"
+        mashuptype="XAPI" skipDataProvider="false" transactional="true">
+        <classInformation name="com.ibm.wsc.shipment.confirm.AddContainersToManifestAndConfirm"/>
+        <API Name="addAllContainersToManifest">
+            <Input>
+                <Container DisplayLocalizedFieldInLocale="xml:CurrentUser:/User/@Localecode">
+                    <Shipment
+                          EnterpriseCode="" SCAC="" ShipNode="xml:CurrentStore:/Store/@ShipNode"/>
+                </Container>
+            </Input>
+            <Template>
+                <FailedContainers TotalFailures="">
+                    <Container ContainerNo="" ShipmentContainerKey=""
+                        ShipmentKey="" TrackingNo="">
+                        <Shipment OrderNo="" ShipmentNo=""/>
+                    </Container>
+                </FailedContainers>
+            </Template>
+        </API>
+        <APINamespace inputNS="addContainersToManifestAndConfirm_input" outputNS="addContainersToManifestAndConfirm_output"/>
+        <AlternateResourceIds>
+            <AlternateResourceId altResourceId="WSC000020"/>
+        </AlternateResourceIds>
+    </mashup>
+</mashups>

@@ -26,6 +26,7 @@
                     <OrderBy>
                         <Attribute Desc="" Name="xml:scControllerInput:/Shipment/@OrderByAttribute"/>
                     </OrderBy>
+					<Extn ExtnCaseInsensitiveFirstName="xml:scControllerInput:/Shipment/Extn/@ExtnCaseInsensitiveFirstName" ExtnCaseInsensitiveLastName="xml:scControllerInput:/Shipment/Extn/@ExtnCaseInsensitiveLastName" ExtnCaseInsensitiveEmail="xml:scControllerInput:/Shipment/Extn/@ExtnCaseInsensitiveEmail" />
                 </Shipment>
             </Input>
             <Template>
@@ -35,6 +36,7 @@
                         IncludedInBatch="" OrderNo="" SCAC=""
                         ScacAndService="" ShipNode="" ShipmentKey=""
                         ShipmentNo="" TotalNumOfSKUS="" CustomerPoNo="">
+						<Extn ExtnName=""/>
                         <Status Description="" Status=""/>
                         <BillToAddress AddressLine1="" AddressLine2=""
                             City="" Country="" DayFaxNo="" DayPhone=""

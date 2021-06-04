@@ -2,4 +2,10 @@
 <Controller
     className="com.sterlingcommerce.ui.web.platform.controller.SCUIXAPIMashupController"
     controllerId="extn.common.alternateStore.StoreSelectionExtnInitController"
-    requestMethodSupported="POST" screenId="extn.common.alternateStore.StoreSelectionExtn"/>
+    requestMethodSupported="POST" screenId="extn.common.alternateStore.StoreSelectionExtn">
+    <Group isAggregator="Y"/>
+    <MashupRefs>
+        <MashupRef extnType="ADD" mashupId="extn_getCommonCodeForBOSTS"
+            mashupRefId="extn_getCommonCodeForBOSTS" permissionId=""/>
+    </MashupRefs>
+</Controller>

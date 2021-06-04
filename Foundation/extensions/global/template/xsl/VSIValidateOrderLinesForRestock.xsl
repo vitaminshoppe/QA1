@@ -66,7 +66,7 @@
 									<xsl:otherwise>
 										<xsl:choose>
 											<xsl:when
-												test="(number($Status) != 2160.100 and number($Status) != 2160 and number($Status) &gt; 1500.100 and number($Status) &lt; 3700 )">
+												test="(number($Status) != 2160.100 and number($Status) != 2160 and number($Status) != 3350.10 and number($Status) != 3350.20 and number($Status) != 3350.30 and number($Status) != 3200 and number($Status) &gt; 1500.100 and number($Status) &lt; 3700 )">
 												<xsl:attribute name="HasOrderLines"><xsl:text>Y</xsl:text></xsl:attribute>
 												<OrderLine>
 													<xsl:attribute name="OrderLineKey">

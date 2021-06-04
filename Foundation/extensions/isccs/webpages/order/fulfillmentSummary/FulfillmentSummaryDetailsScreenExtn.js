@@ -388,10 +388,11 @@ function(
 			console.log("pickupGroups", pickupGroups);
 			console.log("shippingGroups", shippingGroups);
 			
-			if (!_scBaseUtils.isVoid(pickupGroups) && !_scBaseUtils.isVoid(shippingGroups)) {
+			/* Mixed Cart Implementation : Below code is commented */
+			/*if (!_scBaseUtils.isVoid(pickupGroups) && !_scBaseUtils.isVoid(shippingGroups)) {
 				console.log("ERROR in checkFulfillmentOptions");
 				_isccsBaseTemplateUtils.showMessage(this, "extn_delivery_method_message", "error", null);
-			} else {
+			} else { */
 		
 				if (!_scBaseUtils.or(
 				this.isUnavailbleShpVisible, _scBaseUtils.or(
@@ -481,7 +482,7 @@ function(
 					_isccsBaseTemplateUtils.showMessage(
 					this, "unavailableLines", "error", null);
 				}
-			}
+			/* Mixed Cart - End (There was a closing bracket } here */
         }
         if (
         _scBaseUtils.equals(

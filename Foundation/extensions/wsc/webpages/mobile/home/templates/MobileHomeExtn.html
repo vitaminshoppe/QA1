@@ -6,7 +6,7 @@
  		,scExtensionDataFn :
 		 function() { 
 			return { 
-			 	value : 			this.getSimpleBundleString('extn_Orders_for_Pickup')
+			 	value : 			this.getSimpleBundleString('extn_BOPUS')
 			}
 		}
 	 					}">
@@ -18,7 +18,38 @@
  		,scExtensionDataFn :
 		 function() { 
 			return { 
-			 	value : 			this.getSimpleBundleString('extn_Orders_for_Shipping')
+			 	value : 			this.getSimpleBundleString('extn_BOSS')
+			}
+		}
+	 					}">
+		 	</div>  
+		 	<div data-dojo-type="sc/plat/dojo/widgets/Label" 
+	 					data-dojo-props="data_dojo_props_diff: {
+	 								_sc_extensibility_operation : 'change' , 
+		'class' : 'taskLabel' , 
+		_sc_extensibility_referenceUId : 'lblConfirmOrders'  
+	 					}">
+		 	</div>  
+		 	<div data-dojo-type="sc/plat/dojo/widgets/Label" 
+	 					data-dojo-props="data_dojo_props_diff: {
+	 								uId : 'extn_lblShipPackagesCount' , 
+		_sc_extensibility_operation : 'insert' , 
+		_sc_extensibility_moveOrder : '1' , 
+		'class' : 'orderCount' , 
+		_sc_extensibility_position : 'before' , 
+		_sc_extensibility_referenceUId : 'lblConfirmOrders'  
+ 		,scExtensionDataFn :
+		 function() { 
+			return { 
+			 	bindingData : 	{
+		 sourceBinding : 	{
+		 namespace : 			'extn_shipPackages_getShipmentListCount_output'
+,
+		 path : 			'Containers.TotalNumberOfRecords'
+,
+		 dynamicBindingFunc : 			'extn_shipPackagesBindingFunc'
+	}
+	}
 			}
 		}
 	 					}">

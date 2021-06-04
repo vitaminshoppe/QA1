@@ -1,0 +1,10 @@
+<Shipments TotalNumberOfRecords=""> 
+	<Shipment DocumentType="" EnterpriseCode="" OrderNo="" ReleaseNo="" ShipNode="" ShipmentNo="" ShipmentType="" Status="" Modifyprogid="" DeliveryMethod="" ShipmentKey="">   
+		<ShipmentLines>
+			<ShipmentLine BackroomPickedQuantity="" CustomerPoNo="" ItemDesc="" ItemID="" OrderHeaderKey="" OrderLineKey="" OrderNo="" PrimeLineNo="" Quantity="" ShipmentLineKey="" ShipmentLineNo="" ShortageQty="" ReleaseNo="">
+				<Order CustomerPONo="" DocumentType="" EnterpriseCode="" EntryType="" MaxOrderStatus="" MaxOrderStatusDesc="" MinOrderStatus="" MinOrderStatusDesc="" Modifyts="" OrderDate="" OrderHeaderKey="" OrderNo="" OrderType="" Modifyprogid="" CustomerFirstName="" CustomerLastName="" Createts="" BillToID=""/>
+				<OrderLine ConditionVariable1="" CustomerPONo="" DeliveryMethod="" LineType="" MaxLineStatus="" MaxLineStatusDesc="" MinLineStatus="" MinLineStatusDesc=""  OrderHeaderKey="" OrderLineKey="" OrderedQty="" OriginalOrderedQty="" PipelineKey="" PrimeLineNo="" ShipNode="" Status="" StatusQuantity=""/>				
+			</ShipmentLine>
+		</ShipmentLines>   
+	</Shipment>
+</Shipments>

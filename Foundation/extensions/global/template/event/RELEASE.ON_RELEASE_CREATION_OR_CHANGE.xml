@@ -20,7 +20,9 @@ US Government Users Restricted Rights - Use, duplication or disclosure restricte
     ShipAdviceNo="" ShipCompleteFlag="" ShipLineComplete="" ShipNode=""
     ShipNodeClass="" ShipOrderComplete="" ShipToId="" ShipToKey=""
     Status="" SupplierCode="" SupplierName="" TaxpayerId="" isHistory="">
-    <Order EnterpriseCode="" OrderHeaderKey="" DocumentType="" OrderNo="" SourcingClassification="" EntryType=""/>
+    <Order EnterpriseCode="" OrderHeaderKey="" DocumentType="" OrderNo="" SourcingClassification="" EntryType="">
+	<PersonInfoBillTo PersonInfoKey="" PersonID="" MiddleName="" LastName="" FirstName="" EMailID=""/>
+	</Order>
     <PersonInfoShipTo AddressLine1="" AddressLine2="" AddressLine3=""
         AddressLine4="" AddressLine5="" AddressLine6=""
         AlternateEmailID="" Beeper="" City="" Company="" Country=""
@@ -35,7 +37,7 @@ US Government Users Restricted Rights - Use, duplication or disclosure restricte
         EveningPhone="" FirstName="" JobTitle="" LastName=""
         MiddleName="" MobilePhone="" OtherPhone="" PersonID=""
         PersonInfoKey="" State="" Suffix="" Title="" ZipCode=""/>
-    <OrderLine PrimeLineNo="" SubLineNo="" LineType="" CustomerPoNo="" OrderLineKey="" ConditionVariable1="">
+    <OrderLine PrimeLineNo="" SubLineNo="" LineType="" CustomerPONo="" OrderLineKey="" ConditionVariable1="" ShipNode="">
 		<Extn ExtnSDKLine="" />
         <Item CostCurrency="" CountryOfOrigin="" CustomerItem=""
             CustomerItemDesc="" ECCNNo="" HarmonizedCode="" ISBN=""

@@ -23,6 +23,33 @@ return _dojodeclare("extn.mobile.home.MobileHomeExtnBehaviorController",
 			
 			
 			
+			
+			
+						,
+
+			
+			
+			 mashupRefs : 	[
+	 		{
+		 mashupRefId : 			'pack_getShipmentListCount'
+,
+		 mashupId : 			'mobileHomeReadyForPacking_getShipmentListCount'
+,
+		 extnType : 			'MODIFY'
+
+	}
+,
+	 		{
+		 mashupRefId : 			'extn_shipPackages_getShipmentListCount'
+,
+		 mashupId : 			'confirmShipment_getShipmentContainerListCount'
+,
+		 extnType : 			'ADD'
+
+	}
+
+	]
+
 }
 );
 });

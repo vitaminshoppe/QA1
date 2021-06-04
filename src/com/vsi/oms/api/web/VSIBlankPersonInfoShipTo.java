@@ -22,7 +22,7 @@ public class VSIBlankPersonInfoShipTo extends VSIBaseCustomAPI implements VSICon
         int counter = 0;
         boolean flag = false;
         try{
-            if (strDocumentType.equalsIgnoreCase(ATTR_DOCUMENT_TYPE_SALES) && entryType.equalsIgnoreCase(ENTRYTYPE_WEB)) {
+            if (ATTR_DOCUMENT_TYPE_SALES.equalsIgnoreCase(strDocumentType) && ENTRYTYPE_WEB.equalsIgnoreCase(entryType)) {
 
                 flag = checkDTCOrder(orderElement);//Checking the order Type
                 if(flag){//if the order is having a STH line

@@ -964,6 +964,9 @@ public class VSIKountRequestForSTH {
 		 //OMS-3187 Changes -- Start
 		 boolean bApplePay=false;
 		//OMS-3187 Changes -- End
+		//OMS-3368 Changes -- Start
+		 boolean bGooglePay=false;
+		//OMS-3368 Changes -- End
 		NodeList nlPaymtMthd = eleOrder
 				.getElementsByTagName(VSIConstants.ELE_PAYMENT_METHOD);
 		int pymthdCount = nlPaymtMthd.getLength();
@@ -1010,6 +1013,12 @@ public class VSIKountRequestForSTH {
 							order.setGateway("aurus_applepay");
 							bApplePay=true;
 						}
+						//OMS-3368 Changes -- Start
+						else if(!YFCCommon.isVoid(strContactLess) && "Google".equals(strContactLess)) {
+							order.setGateway("aurus_googlepay");
+							bGooglePay=true;
+						}
+						//OMS-3368 Changes -- End
 					}					
 					else if(!YFCCommon.isVoid(strExtnAurusToken) && VSIConstants.FLAG_Y.equals(strExtnAurusToken)){
 					//OMS-3187 Changes -- End
@@ -1025,7 +1034,15 @@ public class VSIKountRequestForSTH {
 	                    if(bApplePay) {
 	                    	creditCardBin="null";
 	                    	strCardNo=paymtMthdEle.getAttribute("DisplayCreditCardNo");
-	                    }	                  
+	                    }
+	                  //OMS-3368 Changes -- Start
+	                    else if(bGooglePay) {
+	                    	creditCardBin="null";
+	                    	strCardNo=paymtMthdEle.getAttribute("DisplayCreditCardNo");
+	                    	strAvsResp="null";
+	                    	strCVVResp="null";
+	                    }
+	                  //OMS-3368 Changes -- End 
 	                    else if(!YFCCommon.isVoid(strCreditCardNumber) ){
 	                    //OMS-3331 Changes -- End
 						 creditCardBin=strCreditCardNumber.substring(0, 6);
@@ -1098,7 +1115,12 @@ public class VSIKountRequestForSTH {
 		//OMS--3187 Changes -- Start
 		if(bApplePay&&bcreditCard&&(bvoucher||bgcCard)) {
 			order.setGateway("aurus_applepay");
-		}		
+		}
+		//OMS-3368 Changes -- Start
+		else if(bGooglePay&&bcreditCard&&(bvoucher||bgcCard)) {
+			order.setGateway("aurus_googlepay");
+		}
+		//OMS-3368 Changes -- End
 		else if(bcreditCard&&(bvoucher||bgcCard)){
 		//OMS--3187 Changes -- End
 			if(!YFCCommon.isVoid(strExtnAurusToken) && VSIConstants.FLAG_Y.equals(strExtnAurusToken)){

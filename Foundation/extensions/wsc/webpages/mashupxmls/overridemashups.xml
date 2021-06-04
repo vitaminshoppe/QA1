@@ -1,0 +1,366 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mashups>
+    <mashup description="Get the Container List for a shipment"
+        endpoint="EP_CONFIG"
+        id="containerPack_getShipmentContainerList_pg" mashuptype="XAPI"
+        skipDataProvider="false" transactional="true">
+        <classInformation name="com.ibm.wsc.shipment.container.pack.PackGetShipmentContainerListMashup"/>
+        <API Name="getShipmentContainerList">
+            <Input>
+                <Container
+                    DisplayLocalizedFieldInLocale="xml:CurrentUser:/User/@Localecode"
+                    IsManifested="N" MaximumRecords="" ShipmentKey="xml:scControllerInput:/Shipment/@ShipmentKey">
+                    <OrderBy>
+                        <Attribute Desc="Y" Name="ShipmentContainerKey"/>
+                    </OrderBy>
+                </Container>
+            </Input>
+            <Template>
+                <Containers>
+                    <Container ActualWeight="" ActualWeightUOM=""
+                        ContainerNo="" ContainerScm="" ContainerSeqNo=""
+                        ShipmentContainerKey="" ShipmentKey=""
+                        TrackingNo="" TrackingURL="">
+                        <ContainerDetails TotalNumberOfRecords="">
+                            <ContainerDetail ContainerDetailsKey=""/>
+                        </ContainerDetails>
+                        <Extn ExtnParcelType=""/>
+                    </Container>
+                </Containers>
+            </Template>
+        </API>
+        <APINamespace
+            inputNS="containerPack_getShipmentContainerList_pg_input" outputNS="containerPack_getShipmentContainerList_pg_output"/>
+        <AlternateResourceIds>
+            <AlternateResourceId altResourceId="WSC000019"/>
+        </AlternateResourceIds>
+    </mashup>
+    <mashup description="Get list of shipments for the logged in user"
+        endpoint="EP_CONFIG" id="tasksInProgress_getShipmentListInit"
+        mashuptype="XAPI" transactional="true">
+        <classInformation name="com.ibm.wsc.shipment.backroompick.mashups.WSCBackroomPickFetchPaginatedShipmentListMashup"/>
+        <APINamespace inputNS="getShipmentList_input" outputNS="getShipmentList_output"/>
+        <API Name="getShipmentList">
+            <Input>
+                <Shipment AssignedToUserId=""
+                    DisplayLocalizedFieldInLocale="xml:CurrentUser:/User/@Localecode"
+                    MaximumRecords="" ShipNode="xml:CurrentStore:/Store/@ShipNode">
+                    <ComplexQuery Operator="AND">
+                        <Or>
+                            <Exp Name="Status" QryType="FLIKE" Value="1100.70.06.20"/>
+                            <Exp Name="Status" QryType="FLIKE" Value="1100.70.06.70"/>
+                            <And>
+                                <Or>
+                                    <Exp Name="Status" QryType="FLIKE" Value="1100.70.06.50"/>
+                                    <Exp Name="Status" QryType="FLIKE" Value="1100.70.06.30"/>
+                                </Or>
+                                <Or>
+                                    <Exp Name="HoldLocation" QryType="ISNULL"/>
+                                    <Exp Name="HoldLocation" QryType="VOID"/>
+                                </Or>
+                            </And>
+                        </Or>
+                    </ComplexQuery>
+                    <OrderBy>
+                        <Attribute Name="ExpectedShipmentDate"/>
+                    </OrderBy>
+                </Shipment>
+            </Input>
+            <Template>
+                <Shipments>
+                    <Shipment CustomerPoNo="" DeliveryMethod=""
+                        DisplayOrderNo="" DocumentType=""
+                        ExpectedShipmentDate="" HoldLocation=""
+                        IncludedInBatch="" OrderNo="" SCAC=""
+                        ScacAndService="" ShipNode="" ShipmentKey=""
+                        ShipmentNo="" TotalNumOfSKUS="">
+                        <Extn ExtnName="" ExtnBOSTSFlag=""/>
+                        <Status Description="" Status=""/>
+                        <BillToAddress AddressLine1="" AddressLine2=""
+                            City="" Country="" DayFaxNo="" DayPhone=""
+                            EMailID="" EveningFaxNo="" EveningPhone=""
+                            FirstName="" IsCommercialAddress=""
+                            LastName="" MiddleName="" MobilePhone=""
+                            PersonInfoKey="" PreferredShipAddress=""
+                            State="" ZipCode=""/>
+                        <ShipmentLines TotalNumberOfRecords="">
+                            <ShipmentLine OriginalQuantity=""/>
+                        </ShipmentLines>
+                    </Shipment>
+                </Shipments>
+            </Template>
+        </API>
+        <AlternateResourceIds>
+            <AlternateResourceId altResourceId="WSCSYS00001"/>
+        </AlternateResourceIds>
+    </mashup>
+    <mashup description="Get Shipment Container list based on SCAC"
+        endpoint="EP_CONFIG"
+        id="confirmShipment_getShipmentContainerDetailsByScac"
+        mashuptype="XAPI" resourceId="" transactional="true">
+        <API Name="getShipmentContainerList">
+            <Input>
+                <Container
+                    DisplayLocalizedFieldInLocale="xml:CurrentUser:/User/@Localecode" MaximumRecords="">
+                    <Shipment EnterpriseCode="" ExpectedShipmentDate=""
+                        ExpectedShipmentDateQryType="DATERANGE"
+                        FromExpectedShipmentDate=""
+                        IsPackProcessComplete="Y"
+                        SCAC="xml:scControllerInput:/Scac/@value"
+                        ShipNode="xml:CurrentStore:/Store/@ShipNode"
+                        ShipmentConfirmUpdatesDone="N" ToExpectedShipmentDate=""/>
+                </Container>
+            </Input>
+            <Template>
+                <Containers TotalNumberOfRecords="">
+                    <Container ContainerNo="" ShipmentContainerKey=""
+                        ShipmentKey="" TrackingNo="" TrackingURL="">
+                        <Shipment CarrierServiceCode=""
+                            DisplayOrderNo="" SCAC="" ScacAndService=""
+                            ShipmentNo="" StatusDate="">
+                            <Extn ExtnName=""/>
+                        </Shipment>
+                    </Container>
+                </Containers>
+            </Template>
+        </API>
+        <classInformation name="com.ibm.wsc.shipment.confirm.ShipmentContainerDetailsByScacMashup"/>
+        <APINamespace
+            inputNS="confirmShipment_getShipmentContainerDetailsByScac_input" outputNS="confirmShipment_getShipmentContainerDetailsByScac_output"/>
+        <AlternateResourceIds>
+            <AlternateResourceId altResourceId="WSC000020"/>
+        </AlternateResourceIds>
+    </mashup>
+    <mashup
+        description="This api call is made find the number of containers which are not weighed in container packing flow."
+        endpoint="EP_CONFIG"
+        id="containerPack_getShipmentContainerList_NoScac"
+        mashuptype="XAPI" skipDataProvider="false" transactional="true">
+        <classInformation name="com.ibm.wsc.shipment.container.pack.GetShipmentContainarizedFlag"/>
+        <API Name="getShipmentContainerList">
+            <Input>
+                <Container
+                    DisplayLocalizedFieldInLocale="xml:CurrentUser:/User/@Localecode"
+                    MaximumRecords="" ShipmentKey="xml:scControllerInput:/Shipment/@ShipmentKey">
+                    <ComplexQuery>
+                        <Or>
+                            <Exp Name="ActualWeight" QryType="EQ" Value="0.00"/>
+                        </Or>
+                    </ComplexQuery>
+                </Container>
+            </Input>
+            <Template>
+                <Containers TotalNumberOfRecords="">
+                    <Container ContainerNo="">
+                        <Extn/>
+                    </Container>
+                </Containers>
+            </Template>
+        </API>
+        <APINamespace
+            inputNS="containerPack_getShipmentContainerList_NoScac_input" outputNS="containerPack_getShipmentContainerList_NoScac_output"/>
+        <AlternateResourceIds>
+            <AlternateResourceId altResourceId="WSC000019"/>
+        </AlternateResourceIds>
+    </mashup>
+    <mashup
+        description="This api is called to refresh the container information in continer packing"
+        endpoint="EP_CONFIG" id="pack_getShipmentContainerDetails"
+        mashuptype="XAPI" skipDataProvider="false" transactional="true">
+        <classInformation name="com.ibm.wsc.shipment.container.pack.UpdateGetShipmentContainerDetails"/>
+        <API Name="getShipmentContainerDetails">
+            <Input>
+                <Container
+                    DisplayLocalizedFieldInLocale="xml:CurrentUser:/User/@Localecode"
+                    ShipmentContainerKey="" ShipmentKey=""/>
+            </Input>
+            <Template>
+                <Container ActualWeight="" ActualWeightUOM=""
+                    ContainerNo="" ContainerScm="" ContainerSeqNo=""
+                    ShipmentContainerKey="" TrackingNo="" TrackingURL="">
+                    <Shipment CarrierServiceCode="" SCAC="" ScacAndService=""/>
+                    <ContainerDetails TotalNumberOfRecords="">
+                        <ContainerDetail ContainerDetailsKey=""/>
+                    </ContainerDetails>
+                    <Extn/>
+                </Container>
+            </Template>
+        </API>
+        <APINamespace inputNS="pack_getShipmentContainerDetails_input" outputNS="pack_getShipmentContainerDetails_output"/>
+        <AlternateResourceIds>
+            <AlternateResourceId altResourceId="WSC000019"/>
+        </AlternateResourceIds>
+    </mashup>
+    <mashup description="Get list of shipments" endpoint="EP_CONFIG"
+        id="shipFromStore_getShipmentListInit" mashuptype="XAPI"
+        resourceId="" transactional="true">
+        <API Name="getShipmentList">
+            <Input>
+                <Shipment DeliveryMethod="SHP"
+                    DisplayLocalizedFieldInLocale="xml:CurrentUser:/User/@Localecode"
+                    MaximumRecords="" ShipNode="xml:CurrentStore:/Store/@ShipNode">
+                    <OrderBy>
+                        <Attribute Name="ExpectedShipmentDate"/>
+                    </OrderBy>
+                    <ComplexQuery>
+                        <Or>
+                            <Exp Name="Status" QryType="FLIKE" Value="1100.70.06.10"/>
+                        </Or>
+                    </ComplexQuery>
+                </Shipment>
+            </Input>
+            <Template>
+                <Shipments>
+                    <Shipment AssignedToUserId="" DeliveryMethod=""
+                        DisplayOrderNo="" ExpectedShipmentDate=""
+                        HoldLocation="" OrderNo="" SCAC=""
+                        ScacAndService="" ShipNode="" ShipmentKey=""
+                        ShipmentNo="" TotalNumOfSKUS="">
+                        <Status Description="" Status=""/>
+                        <ShipmentLines TotalNumberOfRecords="">
+                            <ShipmentLine OriginalQuantity=""/>
+                        </ShipmentLines>
+                        <BillToAddress AddressLine1="" AddressLine2=""
+                            City="" Country="" DayFaxNo="" DayPhone=""
+                            EMailID="" EveningFaxNo="" EveningPhone=""
+                            FirstName="" IsCommercialAddress=""
+                            LastName="" MiddleName="" MobilePhone=""
+                            PersonInfoKey="" PreferredShipAddress=""
+                            State="" ZipCode=""/>
+                        <Extn ExtnName=""/>
+                    </Shipment>
+                </Shipments>
+            </Template>
+        </API>
+        <classInformation name="com.ibm.wsc.shipment.backroompick.mashups.WSCBackroomPickFetchPaginatedShipmentListMashup"/>
+        <APINamespace inputNS="shipFromStore_getShipmentListInit_input" outputNS="shipFromStore_getShipmentListInit_output"/>
+        <AlternateResourceIds>
+            <AlternateResourceId altResourceId="WSCSYS00001"/>
+        </AlternateResourceIds>
+    </mashup>
+    <mashup description="Get list of shipments for the logged in user"
+        endpoint="EP_CONFIG" id="readyForPacking_getShipmentListInit"
+        mashuptype="XAPI" resourceId="" transactional="true">
+        <API Name="getShipmentList">
+            <Input>
+                <Shipment DeliveryMethod="SHP"
+                    DisplayLocalizedFieldInLocale="xml:CurrentUser:/User/@Localecode"
+                    MaximumRecords="" ShipNode="xml:CurrentStore:/Store/@ShipNode">
+                    <OrderBy>
+                        <Attribute Name="ExpectedShipmentDate"/>
+                    </OrderBy>
+                    <ComplexQuery>
+                        <Or>
+                            <Exp Name="Status" QryType="FLIKE" Value="1100.70.06.50"/>
+			    <Exp Name="Status" QryType="FLIKE" Value="1100.70.06.70"/>
+                        </Or>
+                    </ComplexQuery>
+                </Shipment>
+            </Input>
+            <Template>
+                <Shipments>
+                    <Shipment AssignedToUserId="" DeliveryMethod=""
+                        DisplayOrderNo="" ExpectedShipmentDate=""
+                        HoldLocation="" OrderNo="" SCAC=""
+                        ScacAndService="" ShipNode="" ShipmentKey=""
+                        ShipmentNo="" TotalNumOfSKUS="">
+                        <Status Description="" Status=""/>
+                        <ShipmentLines TotalNumberOfRecords="">
+                            <ShipmentLine OriginalQuantity=""/>
+                        </ShipmentLines>
+                        <BillToAddress AddressLine1="" AddressLine2=""
+                            City="" Country="" DayFaxNo="" DayPhone=""
+                            EMailID="" EveningFaxNo="" EveningPhone=""
+                            FirstName="" IsCommercialAddress=""
+                            LastName="" MiddleName="" MobilePhone=""
+                            PersonInfoKey="" PreferredShipAddress=""
+                            State="" ZipCode=""/>
+                        <Extn ExtnName=""/>
+                    </Shipment>
+                </Shipments>
+            </Template>
+        </API>
+        <classInformation name="com.ibm.wsc.shipment.backroompick.mashups.WSCBackroomPickFetchPaginatedShipmentListMashup"/>
+        <APINamespace
+            inputNS="readyForPacking_getShipmentListInit_input" outputNS="readyForPacking_getShipmentListInit_output"/>
+        <AlternateResourceIds>
+            <AlternateResourceId altResourceId="WSCSYS00001"/>
+        </AlternateResourceIds>
+    </mashup>
+    <mashup description="Get list of shipments" endpoint="EP_CONFIG"
+        id="pickupInStore_getShipmentListInit" mashuptype="XAPI"
+        resourceId="" transactional="true">
+        <API Name="getShipmentList">
+            <Input>
+                <Shipment DeliveryMethod="PICK"
+                    DisplayLocalizedFieldInLocale="xml:CurrentUser:/User/@Localecode"
+                    MaximumRecords="" ShipNode="xml:CurrentStore:/Store/@ShipNode">
+                    <OrderBy>
+                        <Attribute Name="ExpectedShipmentDate"/>
+                    </OrderBy>
+                    <ComplexQuery>
+                        <Or>
+                            <Exp Name="Status" QryType="FLIKE" Value="1100.70.06.10"/>
+                        </Or>
+                    </ComplexQuery>
+                </Shipment>
+            </Input>
+            <Template>
+                <Shipments>
+                    <Shipment AssignedToUserId="" CustomerPoNo=""
+                        DeliveryMethod="" DisplayOrderNo=""
+                        ExpectedShipmentDate="" HoldLocation=""
+                        OrderNo="" ShipNode="" ShipmentKey=""
+                        ShipmentNo="" TotalNumOfSKUS="">
+                        <Status Description="" Status=""/>
+                        <ShipmentLines TotalNumberOfRecords="">
+                            <ShipmentLine OriginalQuantity=""/>
+                        </ShipmentLines>
+                        <Extn ExtnBOSTSFlag="" ExtnName=""/>
+                        <BillToAddress AddressLine1="" AddressLine2=""
+                            City="" Country="" DayFaxNo="" DayPhone=""
+                            EMailID="" EveningFaxNo="" EveningPhone=""
+                            FirstName="" IsCommercialAddress=""
+                            LastName="" MiddleName="" MobilePhone=""
+                            PersonInfoKey="" PreferredShipAddress=""
+                            State="" ZipCode=""/>
+                    </Shipment>
+                </Shipments>
+            </Template>
+        </API>
+        <classInformation name="com.ibm.wsc.shipment.backroompick.mashups.WSCBackroomPickFetchPaginatedShipmentListMashup"/>
+        <APINamespace inputNS="pickupInStore_getShipmentListInit_input" outputNS="pickupInStore_getShipmentListInit_output"/>
+        <AlternateResourceIds>
+            <AlternateResourceId altResourceId="WSCSYS00001"/>
+            <AlternateResourceId altResourceId="WSC000006"/>
+        </AlternateResourceIds>
+    </mashup>
+    <mashup description="Get list of shipments for the logged in user"
+        endpoint="EP_CONFIG"
+        id="mobileHomeReadyForPacking_getShipmentListCount"
+        mashuptype="XAPI" resourceId="" transactional="true">
+        <API Name="getShipmentList">
+            <Input>
+                <Shipment DeliveryMethod="SHP"
+                    DisplayLocalizedFieldInLocale="xml:CurrentUser:/User/@Localecode"
+                    MaximumRecords="" ShipNode="xml:CurrentStore:/Store/@ShipNode">
+                    <ComplexQuery Operator="AND">
+                        <Or>
+                            <Exp Name="Status" QryType="FLIKE" Value="1100.70.06.50"/>
+			    <Exp Name="Status" QryType="FLIKE" Value="1100.70.06.70"/>
+                        </Or>
+                    </ComplexQuery>
+                </Shipment>
+            </Input>
+            <Template>
+                <Shipments TotalNumberOfRecords=""/>
+            </Template>
+        </API>
+        <classInformation name="com.ibm.wsc.common.mashups.WSCBaseMashup"/>
+        <APINamespace
+            inputNS="mobileHomeReadyForPacking_getShipmentListCount_input" outputNS="mobileHomeReadyForPacking_getShipmentListCount_output"/>
+        <AlternateResourceIds>
+            <AlternateResourceId altResourceId="WSCSYS00001"/>
+        </AlternateResourceIds>
+    </mashup>
+</mashups>

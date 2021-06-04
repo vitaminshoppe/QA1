@@ -159,6 +159,18 @@ public class VSISendInvoice implements VSIConstants{
 		}
 
 		
+		//Wholesale Order Invoice Changes
+		if (sInvoiceType.equalsIgnoreCase("ORDER"))
+				{
+			sDateInvoiced=invoiceHeaderele.getAttribute("DateInvoiced");
+			Element createShipmentEle = XMLUtil.appendChild(inXML, invoiceHeaderele, "Shipment", "");
+			createShipmentEle.setAttribute("ShipDate", sDateInvoiced);
+			createShipmentEle.setAttribute(VSIConstants.ATTR_DELIVERY_METHOD,VSIConstants.ATTR_DEL_METHOD_SHP);
+			Element createShipmentExtnEle = XMLUtil.appendChild(inXML, createShipmentEle, "Extn", "");
+			createShipmentExtnEle.setAttribute("ShipmentSeqNo", "1");
+				}
+		
+		//Wholesale Order Invoice Changes
 		
 		//Element shipmentElem = (Element) inXML.getElementsByTagName("Shipment").item(0);
 		//Commemted for  for Omni 2.0 jira 769

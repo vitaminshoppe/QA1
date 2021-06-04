@@ -20,6 +20,11 @@
 			<xsl:if test = "@Region ='Region 4'">
 				<xsl:value-of select="'Region 4'"/>
 			</xsl:if>
+			<!--OMS-2839:Start-->
+			<xsl:if test = "@Region ='Store_Ship_AZ_Rio'">
+				<xsl:value-of select="'Store_Ship_AZ_Rio'"/>
+			</xsl:if>
+			<!--OMS-2839:End-->
 		</xsl:attribute>
 		<RegionSchema OrganizationCode="DEFAULT" RegionSchemaName="ALL_US" RegionSchemaKey="ALL_US"/>
 		<ZipCodeRanges>

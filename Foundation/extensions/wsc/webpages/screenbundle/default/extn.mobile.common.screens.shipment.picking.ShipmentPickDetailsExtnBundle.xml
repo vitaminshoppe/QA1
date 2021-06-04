@@ -6,5 +6,17 @@
             bundleKey="extn_Store_Order_No"
             bundleValueFn="_scSimpleBundle" property="label"
             type="WIDGET" uId="extn_po_no"/>
+        <BundleEntry bundleEntryId="extn_customername_DataLabel_label"
+            bundleKey="extn_Customer_Name" bundleValueFn="_scBundle"
+            property="label" type="WIDGET" uId="extn_customername"/>
+        <BundleEntry bundleEntryId="extn_CustNameBOSS_DataLabel_label"
+            bundleKey="extn_Customer_Name" bundleValueFn="_scBundle"
+            property="label" type="WIDGET" uId="extn_CustNameBOSS"/>
+        <BundleEntry bundleEntryId="extn_test_DataLabel_label"
+            bundleKey="extn_TestLabel" bundleValueFn="_scSimpleBundle"
+            property="label" type="WIDGET" uId="extn_test"/>
+        <BundleEntry bundleEntryId="extn_checkSTS_Link_value"
+            bundleKey="extn_Check_STS" bundleValueFn="_scSimpleBundle"
+            property="value" type="WIDGET" uId="extn_checkSTS"/>
     </BundleEntries>
 </ScreenBundle>

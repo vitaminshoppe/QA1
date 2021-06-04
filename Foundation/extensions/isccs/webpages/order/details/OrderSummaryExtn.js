@@ -104,7 +104,22 @@ function(_dojodeclare,
 				_scScreenUtils.setModel(this, "getCompleteOrderDetails_output", orderModel, null);
 			}
 			// ARH-106 : Added to set the enterprise name as the displayEntryType for Marketplace orders : END
-	}
+	},
+	
+	extn_afterScreenInit: function(
+        event, bEvent, ctrl, args) {
+			var orderModel = null;
+            orderModel = _scScreenUtils.getModel(
+            this, "getCompleteOrderDetails_output");
+			var entryType= _scModelUtils.getStringValueFromPath("Order.EntryType",orderModel);
+			if(_scBaseUtils.equals(entryType,"WHOLESALE")){
+				_scWidgetUtils.showWidget(this,"extn_datalabel_BolNumber",false);
+				_scWidgetUtils.showWidget(this,"extn_datalabel_deliveryDate",false);
+				_scWidgetUtils.showWidget(this,"extn_datalabel_wholesalePONo",false);
+				
+			}
+			
+		}
 	
 });
 });

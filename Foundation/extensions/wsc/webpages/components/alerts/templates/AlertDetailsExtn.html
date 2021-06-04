@@ -51,4 +51,31 @@
 		}
 	 					}">
 		 	</div>  
+			
+			<div data-dojo-type="sc/plat/dojo/widgets/DataLabel" 
+	 					data-dojo-props="data_dojo_props_diff: {
+	 								uId : 'extn_CustName' , 
+		_sc_extensibility_operation : 'insert' , 
+		_sc_extensibility_moveOrder : '3' , 
+		'class' : 'autoLabelZeroWidth blockComponent hashNumberAlign' , 
+		_sc_extensibility_position : 'after' , 
+		_sc_extensibility_referenceUId : 'extn_Quantity'  
+ 		,scExtensionDataFn :
+		 function() { 
+			return { 
+			 	bindingData : 	{
+		 sourceBinding : 	{
+		 namespace : 			'Inbox'
+,
+		 path : 			'Inbox.Name'
+,
+		 dynamicBindingFunc : 			'CustomerName'
+	}
+	}
+,	
+			 	label : 			this.getSimpleBundleString('extn_CustName')
+			}
+		}
+	 					}">
+		 	</div> 
 		</div>

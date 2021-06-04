@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ScreenBundle
+    screenBundleId="extn.mobile.home.search.AdvancedSearchExtnBundle" screenId="extn.mobile.home.search.AdvancedSearchExtn">
+    <BundleEntries>
+        <BundleEntry bundleEntryId="extn_searchFirstName_TextField_hint"
+            bundleKey="Label_TextField_Firstname"
+            bundleValueFn="_scSimpleBundle" property="hint"
+            type="WIDGET" uId="extn_searchFirstName"/>
+        <BundleEntry bundleEntryId="extn_searchLastName_TextField_hint"
+            bundleKey="Label_TextField_Lastname"
+            bundleValueFn="_scSimpleBundle" property="hint"
+            type="WIDGET" uId="extn_searchLastName"/>
+        <BundleEntry bundleEntryId="extn_searchEmail_TextField_hint"
+            bundleKey="TextField_CustEmailHint"
+            bundleValueFn="_scSimpleBundle" property="hint"
+            type="WIDGET" uId="extn_searchEmail"/>
+    </BundleEntries>
+</ScreenBundle>

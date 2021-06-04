@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ExtensionMetaData>
+    <ScreenExtension extnClassName="OrdersReadyForPackingExtn"
+        extnPackage="extn.mobile.home.subscreens"
+        originalScreen="wsc.mobile.home.subscreens.OrdersReadyForPacking"
+        originalScreenPackage="wsc.mobile.home.subscreens" type="diffrential">
+        <MashupRefs>
+            <Init>
+                <MashupRef extnType="MODIFY"
+                    mashupId="readyForPacking_getShipmentListInit"
+                    mashupRefId="getShipmentList" pageSize="5"
+                    pageSizeType="Shipment" paginationStrategy="NEXTPAGE"/>
+            </Init>
+        </MashupRefs>
+    </ScreenExtension>
+</ExtensionMetaData>

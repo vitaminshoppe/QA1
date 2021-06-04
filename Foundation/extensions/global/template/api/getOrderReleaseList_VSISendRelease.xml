@@ -33,12 +33,11 @@
 		    </OrderHoldTypes>
 			<OverallTotals/>
 		</Order>
-
 		<OrderLines>
 			<OrderLine CustomerPONo="" LineType="" PrimeLineNo=""
 				OrderedQty="" SubLineNo="" ChainedFromOrderLineKey="" ChainedFromOrderHeaderKey="" ProcureFromNode="" ShipNode="" StatusQuantity="" OpenQty="" ReqCancelDate="" OrderLineKey="">
 				<Extn ExtnSignatureType="" ExtnSDKLine="" ExtnReqShipDate="" ExtnReqDeliveryDate="" ExtnShipNotBeforeDate="" ExtnShipNotAfterDate="" 
-				ExtnDeliverNotBeforeDate="" ExtnDeliverNotAfterDate="" ExtnMarkForStoreNo=""/>
+				ExtnDeliverNotBeforeDate="" ExtnDeliverNotAfterDate="" ExtnSingleCarton="" ExtnMarkForStoreNo=""/>
 				<Item ItemID="" />
 				<LinePriceInfo UnitPrice="" />
 				<ItemDetails CanUseAsServiceTool="" Createprogid=""
@@ -63,6 +62,18 @@
 						ExtnItemType="" ExtnItemUOM="" ExtnShipAlone=""
 						ExtnTaxProductCode="" ExtnCaseQuantity=""/>
 				</ItemDetails>
+				<PersonInfoShipTo AddressID="" FirstName="" LastName=""
+			AddressLine1="" AddressLine2="" AddressLine3="" AddressLine4=""
+			AddressLine5="" AddressLine6="" City="" State="" Country="" ZipCode=""
+			DayPhone="" EMailID="">
+			<Extn />
+		        </PersonInfoShipTo>
+		        <PersonInfoMarkFor AddressID="" FirstName="" LastName=""
+			AddressLine1="" AddressLine2="" AddressLine3="" AddressLine4=""
+			AddressLine5="" AddressLine6="" City="" State="" Country="" ZipCode=""
+			DayPhone="" EMailID="">
+			<Extn />
+		       </PersonInfoMarkFor>
 				<OrderStatuses>
 					<OrderStatus Status="" StatusQty=""/>
 				</OrderStatuses>

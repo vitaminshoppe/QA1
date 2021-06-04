@@ -36,14 +36,31 @@ function(
 			inboxReference = _scModelUtils.getModelObjectFromPath("Inbox.InboxReferencesList.InboxReferences", inboxModel); 
            for (var length = 0; length < _scBaseUtils.getAttributeCount(inboxReference); length++) 
                 {
-			var name =_scModelUtils.getStringValueFromPath("Name", inboxReference[length]);
-			if(_scBaseUtils.equals(name,"Qty"))
-                    {
-                        var Quantity= _scModelUtils.getStringValueFromPath("Value", inboxReference[length]);
-                        console.log("Qty=> "+ Quantity);
+					var name =_scModelUtils.getStringValueFromPath("Name", inboxReference[length]);
+					if(_scBaseUtils.equals(name,"Qty"))
+					{
+						var Quantity= _scModelUtils.getStringValueFromPath("Value", inboxReference[length]);
+						console.log("Qty=> "+ Quantity);
 						return Quantity;
-                    }
-                }
-            }
+					}
+				}
+        },
+		CustomerName: function(event, bEvent, ctrl, args)
+		{
+			var inboxModel = null;
+            inboxModel = _scScreenUtils.getModel(this, "Inbox");
+            var inboxReference = null;
+			inboxReference = _scModelUtils.getModelObjectFromPath("Inbox.InboxReferencesList.InboxReferences", inboxModel); 
+           for (var length = 0; length < _scBaseUtils.getAttributeCount(inboxReference); length++) 
+                {
+					var name =_scModelUtils.getStringValueFromPath("Name", inboxReference[length]);
+					if(_scBaseUtils.equals(name,"Name"))
+					{
+						var Name= _scModelUtils.getStringValueFromPath("Value", inboxReference[length]);
+						console.log("Name=> "+ Name);
+						return Name;
+					}
+				}
+        }
 });
 });

@@ -101,7 +101,7 @@ US Government Users Restricted Rights - Use, duplication or disclosure restricte
             ReferenceKey=" " SequenceNo=" " TableName=" "/>
     </Instructions>
     <ShipmentLines>
-		<ShipmentLine  ShipmentLineKey=" " ItemID=" " OrderHeaderKey=" " OrderLineKey=" " DocumentType="" OrderNo=" " OrderReleaseKey=" " PrimeLineNo=" " ProductClass=" " Quantity=" " OverShipQuantity=" " ActualQuantity=" " ReleaseNo=" " ShipmentKey=" " UnitOfMeasure=" " ShipmentLineNo=" " SubLineNo=" " ItemDesc=" " Segment=" " SegmentType=" "  isHistory="" ChainedFromOrderLineKey=" " ChainedFromOrderHeaderKey=" ">
+		<ShipmentLine  ShipmentLineKey=" " ItemID=" " OrderHeaderKey=" " OrderLineKey=" " DocumentType="" OrderNo=" " OrderReleaseKey=" " PrimeLineNo=" " ProductClass=" " Quantity=" " OverShipQuantity=" " ActualQuantity=" " ReleaseNo=" " ShipmentKey=" " UnitOfMeasure=" " ShipmentLineNo=" " SubLineNo=" " ItemDesc=" " Segment=" " SegmentType=" "  isHistory="" ChainedFromOrderLineKey=" " ChainedFromOrderHeaderKey=" " >
 		<ShipmentLineInvAttRequest LotNumber=" " LotKeyReference=" " ManufacturingDate=" " LotAttribute1=" " LotAttribute2=" " LotAttribute3=" " RevisionNo=" " BatchNo=" "/>
 			<ShipmentTagSerials TotalNumberOfRecords="">
 				<ShipmentTagSerial Quantity=" " SerialNo=" " ShipByDate=" " ShipmentLineKey=" " ShipmentTagSerialKey=" " RevisionNo=" " BatchNo=" " LotNumber=" " LotKeyReference=" " ManufacturingDate=" " LotAttribute1=" " LotAttribute2=" " LotAttribute3=" " />
@@ -114,7 +114,7 @@ US Government Users Restricted Rights - Use, duplication or disclosure restricte
                       ReferenceKey=" "
                     SequenceNo=" " TableName=" "/>
 		    </Instructions>	        
-			<OrderLine PrimeLineNo="">
+			<OrderLine PrimeLineNo="" DeliveryMethod="">
 			<LinePriceInfo UnitPrice=""/>
 			<ItemDetails ItemID="">
 			<Extn ExtnActSkuID="" ExtnBrandTitle=""/>

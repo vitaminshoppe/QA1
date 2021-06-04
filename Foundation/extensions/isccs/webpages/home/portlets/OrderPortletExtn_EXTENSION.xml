@@ -89,6 +89,21 @@
                     <SourceBinding namespace="screenInput" path="Order.CustomerPONo"/>
                 </BindingData>
             </TextField>
+            <TextField _sc_extensibility_moveOrder="7"
+                _sc_extensibility_operation="insert"
+                _sc_extensibility_position="after"
+                _sc_extensibility_referenceUId="extn_textfield_Marketplace"
+                label="$(_scSimpleBundle:extn_Wholesale_Order)"
+                resourceId="VSIWHOLESALEORDERSEARCH"
+                scuiDataType="Text-100" uId="extn_textfield_wholesaleOrder">
+                <BindingData>
+                    <SourceBinding namespace="screenInput" path="Order.WholesaleCustPONo"/>
+                    <TargetBindings>
+                        <TargetBinding namespace="getOrderList"
+                            path="Order.WholesaleCustPONo" scExtensibilityArrayItemId="extn_TargetBindings_0"/>
+                    </TargetBindings>
+                </BindingData>
+            </TextField>			
         </Items>
         <Subscribers>
             <Local>

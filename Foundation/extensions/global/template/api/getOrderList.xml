@@ -1,9 +1,11 @@
 <OrderList>
-	<Order BillToID="" CustomerEMailID="" CustomerFirstName="" CustomerLastName="" CustomerPONo="" DocumentType="" EnteredBy="" EnterpriseCode="" EntryType="" MessageType="" OrderDate="" OrderHeaderKey="" OrderNo="" OrderType="" SCAC="" ScacAndService="" SellerOrganizationCode="">
+	<Order BillToID="" CustomerEMailID="" CustomerFirstName="" Status="" CustomerLastName="" CustomerPONo="" DocumentType="" EnteredBy="" EnterpriseCode="" EntryType="" MessageType="" OrderDate="" OrderHeaderKey="" OrderNo="" OrderType="" SCAC="" ScacAndService="" SellerOrganizationCode="">
 		<OrderLines>
-			<OrderLine ReshipParentLineKey="" CustomerPONo="" DeliveryMethod="" FulfillmentType="" OrderHeaderKey="" OrderLineKey="" LineType="" OrderedQty="" ReqDeliveryDate="" ReqShipDate="" SCAC="" ScacAndService="" ShipNode="" PrimeLineNo="" SubLineNo="">
+			<OrderLine ReshipParentLineKey="" CustomerPONo="" DeliveryMethod="" FulfillmentType="" OrderHeaderKey="" OrderLineKey="" LineType="" OrderedQty="" ReqDeliveryDate="" ReqShipDate="" SCAC="" ScacAndService="" ShipNode="" PrimeLineNo="" SubLineNo="" MaxLineStatus="" MaxLineStatusDesc=""  MinLineStatus="" MinLineStatusDesc="">
 				<Item ItemDesc="" ItemID="" ProductClass="" UnitOfMeasure=""/>
-				<PersonInfoShipTo AddressLine1="" AddressLine2="" AddressLine3="" AddressLine4="" AddressLine5="" AddressLine6="" AlternateEmailID="" Beeper="" City="" Company="" Country="" DayFaxNo="" DayPhone="" Department="" EMailID="" EveningFaxNo="" EveningPhone="" FirstName="" JobTitle="" LastName="" MiddleName="" MobilePhone="" OtherPhone="" PersonID="" State="" Suffix="" Title="" ZipCode=""/>
+				<PersonInfoShipTo AddressLine1="" AddressLine2="" AddressLine3="" AddressLine4="" AddressLine5="" AddressLine6="" AlternateEmailID="" Beeper="" City="" Company="" Country="" DayFaxNo="" DayPhone="" Department="" EMailID="" EveningFaxNo="" EveningPhone="" FirstName="" JobTitle="" LastName="" MiddleName="" MobilePhone="" OtherPhone="" PersonID="" State="" Suffix="" Title="" ZipCode="">
+				<Extn/>
+				</PersonInfoShipTo>
 				<LinePriceInfo LineTotal="" UnitPrice=""/>
 				<LineCharges>
 					<LineCharge ChargeCategory="" ChargeName="" ChargePerLine="">
@@ -16,7 +18,7 @@
 				<Notes>
 					<Note ContactUser="" NoteText=""/>
 				</Notes>
-				<Extn ExtnChannelItemID=""/>
+				<Extn />
 				<Promotions>
 					<Promotion Action="" DenialReason="" ExclusivityId="" ExclusivityType="" IsExternal="" OverrideAdjustmentValue="" OverrideMaxAdjustment="" Priority="" PromotionApplied="" PromotionCategory="" PromotionId="" PromotionType="" > 
 						<Extn ExtnCouponID="" />
@@ -37,7 +39,7 @@
 			<PaymentMethod CreditCardExpDate="" CreditCardName="" CreditCardNo="" CreditCardType="" CustomerAccountNo="" DisplayCreditCardNo="" FirstName="" LastName="" MaxChargeLimit="" MiddleName="" PaymentType="" UnlimitedCharges="" PaymentReference1="" PaymentReference2="" PaymentReference8="" PaymentReference9="" PaymentKey="" SuspendAnyMoreCharges="">
 			</PaymentMethod>
 		</PaymentMethods>
-		<PersonInfoBillTo AddressLine1="North Bergen" AddressLine2="" AddressLine3="" AddressLine4="" AlternateEmailID="" Beeper="" City="" Company="" Country="" DayPhone="" Department="" EMailID="" EveningPhone="" FirstName="" JobTitle="" LastName="" MiddleName="" MobilePhone="" OtherPhone="" PersonID="" State="" Suffix="" ZipCode=""/>
+		<PersonInfoBillTo AddressLine1="" AddressLine2="" AddressLine3="" AddressLine4="" AlternateEmailID="" Beeper="" City="" Company="" Country="" DayPhone="" Department="" EMailID="" EveningPhone="" FirstName="" JobTitle="" LastName="" MiddleName="" MobilePhone="" OtherPhone="" PersonID="" State="" Suffix="" ZipCode=""/>
 		<PersonInfoShipTo AddressLine1="" AddressLine2="" AddressLine3="" AddressLine4="" AddressLine5="" AddressLine6="" AlternateEmailID="" Beeper="" City="" Company="" Country="" DayFaxNo="" DayPhone="" Department="" EMailID="" EveningFaxNo="" EveningPhone="" FirstName="" JobTitle="" LastName="" MiddleName="" MobilePhone="" OtherPhone="" PersonID="" State="" Suffix="" Title="" ZipCode=""/>
 		<Promotions>
 			<Promotion Action="" DenialReason="" ExclusivityId="" ExclusivityType="" IsExternal="" OverrideAdjustmentValue="" OverrideMaxAdjustment="" Priority="" PromotionApplied="" PromotionCategory="" PromotionId="" PromotionType="" > 

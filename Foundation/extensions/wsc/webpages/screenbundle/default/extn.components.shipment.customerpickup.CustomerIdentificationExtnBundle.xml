@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ScreenBundle
+    screenBundleId="extn.components.shipment.customerpickup.CustomerIdentificationExtnBundle" screenId="extn.components.shipment.customerpickup.CustomerIdentificationExtn">
+    <BundleEntries>
+        <BundleEntry
+            bundleEntryId="extn_CustomerVerification_FilteringSelect_label"
+            bundleKey="Label_Customer_Verification_Method"
+            bundleValueFn="_scSimpleBundle" property="label"
+            type="WIDGET" uId="extn_CustomerVerification"/>
+    </BundleEntries>
+</ScreenBundle>

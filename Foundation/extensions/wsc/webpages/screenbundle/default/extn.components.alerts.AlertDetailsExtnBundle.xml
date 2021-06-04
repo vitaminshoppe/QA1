@@ -8,5 +8,8 @@
         <BundleEntry bundleEntryId="extn_Quantity_DataLabel_label"
             bundleKey="extn_Quantity" bundleValueFn="_scSimpleBundle"
             property="label" type="WIDGET" uId="extn_Quantity"/>
+		<BundleEntry bundleEntryId="extn_CustName_DataLabel_label"
+            bundleKey="extn_CustName" bundleValueFn="_scSimpleBundle"
+            property="label" type="WIDGET" uId="extn_CustName"/>
     </BundleEntries>
 </ScreenBundle>

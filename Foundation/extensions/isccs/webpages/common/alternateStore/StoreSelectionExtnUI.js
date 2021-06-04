@@ -31,6 +31,23 @@ return _dojodeclare("extn.common.alternateStore.StoreSelectionExtnUI",
 	
 	
 	
+					,	
+	namespaces : {
+		targetBindingNamespaces :
+		[
+		],
+		sourceBindingNamespaces :
+		[
+			{
+	  value: 'extn_getCommonCodeForBOSTS'
+						,
+	  scExtensibilityArrayItemId: 'extn_SourceNamespaces_7'
+						
+			}
+			
+		]
+	}
+
 	
 	,
 	hotKeys: [ 
@@ -70,6 +87,21 @@ methodName : "getLinkText"
 
 ,handler : {
 methodName : "handleLinkClicked"
+
+ 
+}
+}
+,
+{
+	  eventId: 'beforeBehaviorSetModel'
+
+,	  sequence: '51'
+
+
+
+
+,handler : {
+methodName : "beforeBehaviourSetModel"
 
  
 }

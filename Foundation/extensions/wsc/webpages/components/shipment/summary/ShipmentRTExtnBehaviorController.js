@@ -47,6 +47,15 @@ return _dojodeclare("extn.components.shipment.summary.ShipmentRTExtnBehaviorCont
 		 extnType : 			'ADD'
 
 	}
+,
+	 		{
+		 mashupRefId : 			'extn_Print_Pack_Receipt'
+,
+		 mashupId : 			'extn_Print_Pack_Receipt'
+,
+		 extnType : 			'ADD'
+
+	}
 
 	]
 

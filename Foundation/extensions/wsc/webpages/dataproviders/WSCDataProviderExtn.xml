@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  Licensed Materials - Property of IBM
+  IBM Sterling Order Management Store (5725-D10)
+  (C) Copyright IBM Corp. 2014 , 2015 All Rights Reserved. , 2015 All Rights Reserved.
+  US Government Users Restricted Rights - Use, duplication or disclosure restricted by GSA ADP Schedule Contract with IBM Corp.
+-->
+<AdditionalDataProviders>
+	<AdditionalDataProvider
+		class="com.vsi.som.providers.image.SCCSImageIDProvider1">
+		<InterestedIn>
+		    <Element path="/ShipmentLine/OrderLine/ItemDetails" />
+			<Element path="/ShipmentLines/ShipmentLine/OrderLines/OrderLine/ItemDetails" />
+			<Element path="ShipmentLine/OrderLines/OrderLine/ItemDetails" />
+			<Element path="/ShipmentLines/ShipmentLine/OrderLines/OrderLine/ItemDetails/PrimaryInformation" />
+			<Element path="/ShipmentLine/OrderLine/ItemDetails/PrimaryInformation" />
+			<Element path="/ShipmentLine/OrderLine/ItemDetails/PrimaryInformation" />
+			<Element path="/Order/PickupGroups/PickupGroup/OrderLines/OrderLine/ItemDetails" />
+			<Element path="/Order/ShippingGroups/ShippingGroup/OrderLines/OrderLine/ItemDetails" />
+			<Element path="/Order/UnavailableLines/PickupLinesWithNoShipnode/PickupGroup/OrderLines/OrderLine/ItemDetails" />
+			<Element path="/Order/UnavailableLines/ShippingLines/OrderLines/OrderLine/ItemDetails" />
+			<Element path="/Order/UnavailableLines/PickupLines/OrderLines/OrderLine/ItemDetails" />
+			<Element path="/OrderLineList/OrderLine/ItemDetails" />
+			<Element path="/OrderLine/ItemDetails" />
+			<Element path="/ItemDetails" />
+			<Element path="/ItemList/Item" />
+			<Element path="/Item" />
+			<!-- SUH-18 : Modified for displaying item images : BEGIN -->
+			<Element path="/OrderLineList/OrderLine/Item" />
+			<Element path="/OrderLineList/OrderLine" />
+			<Element path="/Page/Output/OrderLineList/OrderLine" />
+			<Element path="/CatalogSearch/ItemList/Item" />
+			<!-- SUH-18 : Modified for displaying item images : END -->
+		</InterestedIn>
+		<NewAttributes>
+			<Attribute name="ImageLocation" />
+			<Attribute name="ImageID" />
+			<!-- SUH-18 : Modified for displaying item images : BEGIN -->
+			<Attribute name="ContentLocation" />
+			<Attribute name="ContentID" />
+			<!-- SUH-18 : Modified for displaying item images : END -->
+		</NewAttributes>
+	</AdditionalDataProvider>
+</AdditionalDataProviders>

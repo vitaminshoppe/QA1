@@ -1,9 +1,42 @@
 		<div>
+		 	<div data-dojo-type="idx/form/NumberTextBox" 
+	 					data-dojo-props="data_dojo_props_diff: {
+	 								_sc_extensibility_operation : 'change' , 
+		_sc_extensibility_referenceUId : 'containerWeight'  
+ 		,scExtensionDataFn :
+		 function() { 
+			return { 
+			 	label : 			this.getSimpleBundleString('extn_Sequence_No')
+,	
+			 	title : 			this.getSimpleBundleString('extn_Sequence_No')
+,	
+			 	hint : 			this.getSimpleBundleString('extn_Sequence_No')
+			}
+		}
+	 					}">
+		 	</div>  
+		 	<div data-dojo-type="idx/layout/ContentPane" 
+	 					data-dojo-props="data_dojo_props_diff: {
+	 								renderHidden : true , 
+		_sc_extensibility_operation : 'change' , 
+		_sc_extensibility_referenceUId : 'weightDetails'  
+	 					}">
+		 	</div>  
 		 	<div data-dojo-type="idx/layout/ContentPane" 
 	 					data-dojo-props="data_dojo_props_diff: {
 	 								renderHidden : false , 
 		_sc_extensibility_operation : 'change' , 
 		_sc_extensibility_referenceUId : 'weightDetails'  
+	 					}">
+		 	</div>  
+		 	<div data-dojo-type="idx/layout/ContentPane" 
+	 					data-dojo-props="data_dojo_props_diff: {
+	 								uId : 'extn_Information' , 
+		_sc_extensibility_operation : 'insert' , 
+		_sc_extensibility_moveOrder : '5' , 
+		'class' : 'containerDetails' , 
+		_sc_extensibility_position : 'after' , 
+		_sc_extensibility_referenceUId : 'uidAction'  
 	 					}">
 		 	</div>  
 		 	<div data-dojo-type="dijit/form/Button" 
@@ -38,12 +71,15 @@
 		 	</div>  
 		 	<div data-dojo-type="idx/form/RadioButtonSet" 
 	 					data-dojo-props="data_dojo_props_diff: {
-	 								uId : 'extn_parcel' , 
+	 								groupAlignment : 'horizontal' , 
+		labelAlignment : 'vertical' , 
+		uId : 'extn_parcel' , 
 		_sc_extensibility_operation : 'insert' , 
 		_sc_extensibility_moveOrder : '1' , 
-		'class' : 'groupHeader hashNumberAlign autoLabelZeroWidth blockComponent comappsWrapWord' , 
+		'class' : 'groupHeader blockComponent comappsWrapWord' , 
 		_sc_extensibility_position : 'after' , 
-		_sc_extensibility_referenceUId : 'lbl_NoOfProducts'  
+		_sc_extensibility_referenceUId : 'lbl_NoOfProducts' , 
+		required : true  
  		,scExtensionDataFn :
 		 function() { 
 			return { 
@@ -85,7 +121,7 @@
 	}
 	}
 ,	
-			 	label : 			this.getSimpleBundleString('extn_Container_Options')
+			 	label : 			this.getSimpleBundleString('extn_Packaging_Type')
 			}
 		}
 	 					}">
@@ -102,6 +138,23 @@
 		 function() { 
 			return { 
 			 	label : 			this.getSimpleBundleString('extn_Sequence_No')
+			}
+		}
+	 					}">
+		 	</div>  
+		 	<div data-dojo-type="sc/plat/dojo/widgets/DataLabel" 
+	 					data-dojo-props="data_dojo_props_diff: {
+	 								uId : 'extn_InfoMessage' , 
+		_sc_extensibility_operation : 'insert' , 
+		_sc_extensibility_moveOrder : '6' , 
+		'class' : 'groupHeader hashNumberAlign autoLabelZeroWidth blockComponent comappsWrapWord' , 
+		spanLabel : true , 
+		_sc_extensibility_position : 'first' , 
+		_sc_extensibility_referenceUId : 'extn_Information'  
+ 		,scExtensionDataFn :
+		 function() { 
+			return { 
+			 	label : 			this.getSimpleBundleString('extn__Please_click_on_Update_button_before_clicking_on_Finish_Pack')
 			}
 		}
 	 					}">

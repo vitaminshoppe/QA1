@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OrderLineList LastOrderLineKey="" LastRecordSet="" ReadFromHistory="" TotalLineList="" TotalNumberOfRecords="">
+   <OrderLine OrderHeaderKey="" OrderLineKey="" OrderedQty="" DeliveryMethod="" ConditionVariable1="" CustomerPONo="" FulfillmentType="" LineType="" PrimeLineNo="" MaxLineStatus="" MaxLineStatusDesc="" MinLineStatus="" MinLineStatusDesc="">
+      <Order OrderDate="" OrderHeaderKey="" OrderNo="" OrderType="" EntryType="" DraftOrderFlag="">         
+         <OrderHoldTypes>
+            <OrderHoldType HoldType="" OrderHeaderKey="" OrderLineKey="" ReasonText="" ResolverUserId="" Status="" StatusDescription="" TransactionId="" TransactionName="" />
+         </OrderHoldTypes>
+      </Order>
+      <OrderHoldTypes>
+         <OrderHoldType HoldType="" OrderHeaderKey="" OrderLineKey="" ReasonText="" ResolverUserId="" Status="" StatusDescription="" TransactionId="" TransactionName="" />
+      </OrderHoldTypes>	  
+	  <OrderStatuses>
+		<OrderStatus OrderHeaderKey="" OrderLineKey="" OrderLineScheduleKey="" OrderReleaseKey="" OrderReleaseStatusKey="" PipelineKey="" ReceivingNode="" ShipNode="" Status="" StatusDate="" StatusDescription="" StatusQty="" StatusReason="" TotalQuantity="">
+			<Details ExpectedDeliveryDate="" ExpectedShipmentDate="" ShipByDate="" ShipNode="" />			
+		</OrderStatus>
+	</OrderStatuses>
+   </OrderLine>
+</OrderLineList>

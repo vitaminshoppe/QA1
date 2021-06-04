@@ -2,4 +2,9 @@
 <Controller
     className="com.sterlingcommerce.ui.web.platform.controller.SCUIXAPIMashupController"
     controllerId="extn.mobile.common.screens.shipment.picking.ShipmentPickDetailsExtnBehaviorController"
-    requestMethodSupported="POST" screenId="extn.mobile.common.screens.shipment.picking.ShipmentPickDetailsExtn"/>
+    requestMethodSupported="POST" screenId="extn.mobile.common.screens.shipment.picking.ShipmentPickDetailsExtn">
+    <MashupRefs>
+        <MashupRef extnType="ADD" mashupId="extn_getOrderDetails"
+            mashupRefId="extn_getOrderDetails" permissionId=""/>
+    </MashupRefs>
+</Controller>

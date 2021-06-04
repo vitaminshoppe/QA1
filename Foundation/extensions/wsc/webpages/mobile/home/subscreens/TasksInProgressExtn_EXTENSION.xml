@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ExtensionMetaData>
+    <ScreenExtension extnClassName="TasksInProgressExtn"
+        extnPackage="extn.mobile.home.subscreens"
+        originalScreen="wsc.mobile.home.subscreens.TasksInProgress"
+        originalScreenPackage="wsc.mobile.home.subscreens" type="diffrential">
+		<MashupRefs>
+            <Init>
+                <MashupRef extnType="MODIFY"
+                    mashupId="tasksInProgress_getShipmentListInit" mashupRefId="getShipmentList"/>
+            </Init>
+            <!--<Behavior>
+                <MashupRef extnType="MODIFY"
+                    mashupId="additems_getCompleteItemList" mashupRefId="getCompleteItemList"/>
+                <MashupRef extnType="MODIFY"
+                    mashupId="additems_modifyFulfillmentOptions" mashupRefId="modifyFulfillmentOptions"/>
+            </Behavior> -->
+        </MashupRefs>
+	</ScreenExtension>
+</ExtensionMetaData>

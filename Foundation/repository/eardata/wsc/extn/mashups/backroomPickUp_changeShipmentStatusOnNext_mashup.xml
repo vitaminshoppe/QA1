@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mashups>
+    <mashup description="Get Shortage Shipment Line List details"
+        endpoint="EP_CONFIG"
+        id="backroomPickUp_changeShipmentStatusOnNext" mashuptype="XAPI"
+        skipDataProvider="false" transactional="true">
+        <classInformation name="com.ibm.wsc.shipment.backroompick.mashups.ChangeShipmentStatusMashup"/>
+        <API Name="getShipmentLineList">
+            <Input>
+                <ShipmentLine BackroomPickComplete="Y"
+                    BackroomPickCompleteQryType="NE"
+                    DisplayLocalizedFieldInLocale="xml:CurrentUser:/User/@Localecode"
+                    IsPickable="Y" MaximumRecords=""
+                    ShipmentKey="xml:scControllerInput:/Shipment/@ShipmentKey" ShortageQty=""/>
+            </Input>
+            <Template>
+                <ShipmentLines TotalNumberOfRecords="">
+                    <ShipmentLine BackroomPickedQuantity="" ItemID=""
+                        OrderHeaderKey="" OrderLineKey="" OrderNo=""
+                        OriginalQuantity="" PickLocation="" Quantity=""
+                        ShipmentKey="" ShipmentLineKey=""
+                        ShipmentLineNo="" ShipmentSubLineNo=""
+                        ShortageQty="" UnitOfMeasure="">
+                        <OrderLine IsBundleParent="" ItemGroupCode=""
+                            KitCode="BUNDLE" KitCodeQryType="NE">
+                            <ItemDetails ItemGroupCode="" ItemID="" UnitOfMeasure="">
+                                <PrimaryInformation
+                                    ExtendedDisplayDescription=""
+                                    ImageID="" ImageLabel="" ImageLocation=""/>
+                                <ClassificationCodes Model=""/>
+								<ItemAliasList>
+								 <ItemAlias AliasValue="" AliasName=""/>
+								 </ItemAliasList>
+								 <Extn ExtnStyle="" ExtnItemSize=""/>
+                            </ItemDetails>
+                        </OrderLine>
+                    </ShipmentLine>
+                </ShipmentLines>
+            </Template>
+        </API>
+        <APINamespace inputNS="changeShipmentStatusOnNext_input" outputNS="changeShipmentStatusOnNext_output"/>
+        <AlternateResourceIds>
+            <AlternateResourceId altResourceId="WSCSYS00001"/>
+            <AlternateResourceId altResourceId="WSC000001"/>
+        </AlternateResourceIds>
+    </mashup>
+</mashups>

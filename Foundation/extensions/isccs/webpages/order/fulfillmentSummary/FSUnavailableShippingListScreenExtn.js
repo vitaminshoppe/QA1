@@ -1,4 +1,3 @@
-
 scDefine([
 		"scbase/loader!dojo/_base/declare",
 		"scbase/loader!extn/order/fulfillmentSummary/FSUnavailableShippingListScreenExtnUI",
@@ -10,7 +9,9 @@ scDefine([
 		"scbase/loader!sc/plat/dojo/utils/EventUtils",
 		"scbase/loader!dijit",
 		"scbase/loader!sc/plat/dojo/utils/GridxUtils",
-		"scbase/loader!isccs/utils/UIUtils"]
+		"scbase/loader!isccs/utils/UIUtils",
+		"scbase/loader!isccs/utils/SharedComponentUtils"
+		]
 ,
 function(			 
 		_dojodeclare,
@@ -23,8 +24,8 @@ function(
 		_scEventUtils,
 		_dijit,
 		_scGridxUtils,
-		_isccsUIUtils
-		
+		_isccsUIUtils,
+		_isccsSharedComponentUtils
 ){ 
 	return _dojodeclare("extn.order.fulfillmentSummary.FSUnavailableShippingListScreenExtn", [_extnFSUnavailableShippingListScreenExtnUI],{
 	// custom code here
@@ -124,13 +125,15 @@ function(
         		} 
         	},
             updateDeliveryMethodDetails: function(
-                    newModelData) {
+                    mapModelData) {
+						console.log("** updateDeliveryMethodDetails ** mapModelData", mapModelData);
                         var selectedRecordsList = null;
                         selectedRecordsList = _scGridxUtils.getSelectedSourceRecordsWithRowIndex(
                         this, "OLST_listGrid");
                         var noOfOrderLine = null;
                         noOfOrderLine = _scBaseUtils.getAttributeCount(
                         selectedRecordsList);
+						var countToCallUpdateOrder = 0;
                         for (
                         var i = 0;
                         i < noOfOrderLine;
@@ -143,17 +146,50 @@ function(
                             var srcRowData = null;
                             srcRowData = _scGridxUtils.getItemFromRowIndexUsingUId(
                             this, "OLST_listGrid", lineIndex);
-                            _scGridxUtils.updateRecordToGridUsingUId(
-                            this, "OLST_listGrid", srcRowData, newModelData, true, true);
-                            var temp = null;
-                            temp = {};
-                            _scEventUtils.fireEventToParent(
-                            this, "SaveOrder", temp);
+							// ARH-176 : Modified to stamp LineType and FulfillmentType for pick up lines : BEGIN
+							console.log("srcRowData", srcRowData);
+							// Updated code for adding OrderLineKey in Map for future inventory : ARR7 and SU -74 - START
+            				var orderLineKeyArr = _scModelUtils.getModelListFromKey("OrderLineKey", srcRowData);
+            				var orderLineKey = orderLineKeyArr[0];
+            				// pass the orderlinekey and fetch all required data respective to that orderline from mapdata
+            				var newModelData = mapModelData[orderLineKey];
+							console.log("newModelData", newModelData);
+                            var shipNodeColData = _scModelUtils.getModelListFromKey("ShipNode", srcRowData);
+                            var currentShipNode = shipNodeColData[0];
+                            var currentShipNodeStr = currentShipNode;
+							var newShipNode = _scModelUtils.getStringValueFromPath("ShipNode", newModelData);
+							console.log("currentShipNodeStr", currentShipNodeStr);
+							console.log("newShipNode", newShipNode);
+                            if (!(_scBaseUtils.equals(currentShipNodeStr, newShipNode))) {
+            					this.ownerScreen.hashMapFuturePickUpLines["APPLY"] = "Y"
+            					var isFutureAvailability = _scModelUtils.getStringValueFromPath("IsFutureAvailability", newModelData);
+            					// Added isAvailableOnStore flag and condition check to fix Defect SU-74.
+            					var isAvailableOnStore = _scModelUtils.getStringValueFromPath("IsAvailableOnStore", newModelData);
+            					if (_scBaseUtils.equals(isFutureAvailability, "Y") && !_scBaseUtils.equals(isAvailableOnStore, "Y")) {
+            						// Set each OrderLineKey as key and the flag = 'Y' as value.
+            						this.ownerScreen.hashMapFuturePickUpLines[orderLineKey] = "Y";
+            						this.ownerScreen.hashMapFuturePickUpLines['itemid_'+orderLineKey] = srcRowData._dataItem.Item.ItemID;
+            					}
+            					
+                                _scGridxUtils.updateRecordToGridUsingUId(this, "OLST_listGrid", srcRowData, newModelData, true, true);
+                                countToCallUpdateOrder = countToCallUpdateOrder + 1;
+                            }
+            				// Updated code for adding OrderLineKey in Map for future inventory : ARR7 and SU-74 - END
+                            //_scGridxUtils.updateRecordToGridUsingUId(
+                            //this, "OLST_listGrid", srcRowData, newModelData, true, true);
+                            if (countToCallUpdateOrder > 0) {
+								var temp = null;
+								temp = {};
+								_scEventUtils.fireEventToParent(
+								this, "SaveOrder", temp);
+							}
+							// ARH-176 : Modified to stamp LineType and FulfillmentType for pick up lines : END
                         }
                        // _scGridxUtils.deselectAllRowsInGridUsingUId(
                       //  this, "OLST_listGrid");
                     },
-	 onRowDeselect: function(
+	/* Mixed Cart Implementation : Below code is commented */
+	/* onRowDeselect: function(
 		        event, bEvent, ctrl, args) {
 		            var deselectedRow = null;
 		            deselectedRow = _scBaseUtils.getBeanValueFromBean("rowIndex", args);
@@ -178,7 +214,8 @@ function(
 					var errorMessage = _scScreenUtils.getString(this, "extn_Row_Deselected_Msg_Shipping");
         			_scScreenUtils.showErrorMessageBox(
         				this, errorMessage, "waringCallback", textObj, null);
-		        },
+		        }, */
+		/* Mixed Cart - End */
         onRowOrHeaderDeselect: function(
         event, bEvent, ctrl, args) {
             var argument = null;
@@ -228,7 +265,153 @@ function(
 					_scScreenUtils.showErrorMessageBox(this, errorMessage, "error",null,null);
 				}
             }
-        }
+        },
+        changeToPickupCallback: function(
+        actionPerformed, model, popupParams) {
+            var shipnode = null;
+            var tmodel = null;
+            var shipNodeDesc = null;
+            var orderLineModel = null;
+            var sApply = null;
+            var availabilityDate = null;
+            var currentContainer = null;
+            var newModelData = null;
+			var mapModelData = {};
+            var gridScreens = null;
+            //newModelData = {};
+            var argument = null;
+            argument = {};
+            _scBaseUtils.setAttributeValue("argumentList.Select", "N", argument);
+            var argumentForStore = null;
+            argumentForStore = {};
+            if (
+            _scBaseUtils.equals(
+            actionPerformed, "APPLY")) {
+                if (!(
+                _scBaseUtils.isVoid(
+                model))) {
+                    shipnode = _scModelUtils.getStringValueFromPath("Node.Availability.ShipNode", model);
+					// ARH-176 : Modified to stamp LineType and FulfillmentType for pick up lines : BEGIN
+                    //availabilityDate = _scModelUtils.getStringValueFromPath("Node.Availability.AvailableDate", model);
+                    shipNodeDesc = _scModelUtils.getStringValueFromPath("Node.Description", model);
+					
+					// Updated code for ARR7 - START
+    				var orderLineList = _scModelUtils.getStringValueFromPath("Node.OrderLines.OrderLine", model);
+    				for (var j = 0; j < _scBaseUtils.getAttributeCount(orderLineList); j = j + 1) {
+    					newModelData = {};
+    					var orderLine = orderLineList[j];
+    					console.log("orderLine", orderLine);
+    					var isAvailable = _scModelUtils.getStringValueFromPath("IsAvailable", orderLine);
+    					var orderLineKey = _scModelUtils.getStringValueFromPath("OrderLineKey", orderLine);
+    					var isFutureAvailability = _scModelUtils.getStringValueFromPath("IsFutureAvailability", orderLine);
+    					// Added isAvailableOnStore flag and condition check to fix Defect SU-74.
+    					var isAvailableOnStore = _scModelUtils.getStringValueFromPath("IsAvailableOnStore", orderLine);
+    					var availabilityDate = _scModelUtils.getStringValueFromPath("AvailableDate", orderLine);
+    					if (_scBaseUtils.equals(isAvailable, "Y") && _scBaseUtils.equals(isFutureAvailability, "Y")) {
+    						_scModelUtils.setStringValueAtModelPath("IsFutureAvailability", isFutureAvailability, newModelData);
+    						_scModelUtils.setStringValueAtModelPath("IsAvailableOnStore", isAvailableOnStore, newModelData);
+    					}
+    					// Updated code for ARR7 - END
+						
+						_scModelUtils.setStringValueAtModelPath("EarliestShipDate", availabilityDate, newModelData);
+						_scModelUtils.setStringValueAtModelPath("ReqShipDate", "", newModelData);
+						_scModelUtils.setStringValueAtModelPath("ShipNode", shipnode, newModelData);
+						_scModelUtils.setStringValueAtModelPath("DeliveryMethod", "PICK", newModelData);
+						var selectedLineZero = false;
+						var orderLines = null;
+						orderLines = [];
+						_scBaseUtils.setAttributeValue("argumentList.StoreData", newModelData, argumentForStore);
+						console.log("changeToPickupCallback orderLineKey", orderLineKey);
+						console.log("newModelData", newModelData);
+						mapModelData[orderLineKey] = newModelData;
+					}
+                    this.updateDeliveryMethodDetails(
+                    mapModelData);
+					// ARH-176 : Modified to stamp LineType and FulfillmentType for pick up lines : END
+                }
+            } else {}
+        },
+        changeToPickup: function(
+        event, bEvent, ctrl, args) {
+            var selectedRecords = null;
+            selectedRecords = _scGridxUtils.getSelectedSourceRecordsWithRowIndex(
+            this, "OLST_listGrid");
+            var processedRecords = null;
+			// ARH-176 : Modified to stamp LineType and FulfillmentType for pick up lines : BEGIN
+            //processedRecords = _isccsOrderUtils.processSelectedRecordsForStoreSelection(
+            //this, "OLST_listGrid", selectedRecords);
+            processedRecords = this.processSelectedRecordsForStoreSelection(
+            this, "OLST_listGrid", selectedRecords);
+			// ARH-176 : Modified to stamp LineType and FulfillmentType for pick up lines : END
+            var noOfOrderLine = null;
+            noOfOrderLine = _scBaseUtils.getAttributeCount(
+            processedRecords);
+            if (
+            noOfOrderLine > 0) {
+                var fulfillmentModel = null;
+                fulfillmentModel = _scScreenUtils.getModel(
+                this, "getCompleteOrderDetails_output");
+                var callingOrgCode = null;
+                callingOrgCode = _scModelUtils.getStringValueFromPath("Order.EnterpriseCode", fulfillmentModel);
+                var orderHeaderKey = null;
+                orderHeaderKey = _scModelUtils.getStringValueFromPath("Order.OrderHeaderKey", fulfillmentModel);
+                var ePersonInfo = null;
+                ePersonInfo = _scModelUtils.getModelObjectFromPath("Order.PersonInfoShipTo", fulfillmentModel);
+                var orderInfoModel = null;
+                var orderModel = null;
+                orderInfoModel = {};
+                orderModel = {};
+                _scModelUtils.addStringValueToModelObject("OrderHeaderKey", orderHeaderKey, orderInfoModel);
+                _scModelUtils.addStringValueToModelObject("EnterpriseCode", callingOrgCode, orderInfoModel);
+                _scModelUtils.addModelObjectAsChildToModelObject("Order", orderInfoModel, orderModel);
+                _isccsSharedComponentUtils.openStoreSelectionForMultipleLines(
+                this, processedRecords, orderModel, ePersonInfo, callingOrgCode, "ViewStores", "changeToPickupCallback");
+            } else {
+                var warningString = null;
+                warningString = _scScreenUtils.getString(
+                this, "WARNING_selecteOneItem");
+                var textObj = null;
+                textObj = {};
+                var textOK = null;
+                textOK = _scScreenUtils.getString(
+                this, "textOK");
+                textObj["OK"] = textOK;
+                _scScreenUtils.showErrorMessageBox(
+                this, warningString, "waringCallback", textObj, null);
+            }
+        },
+        
+		// Added below method as part of SU74 Fix / ARH-176
+		processSelectedRecordsForStoreSelection: function(screen,uId,selectedRecords){
+			/*This util will take the array of records, fetch the OrderLineKey & Qty and return an array back which contain orderLines which have only these two attributes.
+						  This is used to prepare the model to send the orderLines to the select storePopup.*/
+			var orderLines = [];
+			for(var i=0;i<selectedRecords.length;i++){
+				// to clean up and add a model despite of removing
+				var currentRecord = selectedRecords[i].rowData;
+				var orderlineKey = _scBaseUtils.getAttributeValue("OrderLineKey",false,currentRecord);
+				var giftWrap = _scBaseUtils.getAttributeValue("GiftWrap",false,currentRecord);
+				
+				
+				
+				var itemObj = _scModelUtils.getModelObjectFromPath("Item", currentRecord);
+				itemObj.UOMDisplayFormat = "";
+				itemObj.DisplayUnitOfMeasure = "";
+				_scBaseUtils.removeBlankAttributes(itemObj);
+				var reqQty = _scBaseUtils.getAttributeValue("OrderedQty",false,currentRecord);
+				var orderLine = {};
+				
+				if(itemObj){
+					orderLine.Item = {};
+					orderLine.Item=currentRecord.Item;
+				}
+				orderLine.OrderLineKey= orderlineKey;
+				orderLine.GiftWrap= giftWrap;
+				orderLine.RequiredQty = reqQty;
+				orderLines.push(orderLine);
+			}
+			return orderLines;
+		}
 });
 });
 

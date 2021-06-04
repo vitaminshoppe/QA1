@@ -264,7 +264,8 @@ function( _dojodeclare,
                 _isccsOrderUtils.setLargeOrderProperty(this, "orderlinestitlepane", "N");
             }
         },
-	onRowDeselect: function(
+		/* Mixed Cart Implementation : Below code is commented */
+	/*	onRowDeselect: function(
 		event, bEvent, ctrl, args) {
 			var deselectedRow = null;
 			console.log(args);
@@ -286,19 +287,8 @@ function( _dojodeclare,
 			_scScreenUtils.showErrorMessageBox(
 				this, errorMessage, "waringCallback", textObj, null);
 
-			/**var argument = null;
-			argument = {};
-			var orderLineKey = null;
-			orderLineKey = _scBaseUtils.getStringValueFromBean("OrderLineKey", deselectedRow);
-			_scBaseUtils.setAttributeValue("argumentList.OrderLineKey", orderLineKey, argument);
-			_scBaseUtils.setAttributeValue("argumentList.Select", "N", argument);
-			_scEventUtils.fireEventToParent(
-			this, "SelectOrUnselectRowInPickupPanel", argument);
-			_scEventUtils.fireEventToParent(
-			this, "SelectOrUnselectRowInUnavailablePickupPanel", argument); **/
-			//_scGridxUtils.deselectAllRowsUsingUId(this,"OLST_listGrid");
-			//_scGridxUtils.deselectAllRowsInGridUsingUId(this,"OLST_listGrid");
-	},
+	}, */
+	/* Mixed Cart - End */
 	selectAllRows: function(){
 		var grid = this.getWidgetByUId("OLST_listGrid");
 		

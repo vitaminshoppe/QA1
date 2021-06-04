@@ -3,6 +3,15 @@
         EntryType="" ReturnOrderHeaderKeyForExchange="" OrderPurpose="" MaxOrderStatus="" MinOrderStatus="" Status="" OrderType="" SellerOrganizationCode="" TaxExemptFlag="" TaxExemptionCertificate="">
     <Extn />
     <PriceInfo Currency="" EnterpriseCurrency="" ReportingConversionDate="" ReportingConversionRate=""/> 
+	 <PersonInfoBillTo AddressLine1="" AddressLine2=""
+        AddressLine3="" City="" Company="" Country="" DayFaxNo=""
+        DayPhone="" Department="" EMailID="" FirstName="" JobTitle=""
+        LastName="" MiddleName="" MobilePhone="" State="" Suffix=""
+        Title="" ZipCode="" IsAddressesVerified="" PersonInfoKey="" />
+	<PersonInfoShipTo AddressLine1="" AddressLine2=""					
+                AddressLine3="" City="" Company="" Country=""					
+                DayPhone="" EMailID="" FirstName="" LastName="" MiddleName=""					
+                MobilePhone="" State="" Suffix="" Title="" ZipCode="" IsAddressesVerified="" PersonInfoKey="" />
     <OrderLines>
         <OrderLine OrderedQty=""  SCAC="" SubLineNo="" CarrierServiceCode=""  OrderLineKey="" PrimeLineNo="" MinLineStatus="" MaxLineStatus=""  
 		           IsGWPInsert="" ShipNode="" ShipToID="" ShippingGroupID=""  Status="" DerivedFromOrderHeaderKey="" DerivedFromOrderLineKey="" ReshipParentLineKey="" ReturnReason="" DeliveryMethod="" FulfillmentType="" LineType="" >
@@ -42,15 +51,7 @@
 				
         </OrderLine>
     </OrderLines>
-   <PersonInfoBillTo AddressLine1="" AddressLine2=""
-        AddressLine3="" City="" Company="" Country="" DayFaxNo=""
-        DayPhone="" Department="" EMailID="" FirstName="" JobTitle=""
-        LastName="" MiddleName="" MobilePhone="" State="" Suffix=""
-        Title="" ZipCode="" IsAddressesVerified="" PersonInfoKey="" />
-	<PersonInfoShipTo AddressLine1="" AddressLine2=""					
-                AddressLine3="" City="" Company="" Country=""					
-                DayPhone="" EMailID="" FirstName="" LastName="" MiddleName=""					
-                MobilePhone="" State="" Suffix="" Title="" ZipCode="" IsAddressesVerified="" PersonInfoKey="" />
+  
 	<HeaderCharges>
 		<HeaderCharge ChargeAmount="" ChargeCategory="" ChargeName=""/>
 	</HeaderCharges>

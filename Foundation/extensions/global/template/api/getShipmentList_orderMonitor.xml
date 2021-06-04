@@ -1,3 +1,9 @@
 <Shipments TotalNumberOfRecords=""> 
-<Shipment ShipmentKey="" />
+<Shipment ShipmentKey="" Status="" ShipNode="">
+<ShipmentLines>
+<ShipmentLine ShipmentLineNo="" OrderNo="" ReleaseNo="" >
+<OrderLine OrderLineKey=""/>
+</ShipmentLine>
+</ShipmentLines>
+</Shipment>
 </Shipments>

@@ -1,0 +1,11 @@
+<OrderHoldTypes>
+<OrderHoldType OrderHeaderKey="" Status="" OrderLineKey="" StatusDescription="" ReasonText="" LastHoldTypeDate="" HoldType="">
+<Order OrderNo="" OrderHeaderKey="" EnterpriseCode="" DocumentType=""/>
+<OrderLine OrderLineKey="">
+</OrderLine>
+</OrderHoldType>
+</OrderHoldTypes>
+
+
+
+

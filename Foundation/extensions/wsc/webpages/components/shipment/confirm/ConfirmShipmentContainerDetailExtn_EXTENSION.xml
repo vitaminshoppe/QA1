@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ExtensionMetaData>
+    <ScreenExtension extnClassName="ConfirmShipmentContainerDetailExtn"
+        extnPackage="extn.components.shipment.confirm"
+        originalScreen="wsc.components.shipment.confirm.ConfirmShipmentContainerDetail"
+        originalScreenPackage="wsc.components.shipment.confirm" type="diffrential">
+        <Items>
+            <ContentPane _sc_extensibility_operation="change"
+                _sc_extensibility_referenceUId="containerSubPanel" colspan="4"/>
+            <DataLabel _sc_extensibility_moveOrder="1"
+                _sc_extensibility_operation="insert"
+                _sc_extensibility_position="after"
+                _sc_extensibility_referenceUId="orderNoLbl"
+                class="zeroWidthLabelKey"
+                label="$(_scBundle:extn_Customer_Name)" uId="extn_custName">
+                <BindingData>
+                    <SourceBinding namespace="ContainerDetails_Input" path="Container.Shipment.Extn.ExtnName"/>
+                </BindingData>
+            </DataLabel>
+            <DataLabel _sc_extensibility_moveOrder="3"
+                _sc_extensibility_operation="insert"
+                _sc_extensibility_position="after"
+                _sc_extensibility_referenceUId="extn_statusDate"
+                class="zeroWidthLabelKey" uId="extn_LOS">
+                <BindingData>
+                    <SourceBinding namespace="ContainerDetails_Input" path="Container.Shipment.CarrierServiceCode"/>
+                </BindingData>
+            </DataLabel>
+            <DataLabel _sc_extensibility_moveOrder="4"
+                _sc_extensibility_operation="move"
+                _sc_extensibility_position="before"
+                _sc_extensibility_referenceUId="extn_statusDate" uId="extn_LOS"/>
+            <DataLabel _sc_extensibility_moveOrder="2"
+                _sc_extensibility_operation="insert"
+                _sc_extensibility_position="after"
+                _sc_extensibility_referenceUId="extn_custName"
+                class="zeroWidthLabelKey"
+                label="$(_scBundle:extn_Pack_Date)" uId="extn_statusDate">
+                <BindingData>
+                    <SourceBinding
+                        dynamicBindingFunc="extnFormatStatusDate"
+                        namespace="ContainerDetails_Input" path="Container.Shipment.StatusDate"/>
+                </BindingData>
+            </DataLabel>
+        </Items>
+    </ScreenExtension>
+</ExtensionMetaData>
