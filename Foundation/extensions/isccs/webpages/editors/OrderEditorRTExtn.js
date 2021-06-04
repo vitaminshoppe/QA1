@@ -104,7 +104,62 @@ function(
 	            _isccsUIUtils.callApi(currentEditor, input, "invokeUE", mashupContext);
 	        	
 	        },
+			
+			extn_UpdateBOLNoOnClickHandler: function(event, bEvent, ctrl, args) {
+				var currentEditor = _scEditorUtils.getCurrentEditor();
+				var taskInput = _scScreenUtils.getInitialInputData(currentEditor);
+				var dialogParams = null;
+				dialogParams = _scBaseUtils.getNewBeanInstance();
+				_scBaseUtils.addStringValueToBean("closeCallBackHandler", "extn_updateBOLAndDeliveryDatecallBackHandler", dialogParams);
+			
+				var popUpParams=null;
+				popUpParams = _scBaseUtils.getNewBeanInstance();
+				_scModelUtils.setStringValueAtModelPath("Order.Extn.ExtnBOLNumberPopup", "Y", taskInput);
+				
+				_scBaseUtils.addModelValueToBean("screenInput",taskInput,popUpParams);
+				_isccsUIUtils.openSimplePopup("isccs.order.create.additems.GetOrganizationList", "Update BOL/Delivery Date", this, popUpParams, dialogParams);
+			
+			},
+			
+			extn_updateBOLAndDeliveryDatecallBackHandler: function(event, bEvent, ctrl, args) {
+				
 
+				if(event!="CLOSE")
+				{
+					var currentEditor = _scEditorUtils.getCurrentEditor();
+					var taskInput = _scScreenUtils.getInitialInputData(currentEditor);
+					var  input =_scModelUtils.createNewModelObjectWithRootKey("Order");
+					_scModelUtils.setStringValueAtModelPath("Order.OrderHeaderKey",_scModelUtils.getStringValueFromPath("Order.OrderHeaderKey",taskInput),input);
+					var extnModel= _scModelUtils.getModelObjectFromPath("Order.Extn",bEvent);
+					_scModelUtils.addModelToModelPath("Order.Extn",extnModel,input);					
+
+					_isccsUIUtils.callApi(this, input, "extn_changeOrder_OrderEditorRT");
+				}
+
+			},
+			
+			onExtnMashupCompletion: function (event, bEvent, ctrl, args) {
+				if (args && args.mashupArray) {
+
+					for (var index = 0; index < args.mashupArray.length; index++) {
+						var mashupObj = args.mashupArray[index];
+
+						if (mashupObj.mashupRefId == "extn_changeOrder_OrderEditorRT") {
+							isccs.utils.OrderUtils.openOrderSummary(event, bEvent, ctrl, args);
+						}
+					}
+				}
+			},
+			
+			extn_afterScreenInit: function (event, bEvent, ctrl, args) {
+				var currentEditor = _scEditorUtils.getCurrentEditor();
+				var taskInput = _scScreenUtils.getInitialInputData(currentEditor);
+				var entryType= _scModelUtils.getStringValueFromPath("Order.EntryType",taskInput);
+				if(_scBaseUtils.equals(entryType,"WHOLESALE")){
+					_scWidgetUtils.showWidget(this,"extn_link_updateBol",false);
+					
+				}
+			}
         
 });
 });

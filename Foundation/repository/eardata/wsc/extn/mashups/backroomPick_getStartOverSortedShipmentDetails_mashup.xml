@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mashups>
+    <mashup description="Get Shipment Details" endpoint="EP_CONFIG"
+        id="backroomPick_getStartOverSortedShipmentDetails"
+        mashuptype="XAPI" skipDataProvider="false" transactional="true">
+        <classInformation name="com.ibm.wsc.shipment.backroompick.mashups.WSCAbandonBackroomPickStartOverMashup"/>
+        <API Name="getSortedShipmentDetails">
+            <Input>
+                <Shipment
+                    DisplayLocalizedFieldInLocale="xml:CurrentUser:/User/@Localecode"
+                    SellerOrganizationCode="xml:CurrentStore:/Store/@EnterpriseCode"
+                    ShipNode="xml:CurrentStore:/Store/@ShipNode"
+                    ShipmentKey="xml:scControllerInput:/Shipment/@ShipmentKey" ShipmentNo=""/>
+            </Input>
+            <Template>
+                <Shipment AssignedToUserId="" Currency=""
+                    EnterpriseCode="" ExpectedShipmentDate=""
+                    GiftFlag="" OrderNo="" RequestedDeliveryDate=""
+                    RequestedShipmentDate="" SellerOrganizationCode=""
+                    ShipNode="" ShipmentKey="" ShipmentNo="" Status=""
+                    TotalNumOfPickableSKUs="" TransactionId="">
+                    <ShipmentLines>
+                        <ShipmentLine BackroomPickedQuantity=""
+                            OrderHeaderKey="" OrderLineKey="" OrderNo=""
+                            PickLocation="" Quantity="" ShipmentKey=""
+                            ShipmentLineKey="" ShipmentLineNo=""
+                            ShipmentSubLineNo="" ShortageQty="">
+                            <OrderLine GiftFlag="" IsBundleParent="" ItemGroupCode="">
+                                <ItemDetails ItemGroupCode="" ItemID="" UnitOfMeasure="">
+                                    <PrimaryInformation
+                                    ExtendedDisplayDescription=""
+                                    ImageID="" ImageLabel="" ImageLocation=""/>
+									<ItemAliasList>
+								 <ItemAlias AliasValue="" AliasName=""/>
+								 </ItemAliasList>
+								 <Extn ExtnStyle="" ExtnItemSize=""/>
+                                </ItemDetails>
+                                <Item ProductClass=""/>
+                                <LinePriceInfo UnitPrice=""/>
+                                <OrderDates>
+                                    <OrderDate ActualDate=""
+                                    CommittedDate="" DateTypeId=""
+                                    ExpectedDate=""
+                                    OrderHeaderKey=""
+                                    OrderLineKey=""
+                                    OrderReleaseKey="" RequestedDate=""/>
+                                </OrderDates>
+                            </OrderLine>
+                        </ShipmentLine>
+                    </ShipmentLines>
+                </Shipment>
+            </Template>
+        </API>
+        <APINamespace
+            inputNS="backroomPick_getSortedShipmentDetails_input" outputNS="backroomPick_getSortedShipmentDetails_output"/>
+        <AlternateResourceIds>
+            <AlternateResourceId altResourceId="WSCSYS00001"/>
+            <AlternateResourceId altResourceId="WSC000006"/>
+        </AlternateResourceIds>
+    </mashup>
+</mashups>

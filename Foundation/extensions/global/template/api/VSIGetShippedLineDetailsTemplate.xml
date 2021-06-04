@@ -67,6 +67,7 @@
 				MiddleName="" PaymentType="" UnlimitedCharges="" PaymentReference1=""
 				PaymentReference2="" PaymentReference8="" PaymentReference9=""
 				TotalCharged="" TotalAuthorized="">
+					<Extn ExtnContactLess="" />
 			</PaymentMethod>
 		</PaymentMethods>
 		<PersonInfoBillTo AddressLine1="North Bergen"

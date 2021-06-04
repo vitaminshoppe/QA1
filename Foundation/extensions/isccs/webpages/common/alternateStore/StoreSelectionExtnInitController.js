@@ -23,6 +23,32 @@ return _dojodeclare("extn.common.alternateStore.StoreSelectionExtnInitController
 			
 			
 			
+			
+			
+						,
+
+			
+			
+			 mashupRefs : 	[
+	 		{
+		 sourceBindingOptions : 			''
+,
+		 sequence : 			''
+,
+		 mashupId : 			'extn_getCommonCodeForBOSTS'
+,
+		 sourceNamespace : 			'extn_getCommonCodeForBOSTS'
+,
+		 mashupRefId : 			'extn_getCommonCodeForBOSTS'
+,
+		 extnType : 			'ADD'
+,
+		 callSequence : 			''
+
+	}
+
+	]
+
 }
 );
 });

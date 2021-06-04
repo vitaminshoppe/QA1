@@ -195,7 +195,9 @@
 					DisplayCreditCardNo="" DisplaySvcNo="" FirstName="" LastName="" MaxChargeLimit=""
 					MiddleName="" PaymentType="" UnlimitedCharges="" PaymentReference1=""
 					PaymentReference2="" PaymentReference8="" PaymentReference9=""
-					TotalCharged="" TotalAuthorized="" />
+					TotalCharged="" TotalAuthorized="" >
+					<Extn ExtnContactLess="" />
+				</PaymentMethod>
 			</CollectionDetail>
 		</CollectionDetails>
 	</InvoiceHeader>

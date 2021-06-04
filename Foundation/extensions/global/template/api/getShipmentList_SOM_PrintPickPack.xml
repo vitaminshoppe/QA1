@@ -6,5 +6,9 @@
 <OrderLine LineType ="" DeliveryMethod="" />
 </ShipmentLine>
 </ShipmentLines>
+	<ShipmentStatusAudits TotalNumberOfRecords="">
+		<ShipmentStatusAudit ShipmentKey=""  Createuserid="" Createts=""  OldStatus="" NewStatus="">
+		</ShipmentStatusAudit>
+	</ShipmentStatusAudits>
 </Shipment>
 </Shipments>

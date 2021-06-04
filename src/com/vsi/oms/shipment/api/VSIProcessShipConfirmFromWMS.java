@@ -49,6 +49,8 @@ public class VSIProcessShipConfirmFromWMS extends VSIBaseCustomAPI implements VS
 	boolean cancelMCLOrder = false; // Open Item: What needs to be done when a
 									// partially shipped order is cancelled?
 	public String strOrderType = "";
+	
+	public String strEntryType = "";		//OMS-3143 Change
 
 	public Document processShipConfirmFromWMS(YFSEnvironment env, Document inputDoc) throws Exception {
 		log.beginTimer("VSIProcessShipConfirmFromWMS.processShipConfirmFromWMS : START");
@@ -87,6 +89,19 @@ public class VSIProcessShipConfirmFromWMS extends VSIBaseCustomAPI implements VS
 				}
 				// MC-40 : Modified to consolidate shipments for MCL orders :
 				// END
+				
+				//OMS-3143 Changes -- Start
+				boolean bIsWholeSale=false;
+				
+				isWholesaleOrder(env, eleOrder);
+				
+				if(WHOLESALE.equals(strEntryType) && WHOLESALE.equals(strOrderType)){
+					bIsWholeSale=true;
+					if(log.isDebugEnabled()){
+						log.debug("Wholesale Shipment");					
+					}
+				}				
+				//OMS-3143 Changes -- End
 
 				for (Element eleShipment : arrShipments) {
 					Map<String, String> ItemDetailForShip = new HashMap<String, String>();
@@ -100,10 +115,75 @@ public class VSIProcessShipConfirmFromWMS extends VSIBaseCustomAPI implements VS
 					Element container = SCXmlUtil.getChildElement(containers, "Container");
 					String trackingNo = SCXmlUtil.getAttribute(container, "TrackingNo");
 					eleShipment.setAttribute("TrackingNo", trackingNo);
+					//OMS-3074 Changes -- Start
+					String strSCAC=eleShipment.getAttribute(ATTR_SCAC);					
+					String strURL=null;
+					//OMS-3143 Changes -- Start
+					if(!bIsWholeSale && !bIsTO){		//OMS-3221 Change
+					//OMS-3143 Changes -- End
+						if(!YFCCommon.isVoid(strSCAC)){
+							if(log.isDebugEnabled()){
+								log.debug("Shipment Carrier is: "+strSCAC);
+							}
+							if("ONTRAC".equals(strSCAC)){
+								strSCAC="OnTrac";
+							}
+							Document docInputgetCommonCodeList=XMLUtil.createDocument(VSIConstants.ELE_COMMON_CODE);
+							Element eleCommonCode = docInputgetCommonCodeList.getDocumentElement();
+							eleCommonCode.setAttribute(VSIConstants.ATTR_CODE_TYPE, strSCAC);
+							
+							if(log.isDebugEnabled()){
+								log.debug("Input to getCommonCodeList API: "+XMLUtil.getXMLString(docInputgetCommonCodeList));
+							}					
+							Document docCommonCodeListOP=VSIUtils.invokeAPI(env,VSIConstants.API_COMMON_CODE_LIST, docInputgetCommonCodeList);
+							if(log.isDebugEnabled()){
+								log.debug("Output from getCommonCodeList API: "+XMLUtil.getXMLString(docCommonCodeListOP));
+							}
+												
+							Element eleCCOut=(Element)docCommonCodeListOP
+									.getElementsByTagName(VSIConstants.ELE_COMMON_CODE).item(0);
+							
+							if(!YFCCommon.isVoid(eleCCOut)){
+								strURL=eleCCOut.getAttribute(VSIConstants.ATTR_CODE_LONG_DESCRIPTION);
+								if(log.isDebugEnabled()){
+									log.debug("Tracking URL from Common Code is: "+strURL);
+								}
+							}
+						}
+					//OMS-3143 Changes -- Start
+					}
+					//OMS-3143 Changes -- End
+					//OMS-3074 Changes -- End
 					// Append ReleaseNo at ShipmentLines present at container
 					// level
 					NodeList nlContainer = eleShipment.getElementsByTagName(ELE_CONTAINER);
 					SCXmlUtil.setAttribute(eleShipment, ATTR_NUM_OF_CARTONS, nlContainer.getLength());
+					//OMS-3143 Changes -- Start
+					if(!bIsWholeSale && !bIsTO){		//OMS-3221 Change
+					//OMS-3143 Changes -- End
+						//OMS-3074 Changes -- Start
+						for(int i=0; i<nlContainer.getLength(); i++){
+							Element eleContainer=(Element)nlContainer.item(i);
+							String strTrackingNo=eleContainer.getAttribute(ATTR_TRACKING_NO);
+							if((!YFCCommon.isVoid(strTrackingNo))&&(!YFCCommon.isVoid(strURL))){
+								if(log.isDebugEnabled()){
+									log.debug("Tracking URL is: "+strURL+" Tracking No is: "+strTrackingNo);
+								}
+								String strExtnTrackingURL=strURL+strTrackingNo;
+								if(log.isDebugEnabled()){
+									log.debug("ExtnTrackingURL is: "+strExtnTrackingURL);
+								}
+								Element eleContainerExtn=SCXmlUtil.createChild(eleContainer, ELE_EXTN);
+								eleContainerExtn.setAttribute("ExtnTrackingURL", strExtnTrackingURL);
+								if(log.isDebugEnabled()){
+									log.debug("Container after adding ExtnTrackingURL is: "+SCXmlUtil.getString(eleContainer));
+								}
+							}
+						}
+						//OMS-3074 Changes -- End
+					//OMS-3143 Changes -- Start
+					}
+					//OMS-3143 Changes -- End
 					NodeList eleContainerList = XMLUtil.getNodeListByXpath(inputDoc, XPATH_CONTAINER_SHIPMENT_LINES);
 					for (int i = 0; i < eleContainerList.getLength(); i++) {
 						Element eleContainerShipmentLine = (Element) eleContainerList.item(i);
@@ -135,8 +215,7 @@ public class VSIProcessShipConfirmFromWMS extends VSIBaseCustomAPI implements VS
 					if (null != strActualShipDate && !XmlUtils.isVoid(strActualShipDate))
 						eleShipment.setAttribute(VSIConstants.ATTR_ACTUAL_SHIP_DATE, strActualShipDate);
 					//OMS-1892: Start
-					isWholesaleOrder(env, eleOrder);
-										
+															
 					String strCurrentShipDate = eleShipment.getAttribute(VSIConstants.ATTR_CURRENT_SHIPDATE);
 					if (!WHOLESALE.equalsIgnoreCase(strOrderType) && !YFCCommon.isVoid(strCurrentShipDate)) 
 					{
@@ -356,13 +435,32 @@ public class VSIProcessShipConfirmFromWMS extends VSIBaseCustomAPI implements VS
 					strFromOrganizationCode = "DTCINV";
 					dblRequiredQty = invokeGetInventorySupplyNewLogic(env, docGetInventorySupply, dblRequiredQty,
 							eleTransferInventory, strFromOrganizationCode, strEnterprise);
-				} else if (ENT_NAVY_EXCHANGE.equalsIgnoreCase(strEnterprise)) {
+				} 
+				
+				//Start - changes for wholesale project
+				Document docGetCommonCodeInput = SCXmlUtil.createDocument(VSIConstants.ELEMENT_COMMON_CODE);
+				Element eleCommonCodeElement = docGetCommonCodeInput.getDocumentElement();
+				eleCommonCodeElement.setAttribute(VSIConstants.ATTR_CODE_TYPE, VSIConstants.ATTR_ALL_WH_ORG);
+				eleCommonCodeElement.setAttribute(VSIConstants.ATTR_ORG_CODE, VSIConstants.ATTR_DEFAULT);
+				Document docgetCommonCodeOutput = VSIUtils.invokeAPI(env,VSIConstants.API_COMMON_CODE_LIST, docGetCommonCodeInput);
+				
+				if(docgetCommonCodeOutput.getDocumentElement().hasChildNodes()){
+					NodeList nCommonCodeList = docgetCommonCodeOutput.getElementsByTagName(VSIConstants.ELE_COMMON_CODE);
+					for (int j = 0; j < nCommonCodeList.getLength(); j++) {
+						Element eleCommonCode = (Element) nCommonCodeList.item(j);
+						String strWHEnterpriseCode = eleCommonCode.getAttribute(VSIConstants.ATTR_CODE_LONG_DESC);
+				
+				 if (strWHEnterpriseCode.equalsIgnoreCase(strEnterprise)) {
 					strFromOrganizationCode = "MCLINV";
 					dblRequiredQty = invokeGetInventorySupplyNewLogic(env, docGetInventorySupply, dblRequiredQty,
 							eleTransferInventory, strFromOrganizationCode, strEnterprise);
 				}
+					}				
+				
+				//End - changes for wholesale project
 			}
 
+			}
 			if (dblRequiredQty > 0) {
 				if (ENT_ADP.equalsIgnoreCase(strEnterprise)) {
 					strFromOrganizationCode = "MCLINV";
@@ -1105,6 +1203,9 @@ public class VSIProcessShipConfirmFromWMS extends VSIBaseCustomAPI implements VS
 			eleOrderTemplate.setAttribute(ATTR_ORDER_NO, "");
 			eleOrderTemplate.setAttribute(ATTR_ENTERPRISE_CODE, "");
 			eleOrderTemplate.setAttribute(ATTR_ORDER_TYPE, "");
+			//OMS-3143 Changes -- Start
+			eleOrderTemplate.setAttribute(ATTR_ENTRY_TYPE, "");
+			//OMS-3143 Changes -- End
 
 			if (!YFCCommon.isVoid(eleOrder.getAttribute(ATTR_ORDER_NO))) {
 				Document docOrderList = VSIUtils.invokeAPI(env, docGetOrderListTemplate, API_GET_ORDER_LIST,
@@ -1114,6 +1215,9 @@ public class VSIProcessShipConfirmFromWMS extends VSIBaseCustomAPI implements VS
 				if (!YFCCommon.isVoid(eleOrderOut)) {
 					strEnterpriseCode = eleOrderOut.getAttribute(ATTR_ENTERPRISE_CODE);
 					strOrderType = eleOrderOut.getAttribute(ATTR_ORDER_TYPE);
+					//OMS-3143 Changes -- Start
+					strEntryType= eleOrderOut.getAttribute(ATTR_ENTRY_TYPE);
+					//OMS-3143 Changes -- End
 				}
 			}
 		}

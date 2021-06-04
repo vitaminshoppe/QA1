@@ -401,7 +401,9 @@ public class VSIWholesaleOrderOnCreate implements VSIConstants {
 		VSIBeforeCreateOrderUEImpl impl = new VSIBeforeCreateOrderUEImpl();
 		impl.stampExtnAttributes(env, inXML);
 		//WOP-190 : Stamp Reservation : Start
-		stampOrderLineReservation(env,inXML);
+		//OMS-3361 Commented out reservations in the wholesale -  start
+		//stampOrderLineReservation(env,inXML);
+		//OMS-3361 Commented out reservations in the wholesale - End
 		//WOP-190 : Stamp Reservation : End
 		return inXML;
 		

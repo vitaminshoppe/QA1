@@ -20,6 +20,7 @@ import com.yantra.interop.japi.YIFClientCreationException;
 import com.yantra.interop.japi.YIFClientFactory;
 import com.yantra.yfc.core.YFCObject;
 import com.yantra.yfc.log.YFCLogCategory;
+import com.yantra.yfc.util.YFCCommon;
 import com.yantra.yfs.japi.YFSEnvironment;
 import com.yantra.yfs.japi.YFSException;
 
@@ -67,10 +68,18 @@ public class VSIReceiveTransferOrderFromJDABR2 {
 			Element OrderEle = (Element) inService1.getElementsByTagName(VSIConstants.ELE_ORDER).item(0);
 
 			String orderHeaderKeyat = OrderEle.getAttribute(VSIConstants.ATTR_ORDER_HEADER_KEY);
+			//OMS-3002 Changes -- Start
+			String strCustFstName=OrderEle.getAttribute(VSIConstants.ATTR_CUSTOMER_FIRST_NAME);
+			String strCustLstName=OrderEle.getAttribute(VSIConstants.ATTR_CUSTOMER_LAST_NAME);
+			String strCustName=strCustFstName+" "+strCustLstName;
+			//OMS-3002 Changes -- End
 
 
 			env.clearApiTemplates();
 			NodeList lineList = inService1.getElementsByTagName(VSIConstants.ELE_ORDER_LINE);
+			//OMS-3171 Changes -- Start
+			Document docInboxIn = null;
+			//OMS-3171 Changes -- End
 			for (int p = 0; p < lineList.getLength(); p++) {
 				
 				Element lineElement = (Element) lineList.item(p);
@@ -108,12 +117,14 @@ public class VSIReceiveTransferOrderFromJDABR2 {
         			
         			String strShipNode=lineElement.getAttribute(VSIConstants.ATTR_SHIP_NODE);
     				String strCustPONo=lineElement.getAttribute(VSIConstants.ATTR_CUST_PO_NO);
-    				String strOrderedQty=lineElement.getAttribute(VSIConstants.ATTR_ORD_QTY);
+    				//OMS-2998 Changes -- Start
+    				String strOrigOrderedQty=lineElement.getAttribute(VSIConstants.ATTR_ORIGINAL_ORDERED_QTY);
+    				//OMS-2998 Changes -- End
     				Element eleItem=SCXmlUtil.getChildElement(lineElement, VSIConstants.ELE_ITEM);
     				String strItemId=eleItem.getAttribute(VSIConstants.ATTR_ITEM_ID);    				
         			String strQueueId="VSI_RESTOCK_"+strShipNode;
         			
-    				Document docInboxIn=XMLUtil.createDocument(VSIConstants.ELE_INBOX);
+    				docInboxIn=XMLUtil.createDocument(VSIConstants.ELE_INBOX);		//OMS-3171 Change		
     				Element eleInboxIn=docInboxIn.getDocumentElement();
     				eleInboxIn.setAttribute(VSIConstants.ATTR_ACTIVE_FLAG, VSIConstants.FLAG_Y);
     				eleInboxIn.setAttribute(VSIConstants.ATTR_ORDER_HEADER_KEY, orderHeaderKeyat);
@@ -130,7 +141,15 @@ public class VSIReceiveTransferOrderFromJDABR2 {
     				Element eleQtyReference=SCXmlUtil.createChild(eleInbxRfrncsLst, VSIConstants.ELE_INBOX_REFERANCES);
     				eleQtyReference.setAttribute(VSIConstants.ATTR_NAME, "Qty");
     				eleQtyReference.setAttribute(VSIConstants.ATTR_REFERENCE_TYPE, "TEXT");
-    				eleQtyReference.setAttribute(VSIConstants.ATTR_VALUE, strOrderedQty);
+    				//OMS-2998 Changes -- Start
+    				eleQtyReference.setAttribute(VSIConstants.ATTR_VALUE, strOrigOrderedQty);
+    				//OMS-2998 Changes -- End
+    				//OMS-3002 Changes -- Start
+    				Element eleCustNameRef=SCXmlUtil.createChild(eleInbxRfrncsLst, VSIConstants.ELE_INBOX_REFERANCES);
+    				eleCustNameRef.setAttribute(VSIConstants.ATTR_NAME, "Name");
+    				eleCustNameRef.setAttribute(VSIConstants.ATTR_REFERENCE_TYPE, "TEXT");
+    				eleCustNameRef.setAttribute(VSIConstants.ATTR_VALUE, strCustName);
+    				//OMS-3002 Changes -- End
     				
     				if(log.isDebugEnabled()){
     					log.debug("createException API Input: "+SCXmlUtil.getString(docInboxIn));
@@ -140,8 +159,7 @@ public class VSIReceiveTransferOrderFromJDABR2 {
     				
     				if(log.isDebugEnabled()){
     					log.debug("createException API was invoked successfully");
-    				}
-					
+    				}					
 				}
 				//SOM Restock changes -- End
 				else if(status.equalsIgnoreCase("Restock In Transit")){
@@ -166,6 +184,32 @@ public class VSIReceiveTransferOrderFromJDABR2 {
         			        			
                 }
 			}
+			//OMS-3171 Changes -- Start
+			if(!YFCCommon.isVoid(docInboxIn)) {
+				if(log.isDebugEnabled()){
+					log.debug("Preparing the document to be sent to VBook Push Notification Q for Restock Alerts");
+				}
+				Element eleInboxIn=docInboxIn.getDocumentElement();		
+				Element eleInbxRfrncsLst=SCXmlUtil.getChildElement(eleInboxIn, VSIConstants.ELE_INBOX_REFERANCES_LIST);
+				NodeList nlInbxRfrncs=eleInbxRfrncsLst.getElementsByTagName(VSIConstants.ELE_INBOX_REFERANCES);
+				for(int i=0; i<nlInbxRfrncs.getLength(); i++) {
+					Element eleInbxRfrncs=(Element)nlInbxRfrncs.item(i);
+					String strName=eleInbxRfrncs.getAttribute(VSIConstants.ATTR_NAME);
+					if(VSIConstants.ATTR_ITEM_ID.equals(strName) || "Qty".equals(strName)){
+						eleInbxRfrncs.getParentNode().removeChild(eleInbxRfrncs);
+						i--;
+					}
+				}
+				if(log.isDebugEnabled()){
+					log.debug("Document prepared for sending to VBook Push Notification Q for Restock Alerts is: "+SCXmlUtil.getString(docInboxIn));				
+					log.debug("Sending the Restock Alert details to Push Notification Queue");
+				}    				
+				VSIUtils.invokeService(env, "VSISOMRestockAlertPush", docInboxIn);
+				if(log.isDebugEnabled()){
+					log.debug("Restock Alert details were sent to Push Notofication Queue");
+				}
+			}
+			//OMS-3171 Changes -- End
 			
               // change for restock ends
 						

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ExtensionMetaData>
+    <ScreenExtension extnClassName="ItemPackExtn"
+        extnPackage="extn.components.shipment.container.pack"
+        originalScreen="wsc.components.shipment.container.pack.ItemPack"
+        originalScreenPackage="wsc.components.shipment.container.pack" type="diffrential">
+        <Items>
+            <TextField _sc_extensibility_operation="change"
+                _sc_extensibility_referenceUId="txtItemID" hint="$(_scSimpleBundle:extn_Enter_Item_ID_or_UPC_Code)"/>
+        </Items>
+    </ScreenExtension>
+</ExtensionMetaData>

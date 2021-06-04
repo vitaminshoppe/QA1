@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ExtensionMetaData>
+    <ScreenExtension extnClassName="GetOrganizationListExtn"
+        extnPackage="extn.order.create.additems"
+        originalScreen="isccs.order.create.additems.GetOrganizationList"
+        originalScreenPackage="isccs.order.create.additems" type="diffrential">
+        <Items>
+            <DateTextBox _sc_extensibility_moveOrder="2"
+                _sc_extensibility_operation="insert"
+                _sc_extensibility_position="after"
+                _sc_extensibility_referenceUId="extn_textfield_BOLNumber"
+                class="isccsScreen autoLabelZeroWidth"
+                label="$(_scBundle:extn_Delivery_Date)"
+                renderHidden="true" required="true" uId="extn_datetextbox_deliveryDate">
+                <BindingData>
+                    <TargetBindings>
+                        <TargetBinding namespace="getOrderOutput"
+                            path="Order.Extn.ExtnDeliveryDate" scExtensibilityArrayItemId="extn_TargetBindings_0"/>
+                    </TargetBindings>
+                </BindingData>
+            </DateTextBox>
+            <TextField _sc_extensibility_moveOrder="1"
+                _sc_extensibility_operation="insert"
+                _sc_extensibility_position="before"
+                _sc_extensibility_referenceUId="Popup_navigationPanel"
+                class="isccsScreen autoLabelZeroWidth"
+                label="$(_scBundle:extn_BOL_Number)" renderHidden="true"
+                required="true" uId="extn_textfield_BOLNumber">
+                <BindingData>
+                    <TargetBindings>
+                        <TargetBinding namespace="getOrderOutput"
+                            path="Order.Extn.ExtnBolNo" scExtensibilityArrayItemId="extn_TargetBindings_0"/>
+                    </TargetBindings>
+                </BindingData>
+            </TextField>
+        </Items>
+        <Subscribers>
+            <Local>
+                <Subscriber eventId="afterScreenInit" isExtn="true" sequence="51">
+                    <Handler methodName="extn_afterScreenInit"/>
+                </Subscriber>
+            </Local>
+        </Subscribers>
+    </ScreenExtension>
+</ExtensionMetaData>

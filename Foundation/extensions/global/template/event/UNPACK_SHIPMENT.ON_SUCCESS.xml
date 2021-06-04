@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- 
+Licensed Materials - Property of IBM
+IBM Sterling Selling And Fulfillment Suite
+(C) Copyright IBM Corp. 2005, 2013 All Rights Reserved.
+US Government Users Restricted Rights - Use, duplication or disclosure restricted by GSA ADP Schedule Contract with IBM Corp.
+ -->
+<Shipment ActualDeliveryDate=" " ActualFreightCharge=" "
+    ActualShipmentDate=" " AppointmentNo=" " AssociationAction=" "
+    BolNo=" " BuyerOrganizationCode=" " CarrierAccountNo=" "
+    CarrierServiceCode=" " CarrierType=" " Code=" " CommercialValue=" "
+       Currency=" "
+    DeliveryCode=" " DeliveryPlanKey=" " DeliveryTS=" "
+    DestinationZone=" " DownLoadCount=" " EnterpriseCode=" "
+    ExpectedDeliveryDate=" " ExpectedShipmentDate=" "
+    ExportTaxpayerID=" " FreightTerms=" " FromAddressKey=" "
+    FromAppointment=" " HasOtherShipments=" " HazardousMaterialFlag=" "
+    HeldForConfirmation=" " ITDate=" " ITNo=" " 
+    ManifestKey=" " ManifestNo=" "   
+    NextAlertTs=" " NumOfCartons=" " NumOfPallets=" "
+    DocumentType=" " OriginZone=" " PackListType=" "
+    ParentShipmentKey=" " PickListNo=" " PickticketNo=" "
+    PipelineKey=" " PodNo=" " ProNo=" " ReceivingNode=" " SCAC=" "
+    SealNo=" " SellerOrganizationCode=" " ShipDate=" " ShipMode=" "
+    ShipNode=" " ShipVia=" " ShipmentClosedFlag=" "
+    ShipmentConfirmUpdatesDone=" " ShipmentContainerizedFlag=" "
+    ShipmentDeliverUpdatesDone=" " ShipmentKey=" " ShipmentNo=" "
+    ShipmentPlannedFlag=" " ShipmentType=" " Status=" " StatusDate=" "
+    ToAddressKey=" " ToAppointment=" " TotalActualCharge=" "
+    TotalEstimatedCharge=" " TotalVolume=" " TotalVolumeUOM=" "
+    TotalWeight=" " TotalWeightUOM=" " TrackingNo=" " TrailerNo=" " StationId=" " StationType=" ">
+	<Extn />
+	<Containers>
+		<Container ActualFreightCharge=" " AppliedWeight=" " AppliedWeightUOM=" " AstraCode=" " BarcodeDiscount=" " BasicFreightCharge=" " CarriageValue=" " CarrierBillAccount=" " CarrierLocationID=" " CarrierPaymentType=" " CarrierServiceCode=" " CommitmentCode=" " ContainerGrossWeight=" " ContainerGrossWeightUOM=" " ContainerHeight=" " ContainerHeightUOM=" " ContainerLength=" " ContainerLengthUOM=" " ContainerNetWeight=" " ContainerNetWeightUOM=" " ContainerNo=" " ContainerScm=" " ContainerSeqNo=" " ContainerType=" " ContainerWidth=" " ContainerWidthUOM=" "    CustCarrierAccountNo=" " CustomsValue=" " DeclaredValue=" " DeliverBy=" " DeliveryCode=" " DeliveryDay=" " DimmedFlag=" " DiscountAmount=" " ExportLicenseExpDate=" " ExportLicenseNo=" " FormID=" " FreightTerms=" " HasOtherContainers=" "  ManifestKey=" " ManifestNo=" " MasterContainerNo=" "    OversizedFlag=" " ParentContainerNo=" " RoutingCode=" " SCAC=" " ServiceType=" " ShipDate=" " ShipMode=" " ShipToKey=" " ShipmentContainerKey=" " ShipmentKey=" " SpecialServicesSurcharge=" " TrackingNo=" " Ucc128code=" " Zone=" "  IsManifested=" " >
+			<SpecialServices>
+				<SpecialService       				 ReferenceKey=" " ReferenceType=" " SpecialServiceKey=" " SpecialServiceRefKey=" " 				SpecialServiceSurcharge=" " SpecialServicesCode=" "/>
+			</SpecialServices>
+			<AdditionalAttributes>
+				<AdditionalAttribute AdditionalAttributeKey=" "        Name=" " ParentKey=" " ParentTable=" " Value=" "/>
+			</AdditionalAttributes>
+			<ContainerDetails>
+				<ContainerDetail ContainerDetailsKey=" "    EnterpriseKey=" " ItemID=" "  OrderHeaderKey=" " OrderLineKey=" " OrderReleaseKey=" " OrderReleaseStatusKey=" " OrigOrderLineScheduleKey=" " ProductClass=" " Quantity=" " ShipmentContainerKey=" " ShipmentKey=" " UnitOfMeasure=" ">
+					<ShipmentLine ItemID=" " OrderHeaderKey=" " DocumentType="" OrderNo=" " OrderLineKey=" " PrimeLineNo=" " SubLineNo=" " OrderReleaseKey=" " ReleaseNo=" " ProductClass=" " Quantity=" " OverShipQuantity=" " ActualQuantity=" " UnitOfMeasure=" " ShipmentKey=" " ShipmentLineKey=" " ShipmentLineNo=" " />
+					<ShipmentLineInvAttRequest LotNumber=" " LotKeyReference=" " ManufacturingDate=" "  LotAttribute1=" " LotAttribute2=" " LotAttribute3=" " RevisionNo=" " BatchNo=" "/>
+					<ShipmentTagSerials>
+						<ShipmentTagSerial ContainerDetailKey=" " Quantity=" " SerialNo=" " ShipByDate=" " ShipmentLineKey=" " ShipmentTagSerialKey=" " RevisionNo=" " BatchNo=" " LotNumber=" " LotKeyReference=" " ManufacturingDate=" " LotAttribute1=" " LotAttribute2=" " LotAttribute3=" " />
+					</ShipmentTagSerials>
+				</ContainerDetail>
+			</ContainerDetails>
+			<Instructions>
+				<Instruction    InstructionDetailKey="" InstructionText=" " InstructionType=" " InstructionURL=" " InstructionUsage=" "     ReferenceKey=" " SequenceNo=" " TableName=" "/>
+			</Instructions>
+		</Container>
+	</Containers>
+</Shipment>

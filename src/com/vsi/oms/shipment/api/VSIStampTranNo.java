@@ -46,25 +46,53 @@ public class VSIStampTranNo implements VSIConstants{
 				}
 				if (null != eleOrder) {
 					Element eleOrderExtn = SCXmlUtil.getChildElement(eleOrder, VSIConstants.ELE_EXTN);
-					String strExtnDTCOrder = eleOrderExtn.getAttribute("ExtnDTCOrder");
+					//OMS-3386 Changes -- Start
+					//String strExtnDTCOrder = eleOrderExtn.getAttribute("ExtnDTCOrder");
+					String strExtnDTCOrder = null;
+					//OMS-3386 Changes -- End
 					String strOrderHeaderKey = eleOrder.getAttribute(VSIConstants.ATTR_ORDER_HEADER_KEY);
 					String strShipNode = eleShipment.getAttribute(VSIConstants.ATTR_SHIP_NODE);
 					String strExtnSubscriptionOrder = eleOrderExtn.getAttribute("ExtnSubscriptionOrder");
 					String strExtnOriginalADPOrder = eleOrderExtn.getAttribute("ExtnOriginalADPOrder");
 					String strOrderType = eleOrder.getAttribute(VSIConstants.ATTR_ORDER_TYPE);
+					//OMS-3386 Changes -- Start
+					String strEntryType = eleOrder.getAttribute(VSIConstants.ATTR_ENTRY_TYPE);
+					//OMS-3386 Changes -- End
 					String strEnteredBy = eleOrder.getAttribute(VSIConstants.ATTR_ENTERED_BY);
 					String strExtnReOrder = eleOrderExtn.getAttribute("ExtnReOrder");
 					NodeList nlOrderLine = eleOrder.getElementsByTagName(VSIConstants.ELE_ORDER_LINE);
 					String strDeliveryMethod = null;
-					if (nlOrderLine != null) {
-						Element eleOrderLine = (Element) nlOrderLine.item(0);
-						strDeliveryMethod = eleOrderLine.getAttribute(VSIConstants.ATTR_DELIVERY_METHOD);
-
+					//OMS-3386 Changes -- Start
+					Element eleShipmentLines=SCXmlUtil.getChildElement(eleShipment, ELE_SHIPMENT_LINES);
+					Element eleShipmentLine=SCXmlUtil.getChildElement(eleShipmentLines, ELE_SHIPMENT_LINE);
+					Element eleOrderLine=SCXmlUtil.getChildElement(eleShipmentLine, ELE_ORDER_LINE);
+					strDeliveryMethod=eleOrderLine.getAttribute(ATTR_DELIVERY_METHOD);
+					
+					/*
+					 * if (nlOrderLine != null) { Element eleOrderLine = (Element)
+					 * nlOrderLine.item(0); strDeliveryMethod =
+					 * eleOrderLine.getAttribute(VSIConstants.ATTR_DELIVERY_METHOD);
+					 * 
+					 * }
+					 * 
+					 * if (YFCCommon.isVoid(strDeliveryMethod) && "Y".equals(strExtnDTCOrder)) {
+					 * strDeliveryMethod = VSIConstants.ATTR_DEL_METHOD_SHP; }
+					 */
+					
+					if((ATTR_ORDER_TYPE_VALUE.equals(strOrderType)||MARKETPLACE.equals(strOrderType))&&								
+							(WEB.equals(strEntryType)||ENTRYTYPE_CC.equals(strEntryType)||MARKETPLACE.equals(strEntryType))&&		
+							ATTR_DEL_METHOD_SHP.equals(strDeliveryMethod)){		
+						if(log.isDebugEnabled()){
+							log.debug("Setting strExtnDTCOrder flag as Y");
+						}
+						strExtnDTCOrder=FLAG_Y;
+					}else{
+						if(log.isDebugEnabled()){
+							log.debug("Setting strExtnDTCOrder flag as N");
+						}
+						strExtnDTCOrder=FLAG_N;
 					}
-					if (YFCCommon.isVoid(strDeliveryMethod) && "Y".equals(strExtnDTCOrder)) {
-						strDeliveryMethod = VSIConstants.ATTR_DEL_METHOD_SHP;
-					}
-
+					//OMS-3386 Changes -- End
 					// logic to set the ExtnTransactionNo
 					String seqNum = VSIConstants.SEQ_VSI_SEQ_TRANID;
 					if(log.isDebugEnabled()){
@@ -72,13 +100,29 @@ public class VSIStampTranNo implements VSIConstants{
 					}
 					//OMS-2510 Start
 					String strShipNodeKey=null;
-					boolean isBossShipment=true;
+					//OMS-3386 Changes -- Start
+					boolean isBossShipment=false;
+					//OMS-3386 Changes -- End
 					strShipNodeKey=eleShipment.getAttribute(ATTR_SHIP_NODE);
-					if (!YFCCommon.isVoid(strShipNodeKey) && (VSI_VADC.equals(strShipNodeKey) || VSI_AZDC.equals(strShipNodeKey)))
+					//OMS-3386 Changes -- Start
+					if (VSI_VADC.equals(strShipNodeKey) || VSI_AZDC.equals(strShipNodeKey) || SHIP_NODE_CC.equals(strShipNodeKey))
 					{
 						isBossShipment=false;
+					}else {
+						isBossShipment=true;
 					}
-					if(isBossShipment && !YFCCommon.isVoid(strExtnReOrder) && FLAG_Y.equals(strExtnReOrder) && (ATTR_DEL_METHOD_SHP.equalsIgnoreCase(strDeliveryMethod)&& !YFCCommon.isVoid(strDeliveryMethod)))
+					
+					if(isBossShipment && ATTR_DEL_METHOD_SHP.equals(strDeliveryMethod) && SHIP_NODE_6101_VALUE.equals(strEnteredBy)){		
+						if(log.isDebugEnabled()){
+							log.debug("BOSS order and hence EnteredBy attribute is set as 6102");
+						}
+						
+						//OMS-3173 Changes -- Start
+						strEnteredBy=SHIP_NODE_6102_VALUE;
+						//OMS-3173 Changes -- End
+					}
+					//OMS-3386 Changes -- End
+					if(isBossShipment && !YFCCommon.isVoid(strExtnReOrder) && FLAG_Y.equals(strExtnReOrder) && (ATTR_DEL_METHOD_SHP.equalsIgnoreCase(strDeliveryMethod)|| !YFCCommon.isVoid(strDeliveryMethod)))		//OMS-3386 Changes
 					{
 							seqNum = seqNum +"98_";
 							if(log.isDebugEnabled()){
@@ -101,12 +145,14 @@ public class VSIStampTranNo implements VSIConstants{
 						}
 						
 					}
-					else if(isBossShipment && (ATTR_DEL_METHOD_SHP.equalsIgnoreCase(strDeliveryMethod)|| !YFCCommon.isVoid(strDeliveryMethod)))
+					//Changing below else if for TransactionID blank correction- start
+					else if(isBossShipment && (ATTR_DEL_METHOD_SHP.equalsIgnoreCase(strDeliveryMethod) && !YFCCommon.isVoid(strDeliveryMethod)))
 					{
 						seqNum = seqNum +"95_";
 						if(log.isDebugEnabled()){
 							log.debug("BOSS Order, seqNum"+seqNum);
 					}
+					//Changing below else if for TransactionID blank correction- end
 					// Added new logic-start
 					}	
 					//OMS-2510 END	
@@ -144,6 +190,15 @@ public class VSIStampTranNo implements VSIConstants{
 						seqNum = seqNum + "91_";
 					} // Auto delivery orders get 91_
 						// original ADP order changes done for OMS-857
+					//OMS-3386 Changes -- Start
+					else if(!YFCCommon.isVoid(strExtnOriginalADPOrder) && FLAG_Y.equals(strExtnOriginalADPOrder) && (ATTR_DEL_METHOD_PICK.equalsIgnoreCase(strDeliveryMethod)&& !YFCCommon.isVoid(strDeliveryMethod)))
+					{
+						seqNum = seqNum +"99_";
+						if(log.isDebugEnabled()){
+							log.debug("BOPUS Template Order, seqNum"+seqNum);
+						}				
+					}
+					//OMS-3386 Changes -- End
 					else if (!YFCCommon.isVoid(strExtnOriginalADPOrder) && "Y".equals(strExtnOriginalADPOrder)) {
 						seqNum = seqNum + "9_";
 					} else if (strOrderType != null

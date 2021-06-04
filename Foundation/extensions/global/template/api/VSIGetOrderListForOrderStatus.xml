@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <OrderList TotalOrderList="1">
-<Order DraftOrderFlag="" OrderHeaderKey="">
+<Order DraftOrderFlag="" OrderHeaderKey="" CustomerFirstName="" CustomerLastName="" OrderNo="">
 <OrderLines>
-<OrderLine OrderLineKey="" OrderedQty="">
+<OrderLine LineType="" OrderLineKey="" OrderedQty="" ShipNode="" CustomerPONo="">
+<Item ItemID=""/>
 <OrderStatuses>
 <OrderStatus Status="" OrderLineKey=""   StatusQty="" TotalQuantity="" />
 </OrderStatuses>

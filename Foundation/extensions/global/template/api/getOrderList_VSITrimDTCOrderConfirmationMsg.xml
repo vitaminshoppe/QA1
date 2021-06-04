@@ -1,25 +1,60 @@
 <OrderList>
-	<Order CustomerEMailID="" EntryType="" MessageType="" OrderNo="" >
+	<Order BillToID="" CustomerEMailID="" CustomerFirstName=""
+		CustomerLastName="" CustomerPONo="" DocumentType="" EnteredBy=""
+		EnterpriseCode="" EntryType="" MessageType="" OrderDate=""
+		OrderHeaderKey="" OrderNo="" OrderType="" SCAC="" ScacAndService=""
+		SellerOrganizationCode="" Status="">
 		<Extn ExtnPointsEarned="" ExtnTotalPointsEarned="" />
 		<OrderLines>
-			<OrderLine CarrierServiceCode="" CustomerPONo="" LineType="" ReqShipDate="" OrderedQty="" ShipNode="" >
+			<OrderLine CarrierServiceCode="" DeliveryMethod="" CustomerPONo="" LineType="" ReqShipDate="" OrderedQty="" ShipNode="" SCAC="" ScacAndService="" PrimeLineNo="" SubLineNo="" OrderHeaderKey="" OrderLineKey="" ReqDeliveryDate="" >
 				<Extn ExtnLastPickDate="" />
-				<Item ItemID="" ItemDesc="" ItemSize="" />
-				<LineOverallTotals ExtendedPrice="" />
+				<Item ItemID="" ItemDesc="" ItemSize="" ProductClass="" UnitOfMeasure=""  />
+				<LineCharges>
+					<LineCharge>
+						<Extn/>
+					</LineCharge>
+				</LineCharges>
+				<LineOverallTotals Charges="" Discount=""
+					ExtendedPrice="" LineCost="" LineTotal="" LineTotalWithoutTax=""
+					ManualDiscountPercentage="" ManualOverridePercentage=""
+					OptionPrice="" PercentProfitMargin="" PricingQty=""
+					ShippingBaseCharge="" ShippingCharges="" ShippingDiscount=""
+					ShippingTotal="" Tax="" UnitPrice="" />
 				<ItemDetails>
-					<Extn ExtnItemSize="" ExtnActSkuID="" ExtnBrandTitle="" ExtnItemUOM="" ExtnItemType="" />
+					<Extn ExtnItemSize="" ExtnBrand="" ExtnActSkuID="" ExtnBrandTitle="" ExtnItemUOM="" ExtnItemType="" />
 				</ItemDetails>
 				<OrderDates>
 				<OrderDate/>
 				</OrderDates>
+				<Promotions>
+			       <Promotion Description="" />
+		         </Promotions>
+				 
+				 <PersonInfoShipTo AddressLine1="" AddressLine2=""
+					AddressLine3="" AddressLine4="" AddressLine5="" AddressLine6=""
+					AlternateEmailID="" Beeper="" City="" Company="" Country=""
+					DayFaxNo="" DayPhone="" Department="" EMailID="" EveningFaxNo=""
+					EveningPhone="" FirstName="" JobTitle="" LastName="" MiddleName=""
+					MobilePhone="" OtherPhone="" PersonID="" State="" Suffix="" Title=""
+					ZipCode="" />
+					
 			</OrderLine>			
 		</OrderLines>
-		<OverallTotals GrandDiscount="" LineSubTotal="" GrandShippingCharges="" GrandTax="" GrandTotal="" />
+		<OverallTotals/>
 		<Promotions>
 			<Promotion Description="" />
 		</Promotions>
+		<HeaderCharges>
+			<HeaderCharge/>
+		</HeaderCharges>
 		<PaymentMethods>
-			<PaymentMethod PaymentType="" CreditCardType="" DisplayCreditCardNo="" TotalAuthorized="" TotalCharged="" PaymentReference1="" PaymentReference3="" MaxChargeLimit="" DisplaySvcNo=""/>
+			<PaymentMethod CreditCardExpDate="" CreditCardName=""
+				CreditCardNo="" CreditCardType="" CustomerAccountNo=""
+				DisplayCreditCardNo="" DisplaySvcNo="" FirstName="" LastName="" MaxChargeLimit=""
+				MiddleName="" PaymentType="" UnlimitedCharges="" PaymentReference1=""
+				PaymentReference2="" PaymentReference3="" PaymentReference8="" PaymentReference9=""
+				TotalCharged="" TotalAuthorized="">
+			</PaymentMethod>
 		</PaymentMethods>
 		<PersonInfoBillTo FirstName="" LastName="" AddressLine1="" AddressLine2="" City="" State="" ZipCode="" Country="" DayPhone="" EMailID="" />
 		<PersonInfoShipTo FirstName="" LastName="" AddressLine1="" AddressLine2="" City="" State="" ZipCode="" Country="" DayPhone="" EMailID="" />

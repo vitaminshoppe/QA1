@@ -70,6 +70,21 @@ methodName : "printCustomerReceipt"
  
 }
 }
+,
+{
+	  eventId: 'extn_printpackreceipt_onClick'
+
+,	  sequence: '51'
+
+
+
+
+,handler : {
+methodName : "printPackReceipt"
+
+ 
+}
+}
 
 ]
 }

@@ -122,9 +122,19 @@ US Government Users Restricted Rights - Use, duplication or disclosure restricte
             </OrderAuditLevel>
         </OrderAuditLevels>
     </OrderAudit>
-	<!--OMS-2426: START-->
-	<HeaderCharges>
-		<HeaderCharge ChargeAmount="" ChargeCategory="" ChargeName="" InvoicedChargeAmount=""/>
-	</HeaderCharges>
-	<!--OMS-2426: END-->
+	<!--OMS-3062: START-->
+        <HeaderCharges>
+        <HeaderCharge ChargeAmount="" ChargeCategory="" ChargeName=""
+            ChargeNameKey="" InvoicedChargeAmount="" Reference="" RemainingChargeAmount=""/>
+        </HeaderCharges>
+        <HeaderTaxes>
+        <HeaderTax ChargeCategory="" ChargeName="" ChargeNameKey=""
+            InvoicedTax="" Reference_1="" Reference_2="" Reference_3=""
+            RemainingTax="" Tax="" TaxName="" TaxPercentage="" TaxableFlag=""/>
+        <TaxSummary>
+            <TaxSummaryDetail InvoicedTax="" OverallTax=""
+                RemainingTax="" TaxName=""/>
+        </TaxSummary>
+       </HeaderTaxes>
+	<!--OMS-3062: END-->
 </Order>

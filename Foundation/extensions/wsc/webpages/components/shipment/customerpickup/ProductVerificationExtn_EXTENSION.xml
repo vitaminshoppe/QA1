@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ExtensionMetaData>
+    <ScreenExtension extnClassName="ProductVerificationExtn"
+        extnPackage="extn.components.shipment.customerpickup"
+        originalScreen="wsc.components.shipment.customerpickup.ProductVerification"
+        originalScreenPackage="wsc.components.shipment.customerpickup" type="diffrential">
+        <Items>
+            <TextField _sc_extensibility_operation="change"
+                _sc_extensibility_referenceUId="scanProductIdTxt" hint="$(_scSimpleBundle:extn_Enter_Item_ID_or_UPC_Code)"/>
+            <Link _sc_extensibility_operation="change"
+                _sc_extensibility_referenceUId="scanProduct" renderHidden="true"/>
+        </Items>
+    </ScreenExtension>
+</ExtensionMetaData>

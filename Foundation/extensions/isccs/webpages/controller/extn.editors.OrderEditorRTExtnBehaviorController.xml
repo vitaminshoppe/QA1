@@ -2,4 +2,10 @@
 <Controller
     className="com.sterlingcommerce.ui.web.platform.controller.SCUIXAPIMashupController"
     controllerId="extn.editors.OrderEditorRTExtnBehaviorController"
-    requestMethodSupported="POST" screenId="extn.editors.OrderEditorRTExtn"/>
+    requestMethodSupported="POST" screenId="extn.editors.OrderEditorRTExtn">
+    <MashupRefs>
+        <MashupRef extnType="ADD"
+            mashupId="extn_changeOrder_OrderEditorRT"
+            mashupRefId="extn_changeOrder_OrderEditorRT" permissionId=""/>
+    </MashupRefs>
+</Controller>

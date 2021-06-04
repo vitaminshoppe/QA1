@@ -1,5 +1,5 @@
 <OrderList>
-	<Order OrderNo="" OrderHeaderKey="" EnteredBy="" OrderType="" >
+	<Order OrderNo="" OrderHeaderKey="" EnteredBy="" OrderType="" EntryType="" >
 		<Extn ExtnDTCOrder="" ExtnStoreNo="" ExtnSubscriptionOrder="" ExtnOriginalADPOrder=""  ExtnReOrder=""/>	
 		<OrderLines>
 			<OrderLine DeliveryMethod="" />

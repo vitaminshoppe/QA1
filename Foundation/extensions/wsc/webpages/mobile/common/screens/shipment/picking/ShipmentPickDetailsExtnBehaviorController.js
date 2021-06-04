@@ -23,6 +23,24 @@ return _dojodeclare("extn.mobile.common.screens.shipment.picking.ShipmentPickDet
 			
 			
 			
+			
+			
+						,
+
+			
+			
+			 mashupRefs : 	[
+	 		{
+		 mashupRefId : 			'extn_getOrderDetails'
+,
+		 mashupId : 			'extn_getOrderDetails'
+,
+		 extnType : 			'ADD'
+
+	}
+
+	]
+
 }
 );
 });

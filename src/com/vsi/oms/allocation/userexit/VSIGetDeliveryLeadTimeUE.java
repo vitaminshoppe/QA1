@@ -45,35 +45,59 @@ public class VSIGetDeliveryLeadTimeUE implements YFSGetDeliveryLeadTimeUE,VSICon
 		Element eleInput = docInput.getDocumentElement();
 		Document docDelLeadTime = SCXmlUtil.createDocument(VSIConstants.ATTR_DEL_LEAD_TIME);
 		Element eleDelLeadTime = docDelLeadTime.getDocumentElement();
-		Element eleGetDeliveryleadTime = (Element)docInput.getElementsByTagName(VSIConstants.ELE_GET_DELIVERY_LEAD_TIME).item(0);
-		String strShipFrom= eleGetDeliveryleadTime.getAttribute(VSIConstants.ATTR_SHIP_NODE);
-		String strCarrierServiceCode= eleGetDeliveryleadTime.getAttribute(VSIConstants.ATTR_CARRIER_SERVICE_CODE);
+		//Element eleGetDeliveryleadTime = (Element)docInput.getElementsByTagName(VSIConstants.ELE_GET_DELIVERY_LEAD_TIME).item(0);
+		//String strShipFrom= eleGetDeliveryleadTime.getAttribute(VSIConstants.ATTR_SHIP_NODE);
+		//String strCarrierServiceCode= eleGetDeliveryleadTime.getAttribute(VSIConstants.ATTR_CARRIER_SERVICE_CODE);
 
-		try {
+		
 			log.info("Input to VSIGetDeliveryLeadTimeUE API: "+SCXmlUtil.getString(docInput));
 			
 			// If transaction id matches schedule.0001 or release.0001, and env.getTxnObject(DeliveryLeadTime) is empty
 			// perform below logic. Else exit. This UE should not be called for create order, scheduleOrderLines etc.
+			
 			Element elePersonInfoShipFrom = SCXmlUtil.getChildElement(eleInput, VSIConstants.ELE_PERSON_INFO_SHIP_FROM);
-			Element elePersonInfoShipTo = SCXmlUtil.getChildElement(eleInput, VSIConstants.ELE_PERSON_INFO_SHIP_TO);
-			
-			
+			//Element elePersonInfoShipTo = SCXmlUtil.getChildElement(eleInput, VSIConstants.ELE_PERSON_INFO_SHIP_TO);
+			/*Commenting for OMS-3003 Start
+			//Fedex Changes: Start
+			String strFedexVADCFlag="N";
+			String strFedexAZDCFlag="N";
+			 ArrayList<Element> listFedexRuleVADCFlag=VSIUtils.getCommonCodeList(env, VSIConstants.FEDEX_DC_COMMON_CODE, VSIConstants.VSI_VADC, VSIConstants.ATTR_DEFAULT);
+			if(!listFedexRuleVADCFlag.isEmpty()){
+				Element eleCommonCode=listFedexRuleVADCFlag.get(0);
+					strFedexVADCFlag=eleCommonCode.getAttribute(VSIConstants.ATTR_CODE_SHORT_DESCRIPTION);
+			}
+			ArrayList<Element> listFedexRuleAZDCFlag=VSIUtils.getCommonCodeList(env, VSIConstants.FEDEX_DC_COMMON_CODE, VSIConstants.VSI_AZDC, VSIConstants.ATTR_DEFAULT);
+			if(!listFedexRuleAZDCFlag.isEmpty()){
+				Element eleCommonCode=listFedexRuleAZDCFlag.get(0);
+					 strFedexAZDCFlag=eleCommonCode.getAttribute(VSIConstants.ATTR_CODE_SHORT_DESCRIPTION);
+			}	Commenting for OMS-3003 End */ 
+			//Fedex Changes: End
 			if((VSIGeneralUtils.identifyCallingProgram(API_SCHEDULE_ORDER)||VSIGeneralUtils.identifyCallingProgram(TXN_SCHEDULE)||
 					VSIGeneralUtils.identifyCallingProgram(API_RELEASE_ORDER)||VSIGeneralUtils.identifyCallingProgram(TXN_RELEASE)
 					||VSIGeneralUtils.identifyCallingProgram(TXN_BACKORDER) ||VSIGeneralUtils.identifyCallingProgram(API_GETCARRIERSERVICEOPTIONS_FORORDERING)) 
 					&& !YFCCommon.isVoid(elePersonInfoShipFrom)){
 					//Below If clause is for Delivery Lead Time UE for new SFS flow
 				
-				if ((!strCarrierServiceCode.isEmpty()) && (strShipFrom.equalsIgnoreCase("9004") || strShipFrom.equalsIgnoreCase("9005") || strShipFrom.isEmpty()))
-				{
-			
 					// For Parcel items with Ground/Standard Carrier Service, invoke getTimeInTransit API to fetch corresponding time in transit data.
 					if (eleInput.getAttribute(VSIConstants.ATTR_CARRIER_SERVICE_CODE).equals(VSIConstants.STANDARD)
 						|| eleInput.getAttribute(VSIConstants.ATTR_CARRIER_SERVICE_CODE).equals(VSIConstants.GROUND)) {
+						
+						eleDelLeadTime.setAttribute(VSIConstants.ATTR_DEL_LEAD_TIME, VSIConstants.THREE);
+					}
 						// Create the input doc for getExtnTimeInTransit
+					else if (eleInput.getAttribute(VSIConstants.ATTR_CARRIER_SERVICE_CODE).equals(VSIConstants.SCAC_2DAY)) {
+						eleDelLeadTime.setAttribute(VSIConstants.ATTR_DEL_LEAD_TIME, VSIConstants.TWO);
+					} else if (eleInput.getAttribute(VSIConstants.ATTR_CARRIER_SERVICE_CODE).equals(VSIConstants.SCAC_NEXTDAY)) {
+						eleDelLeadTime.setAttribute(VSIConstants.ATTR_DEL_LEAD_TIME, VSIConstants.ONE);
+				} 
+			
+		}
+			log.info("Output to VSIGetDeliveryLeadTimeUE API: "+SCXmlUtil.getString(docDelLeadTime));
+			return docDelLeadTime;
+	}
 					
 						
-						
+						/*Commenting for OMS-3003 Start
 						Document docGetTimeInTransit = SCXmlUtil.createDocument(VSIConstants.ELE_EXTN_TIME_IN_TRANSIT);
 						Element eleGetTimeInTransit = docGetTimeInTransit.getDocumentElement();
 						eleGetTimeInTransit.setAttribute(VSIConstants.ATTR_EXTN_CARRIER, eleInput.getAttribute(VSIConstants.ATTR_SCAC));
@@ -112,7 +136,7 @@ public class VSIGetDeliveryLeadTimeUE implements YFSGetDeliveryLeadTimeUE,VSICon
 						eleDelLeadTime.setAttribute(VSIConstants.ATTR_DEL_LEAD_TIME, VSIConstants.ONE);
 				} 
 			}
-				else if ((!strCarrierServiceCode.isEmpty()) && (!strShipFrom.equalsIgnoreCase("9004")) && (!strShipFrom.equalsIgnoreCase("9005")) && (!strShipFrom.isEmpty()))
+				else if ((!strCarrierServiceCode.isEmpty()) && ((strShipFrom.equalsIgnoreCase("9004") && FLAG_Y.equalsIgnoreCase(strFedexVADCFlag)) || !strShipFrom.equalsIgnoreCase("9004")) && ((strShipFrom.equalsIgnoreCase("9005") && FLAG_Y.equalsIgnoreCase(strFedexAZDCFlag)) || (!strShipFrom.equalsIgnoreCase("9005"))) && (!strShipFrom.isEmpty()))
 				{
 					
 					if (eleInput.getAttribute(VSIConstants.ATTR_CARRIER_SERVICE_CODE).equals(VSIConstants.STANDARD)
@@ -235,7 +259,7 @@ public class VSIGetDeliveryLeadTimeUE implements YFSGetDeliveryLeadTimeUE,VSICon
 		log.info(" Final output from VSIGetDeliveryLeadTimeUE END-- returned object: "+ XMLUtil.getXMLString(docDelLeadTime));	
 		
 		return docDelLeadTime;
-	}
+	} Commenting for OMS-3003 End */
 	
 private Document invokeGetDelLeadTimeWebservice(Document docGetDelLeadTimeWebserviceInXML) throws IOException, ParserConfigurationException, SAXException {
 	

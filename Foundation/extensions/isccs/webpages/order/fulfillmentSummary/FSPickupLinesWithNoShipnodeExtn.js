@@ -103,13 +103,15 @@ function(
 			}
 			if (!(_scBaseUtils.isVoid(model))) {
 				shipnode = _scModelUtils.getStringValueFromPath("Node.Availability.ShipNode", model);
-				if(!_scBaseUtils.isVoid(existingShipNode) && !_scBaseUtils.isVoid(existingShipNode) && !_scBaseUtils.equals(shipnode,existingShipNode))
+				/* Mixed Cart Implementation : Below code is commented */
+				/*if(!_scBaseUtils.isVoid(existingShipNode) && !_scBaseUtils.isVoid(existingShipNode) && !_scBaseUtils.equals(shipnode,existingShipNode))
 				{
 				
 					_isccsBaseTemplateUtils.showMessage(
                             this, "Pickup at multiple locations is not allowed", "error", null); 
 					return;
-				}				
+				} */
+				/* Mixed Cart - End */
 				shipNodeDesc = _scModelUtils.getStringValueFromPath("Node.Description", model);				
 				// Updated code for ARR7 - START				
 				var orderLineList = _scModelUtils.getStringValueFromPath("Node.OrderLines.OrderLine", model);
@@ -196,13 +198,15 @@ function(
 	            model = _scScreenUtils.getModel(
 	            this, "getCompleteOrderDetails_output");
 	            var pickupGroups = model.Order.PickupGroups;
-	            if(!_scBaseUtils.isVoid(pickupGroups))
+				/* Mixed Cart Implementation : Below code is commented */
+	            /*if(!_scBaseUtils.isVoid(pickupGroups))
             	{
 					_isccsBaseTemplateUtils.showMessage(
                             this, "extn_delivery_method_message", "error", null); 
 					return;
 					
-            	}
+            	} */
+				/* Mixed Cart - End */
 	            _scModelUtils.setStringValueAtModelPath("Order.Edit", "N", model);
 	            var orderLine = null;
 	            if (
@@ -273,7 +277,8 @@ function(
 			_scPaginationUtils.hidePaginationBar(this, "OLST_listGrid", true);
 		}
 	},
-	onRowDeselect: function(
+	/* Mixed Cart Implementation : Below code is commented */
+	/*onRowDeselect: function(
         event, bEvent, ctrl, args) {
 			var deselectedRow = null;
 			console.log(args);
@@ -294,19 +299,8 @@ function(
 			_scScreenUtils.showErrorMessageBox(
 			this, "Action not allowed for individual Pickup line", "waringCallback", textObj, null);
 
-			/**var argument = null;
-			argument = {};
-			var orderLineKey = null;
-			orderLineKey = _scBaseUtils.getStringValueFromBean("OrderLineKey", deselectedRow);
-			_scBaseUtils.setAttributeValue("argumentList.OrderLineKey", orderLineKey, argument);
-			_scBaseUtils.setAttributeValue("argumentList.Select", "N", argument);
-			_scEventUtils.fireEventToParent(
-			this, "SelectOrUnselectRowInPickupPanel", argument);
-			_scEventUtils.fireEventToParent(
-			this, "SelectOrUnselectRowInUnavailablePickupPanel", argument); **/
-			//_scGridxUtils.deselectAllRowsUsingUId(this,"OLST_listGrid");
-			//_scGridxUtils.deselectAllRowsInGridUsingUId(this,"OLST_listGrid");
-	},
+	},  */ 
+	/* Mixed Cart - End */
 	selectAllRows: function(){
 		var grid = this.getWidgetByUId("OLST_listGrid");
 		console.log("grid>>>>",grid);

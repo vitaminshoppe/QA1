@@ -16,6 +16,26 @@
                         namespace="ShipmentLine" path="ShipmentLine.OrderLine.ItemDetails.ItemAliasList.ItemAlias.AliasValue"/>
                 </BindingData>
             </DataLabel>
+            <DataLabel _sc_extensibility_moveOrder="2"
+                _sc_extensibility_operation="insert"
+                _sc_extensibility_position="before"
+                _sc_extensibility_referenceUId="remainingQty"
+                class="location autoLabelZeroWidth"
+                label="$(_scSimpleBundle:extn_item_style)" uId="extn_item_style">
+                <BindingData>
+                    <SourceBinding namespace="ShipmentLine" path="ShipmentLine.OrderLine.ItemDetails.Extn.ExtnStyle"/>
+                </BindingData>
+            </DataLabel>
+            <DataLabel _sc_extensibility_moveOrder="3"
+                _sc_extensibility_operation="insert"
+                _sc_extensibility_position="before"
+                _sc_extensibility_referenceUId="remainingQty"
+                class="location autoLabelZeroWidth"
+                label="$(_scSimpleBundle:extn_item_size)" uId="extn_item_size">
+                <BindingData>
+                    <SourceBinding namespace="ShipmentLine" path="ShipmentLine.OrderLine.ItemDetails.Extn.ExtnItemSize"/>
+                </BindingData>
+            </DataLabel>
         </Items>
     </ScreenExtension>
 </ExtensionMetaData>

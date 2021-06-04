@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mashups>
+    <mashup description="Get Shipment list based on SCAC"
+        endpoint="EP_CONFIG"
+        id="confirmShipment_getShipmentListForPackedStatusOnly"
+        mashuptype="XAPI" skipDataProvider="false" transactional="true">
+        <classInformation name="com.ibm.wsc.common.mashups.WSCBaseMashup"/>
+        <API Name="getShipmentList">
+            <Input>
+                <Shipment
+                     EnterpriseCode="" DisplayLocalizedFieldInLocale="xml:CurrentUser:/User/@Localecode"
+                    MaximumRecords="" SCAC=""
+                    ShipNode="xml:CurrentStore:/Store/@ShipNode" ShipmentClosedFlag="N">
+                    <ComplexQuery>
+                        <Or>
+                            <Exp Name="Status" Value="1300"/>
+                        </Or>
+                    </ComplexQuery>
+                    <Containers>
+                        <Container IsPackProcessComplete="Y"/>
+                    </Containers>
+                </Shipment>
+            </Input>
+            <Template>
+                <Shipments>
+                    <Shipment EnterpriseCode="" ShipNode="" ShipmentKey=""/>
+                </Shipments>
+            </Template>
+        </API>
+        <APINamespace inputNS="getShipmentList_input" outputNS="getShipmentList_output"/>
+        <AlternateResourceIds>
+            <AlternateResourceId altResourceId="WSC000020"/>
+        </AlternateResourceIds>
+    </mashup>
+</mashups>

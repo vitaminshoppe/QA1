@@ -1,6 +1,8 @@
 package com.vsi.oms.api;
 
 
+import java.util.regex.Pattern;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -10,11 +12,12 @@ import com.vsi.oms.utils.VSIConstants;
 import com.vsi.oms.utils.VSIDBUtil;
 import com.vsi.oms.utils.VSIUtils;
 import com.vsi.oms.utils.XMLUtil;
+import com.yantra.yfc.core.YFCObject;
 import com.yantra.yfc.log.YFCLogCategory;
 import com.yantra.yfc.util.YFCCommon;
 import com.yantra.yfs.japi.YFSEnvironment;
 
-public class VSICreateLineReservationOnConfirmation{
+public class VSICreateLineReservationOnConfirmation implements VSIConstants{
 
 	private YFCLogCategory log = YFCLogCategory.instance(VSICreateLineReservationOnConfirmation.class);
 
@@ -40,7 +43,32 @@ public class VSICreateLineReservationOnConfirmation{
 			Element eleOrderChangeIp=docChangeOrderInput.getDocumentElement();
 			eleOrderChangeIp.setAttribute(VSIConstants.ATTR_ORDER_HEADER_KEY, eleOrder.getAttribute(VSIConstants.ATTR_ORDER_HEADER_KEY));
 			Element eleOrderLinesChangeIp=SCXmlUtil.createChild(eleOrderChangeIp, VSIConstants.ELE_ORDER_LINES);
-			
+			Element orderLineEle = (Element) inXML.getElementsByTagName(ELE_ORDER_LINE).item(0);
+			String sDeliveryMethod = SCXmlUtil.getAttribute(orderLineEle, ATTR_DELIVERY_METHOD);
+			if(sDeliveryMethod.equals("SHP"))
+			{   
+				String	poBoxPatternString = ".*[Pp][ ]*[.]?[ ]*[Oo][ ]*[-.]?[ ]*([Bb][Oo][Xx])+.*";
+				String addressLine1 = SCXmlUtil.getAttribute(elePersonInfoShipTo, ATTR_ADDRESS1);
+				String addressLine2 = SCXmlUtil.getAttribute(elePersonInfoShipTo, ATTR_ADDRESS2);
+ 				String sCountry = SCXmlUtil.getAttribute(elePersonInfoShipTo, ATTR_COUNTRY);
+ 				String sStateIp = SCXmlUtil.getAttribute(elePersonInfoShipTo, ATTR_STATE);
+ 				if(sCountry.equals("US")) 
+ 				{
+ 					if(Pattern.matches(poBoxPatternString, addressLine1) || Pattern.matches(poBoxPatternString, addressLine2)) 
+		 		        changeOrderClassification(env, eleOrder.getAttribute(ATTR_ORDER_HEADER_KEY),NO_SFS_CLASSIFICATION);	
+ 						if(!YFCObject.isVoid(sStateIp))
+ 				             {
+ 							Document docgetCommonCodeInput = SCXmlUtil.createDocument("CommonCode");
+ 							Element eleCommonCodeElement = docgetCommonCodeInput.getDocumentElement();
+ 							eleCommonCodeElement.setAttribute(ATTR_CODE_TYPE,VSI_US_TERRITORIE_SR);
+	 						eleCommonCodeElement.setAttribute(ATTR_CODE_VALUE, sStateIp);
+	 						Document docgetCommonCodeOutput = VSIUtils.invokeAPI(env,API_COMMON_CODE_LIST,docgetCommonCodeInput);
+	 						Element commonCodeListElement = docgetCommonCodeOutput.getDocumentElement();
+	 						if(commonCodeListElement.hasChildNodes())	
+	 							changeOrderClassification(env, eleOrder.getAttribute(ATTR_ORDER_HEADER_KEY),US_TERRITORIES);
+ 				             }	
+ 				}	
+			}
 			NodeList nlOrderLine = inXML.getElementsByTagName(VSIConstants.ELE_ORDER_LINE);
 			int iLineCount=nlOrderLine.getLength();
 			for (int i = 0; i < iLineCount; i++) {
@@ -48,8 +76,8 @@ public class VSICreateLineReservationOnConfirmation{
 				Element eleOrderLineChangeIp=SCXmlUtil.createChild(eleOrderLinesChangeIp, VSIConstants.ELE_ORDER_LINE);
 				eleOrderLineChangeIp.setAttribute(VSIConstants.ATTR_ORDER_LINE_KEY, eleOrderLine.getAttribute(VSIConstants.ATTR_ORDER_LINE_KEY));
 				Element eleOrderLineReservations=SCXmlUtil.createChild(eleOrderLineChangeIp, "OrderLineReservations");
-				String strDeliveryMethod=eleOrderLine.getAttribute("DeliveryMethod");
-				if(!YFCCommon.isStringVoid(strDeliveryMethod)&& "SHP".equals(strDeliveryMethod)){
+				/*String strDeliveryMethod=eleOrderLine.getAttribute("DeliveryMethod");
+				if(!YFCCommon.isStringVoid(strDeliveryMethod)&& "SHP".equals(strDeliveryMethod)){*/
 					Document docReserveInvOP=reserveAvailableInvetory(env,eleOrderLine,elePersonInfoShipTo,strOrganizationCode,
 							strAllocationRuleID);
 					NodeList nlReservation=docReserveInvOP.getElementsByTagName("Reservation");
@@ -81,10 +109,11 @@ public class VSICreateLineReservationOnConfirmation{
 					Element eleInventoryActivity1=SCXmlUtil.createChild(eleInventoryActivityList, "InventoryActivity");
 					eleInventoryActivity1.setAttribute("CreateForInvItemsAtNode", "N");
 					eleInventoryActivity1.setAttribute("ItemID", strItemID);
-					eleInventoryActivity1.setAttribute("OrganizationCode", "MCL");
+					eleInventoryActivity1.setAttribute("OrganizationCode", "VSI.com");
 					eleInventoryActivity1.setAttribute("ProductClass", strProductClass);
 					eleInventoryActivity1.setAttribute("UnitOfMeasure", strUnitOfMeasure);
-				}
+					
+				//}
 			}
 			
 			if(log.isDebugEnabled()){
@@ -109,6 +138,24 @@ public class VSICreateLineReservationOnConfirmation{
 		}
 		
 		return inXML;
+	}
+
+	private void changeOrderClassification(YFSEnvironment env, String orderHeaderKey, String classification) {
+		try
+			{
+			Document changeOrderDoc = SCXmlUtil.createDocument(ELE_ORDER);
+			Element elemOrder = changeOrderDoc.getDocumentElement();
+			elemOrder.setAttribute(ATTR_OVERRIDE, FLAG_Y);
+			elemOrder.setAttribute(ATTR_ORDER_HEADER_KEY, orderHeaderKey);
+			elemOrder.setAttribute(ATTR_ACTION, ACTION_CAPS_MODIFY);
+			elemOrder.setAttribute(ATTR_SOURCING_CLASSIFICATION, classification);
+			VSIUtils.invokeAPI(env, API_CHANGE_ORDER, changeOrderDoc);
+			}
+			catch(Exception e)
+			{
+				e.printStackTrace();
+			}
+		
 	}
 
 	private Document reserveAvailableInvetory(YFSEnvironment env,Element eleOrderLine,
@@ -154,6 +201,7 @@ public class VSICreateLineReservationOnConfirmation{
 	    	eleShipToAddress.setAttribute("State",  elePersonInfoShipTo.getAttribute("State"));
 	    	eleShipToAddress.setAttribute("ZipCode", elePersonInfoShipTo.getAttribute("ZipCode"));
 	    	
+	    	
 	    	if(log.isDebugEnabled()){
 	    		log.debug("input for reserveAvailableInventory API : "+SCXmlUtil.getString(docReserveInvIP));
 	    	}
@@ -164,6 +212,7 @@ public class VSICreateLineReservationOnConfirmation{
 		} catch (Exception e) {
 			// TODO: handle exception
 		}
+		
 		
 		if(log.isDebugEnabled()){
 			log.debug("reserveAvailableInvetory output : "+SCXmlUtil.getString(docReserveInvOP));

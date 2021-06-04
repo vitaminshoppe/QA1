@@ -75,10 +75,29 @@ public class VSITransferInventoryForShipment implements VSIConstants
 					strFromOrganizationCode = DTC_INV;
 					dblRequiredQty = shipObj.invokeGetInventorySupplyNewLogic(env, docGetInventorySupply, dblRequiredQty,
 							eleTransferInventory, strFromOrganizationCode, strEnterprise);
-				} else if (ENT_NAVY_EXCHANGE.equalsIgnoreCase(strEnterprise)) {
+				} 
+				//Start - changes for wholesale project
+				Document docGetCommonCodeInput = SCXmlUtil.createDocument(VSIConstants.ELEMENT_COMMON_CODE);
+				Element eleCommonCodeElement = docGetCommonCodeInput.getDocumentElement();
+				eleCommonCodeElement.setAttribute(VSIConstants.ATTR_CODE_TYPE, VSIConstants.ATTR_ALL_WH_ORG);
+				eleCommonCodeElement.setAttribute(VSIConstants.ATTR_ORG_CODE, VSIConstants.ATTR_DEFAULT);
+				Document docgetCommonCodeOutput = VSIUtils.invokeAPI(env,VSIConstants.API_COMMON_CODE_LIST, docGetCommonCodeInput);
+				
+				if(docgetCommonCodeOutput.getDocumentElement().hasChildNodes()){
+					NodeList nCommonCodeList = docgetCommonCodeOutput.getElementsByTagName(VSIConstants.ELE_COMMON_CODE);
+					for (int k = 0; k < nCommonCodeList.getLength(); k++) {
+						Element eleCommonCode = (Element) nCommonCodeList.item(k);
+						String strWHEnterpriseCode = eleCommonCode.getAttribute(VSIConstants.ATTR_CODE_LONG_DESC);
+				
+				 if (strWHEnterpriseCode.equalsIgnoreCase(strEnterprise)) {
 					strFromOrganizationCode = MCL_INV;
 					dblRequiredQty = shipObj.invokeGetInventorySupplyNewLogic(env, docGetInventorySupply, dblRequiredQty,
 							eleTransferInventory, strFromOrganizationCode, strEnterprise);
+					
+				}
+					}				
+				
+				//End - changes for wholesale project
 				}
 			}
 			if (dblRequiredQty > 0) 
@@ -89,10 +108,16 @@ public class VSITransferInventoryForShipment implements VSIConstants
 							eleTransferInventory, strFromOrganizationCode, strEnterprise);
 				}
 				else
+				{
 					eleTransferInventory = addItemToTransferInv(eleTransferInventory,shipNode,strEnterprise,strItemId,dblRequiredQty);
+					dblRequiredQty = 0.0;
+				}
 			}
 			if (dblRequiredQty > 0)
+			{
 				eleTransferInventory = addItemToTransferInv(eleTransferInventory,shipNode,strEnterprise,strItemId,dblRequiredQty);
+				dblRequiredQty = 0.0;
+			}
 		// invoke transferInventoryOwnership API
 			log.info("docTransferInventory Before API call => "+XMLUtil.getXMLString(docTransferInventory));
 		VSIUtils.invokeAPI(env, API_TRANSFER_INV_OWNERSHIP, docTransferInventory);
@@ -118,7 +143,6 @@ public class VSITransferInventoryForShipment implements VSIConstants
 		eleTransferItems.setAttribute(ATTR_TO_ORG_CODE, strEnterprise);
 		eleTransferItems.setAttribute(ATTR_ITEM_ID, strItemId);
 		eleTransferItems.setAttribute(ATTR_QUANTITY, Double.toString(dblRequiredQty));
-		dblRequiredQty = 0.0;
 		return eleTransferInventory;
 	}
 }

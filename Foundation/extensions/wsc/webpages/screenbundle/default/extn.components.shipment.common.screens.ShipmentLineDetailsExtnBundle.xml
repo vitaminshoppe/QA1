@@ -5,5 +5,11 @@
         <BundleEntry bundleEntryId="extn_upc_DataLabel_label"
             bundleKey="extn_UPC_Code" bundleValueFn="_scSimpleBundle"
             property="label" type="WIDGET" uId="extn_upc"/>
+        <BundleEntry bundleEntryId="extn_item_style_DataLabel_label"
+            bundleKey="extn_item_style" bundleValueFn="_scSimpleBundle"
+            property="label" type="WIDGET" uId="extn_item_style"/>
+        <BundleEntry bundleEntryId="extn_item_size_DataLabel_label"
+            bundleKey="extn_item_size" bundleValueFn="_scSimpleBundle"
+            property="label" type="WIDGET" uId="extn_item_size"/>
     </BundleEntries>
 </ScreenBundle>

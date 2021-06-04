@@ -2,7 +2,7 @@
 <mashups>
     <mashup description="" endpoint="EP_CONFIG"
         id="extn_Print_Customer_Receipt" mashuptype="XAPI" resourceId="" transactional="true">
-        <API FlowName="VSISOMPrintCustomerReceipt">
+        <API FlowName="VSISOMReprintCustomerReceipt">
             <Input>
                 <Shipment ShipmentKey=""/>
             </Input>
@@ -14,7 +14,7 @@
     </mashup>
     <mashup description="" endpoint="EP_CONFIG"
         id="extn_printpickpackreceipt" mashuptype="XAPI" resourceId="" transactional="true">
-        <API FlowName="VSISOMPrintPickPackXML">
+        <API FlowName="VSISOMReprintPickPackXML">
             <Input>
                 <Shipment ShipmentKey=""/>
             </Input>
@@ -22,6 +22,100 @@
         </API>
         <classInformation name="com.ibm.wsc.common.mashups.WSCBaseMashup"/>
         <APINamespace inputNS="extn_printpickpackreceipt_input" outputNS="extn_printpickpackreceipt_output"/>
+        <AlternateResourceIds/>
+    </mashup>
+    <mashup description="" endpoint="EP_CONFIG"
+        id="extn_Print_Pack_Receipt" mashuptype="XAPI" resourceId="" transactional="true">
+        <API FlowName="VSISFSReprintPackShipXML">
+            <Input>
+                <Shipment ShipmentKey=""/>
+            </Input>
+            <Template/>
+        </API>
+        <classInformation name="com.ibm.wsc.common.mashups.WSCBaseMashup"/>
+        <APINamespace inputNS="extn_Print_Pack_Receipt_input" outputNS="extn_Print_Pack_Receipt_output"/>
+        <AlternateResourceIds/>
+    </mashup>
+    <mashup
+        description="Get list of shipments for the logged in user extended"
+        endpoint="EP_CONFIG" id="extn_getShipmentList" mashuptype="XAPI"
+        skipMerge="true" transactional="true">
+        <classInformation name="com.ibm.wsc.shipment.backroompick.mashups.WSCBackroomPickFetchPaginatedShipmentListMashup"/>
+        <APINamespace inputNS="extn_getShipmentList_input" outputNS="extn_getShipmentList_output"/>
+        <API Name="getShipmentList">
+            <Input>
+                <Shipment AssignedToUserId=""
+                    DisplayLocalizedFieldInLocale="xml:CurrentUser:/User/@Localecode"
+                    MaximumRecords="" ShipNode="xml:CurrentStore:/Store/@ShipNode">
+                    <ComplexQuery Operator="AND">
+                        <Or>
+                            <Exp Name="Status" QryType="FLIKE" Value="1100.70.06.20"/>
+                            <Exp Name="Status" QryType="FLIKE" Value="1100.70.06.70"/>
+                            <And>
+                                <Or>
+                                    <Exp Name="Status" QryType="FLIKE" Value="1100.70.06.50"/>
+                                    <Exp Name="Status" QryType="FLIKE" Value="1100.70.06.30"/>
+                                </Or>
+                                <Or>
+                                    <Exp Name="HoldLocation" QryType="ISNULL"/>
+                                    <Exp Name="HoldLocation" QryType="VOID"/>
+                                </Or>
+                            </And>
+                        </Or>
+                    </ComplexQuery>
+                    <OrderBy>
+                        <Attribute Name="ExpectedShipmentDate"/>
+                    </OrderBy>
+                </Shipment>
+            </Input>
+            <Template>
+                <Shipments>
+                    <Shipment CustomerPoNo="" DeliveryMethod=""
+                        DisplayOrderNo="" DocumentType=""
+                        ExpectedShipmentDate="" HoldLocation=""
+                        IncludedInBatch="" OrderNo="" SCAC=""
+                        ScacAndService="" ShipNode="" ShipmentKey=""
+                        ShipmentNo="" TotalNumOfSKUS="">
+                        <Extn ExtnName=""/>
+                        <Status Description="" Status=""/>
+                        <BillToAddress AddressLine1="" AddressLine2=""
+                            City="" Country="" DayFaxNo="" DayPhone=""
+                            EMailID="" EveningFaxNo="" EveningPhone=""
+                            FirstName="" IsCommercialAddress=""
+                            LastName="" MiddleName="" MobilePhone=""
+                            PersonInfoKey="" PreferredShipAddress=""
+                            State="" ZipCode=""/>
+                        <ShipmentLines TotalNumberOfRecords="">
+                            <ShipmentLine OriginalQuantity=""/>
+                        </ShipmentLines>
+                    </Shipment>
+                </Shipments>
+            </Template>
+        </API>
+        <AlternateResourceIds>
+            <AlternateResourceId altResourceId="WSCSYS00001"/>
+        </AlternateResourceIds>
+    </mashup>
+    <mashup
+        description="Mashup to Retrieve the order details which has SHIP_TO_STORE lines"
+        endpoint="EP_CONFIG" id="extn_getOrderDetails" mashuptype="XAPI"
+        resourceId="" transactional="true">
+        <API Name="getOrderDetails">
+            <Input>
+                <Order EnterpriseCode="VSI.com" OrderNo=""/>
+            </Input>
+            <Template>
+                <Order OrderNo="">
+                    <OrderLines>
+                        <OrderLine LineType="" Status="" ShipNode="" MaxLineStatus="" StatusQuantity="">
+                            <Item ItemID=""/>
+                        </OrderLine>
+                    </OrderLines>
+                </Order>
+            </Template>
+        </API>
+        <classInformation name="com.ibm.wsc.common.mashups.WSCBaseMashup"/>
+        <APINamespace inputNS="extn_getOrderDetails_input" outputNS="extn_getOrderDetails_output"/>
         <AlternateResourceIds/>
     </mashup>
 </mashups>

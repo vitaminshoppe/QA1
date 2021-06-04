@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ScreenBundle
+    screenBundleId="extn.order.create.additems.GetOrganizationListExtnBundle" screenId="extn.order.create.additems.GetOrganizationListExtn">
+    <BundleEntries>
+        <BundleEntry
+            bundleEntryId="extn_datetextbox_deliveryDate_DateTextBox_label"
+            bundleKey="extn_Delivery_Date" bundleValueFn="_scBundle"
+            property="label" type="WIDGET" uId="extn_datetextbox_deliveryDate"/>
+        <BundleEntry
+            bundleEntryId="extn_textfield_BOLNumber_TextField_label"
+            bundleKey="extn_BOL_Number" bundleValueFn="_scBundle"
+            property="label" type="WIDGET" uId="extn_textfield_BOLNumber"/>
+    </BundleEntries>
+</ScreenBundle>

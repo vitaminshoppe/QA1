@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ExtensionMetaData>
+    <ScreenExtension extnClassName="CustomerIdentificationExtn"
+        extnPackage="extn.components.shipment.customerpickup"
+        originalScreen="wsc.components.shipment.customerpickup.CustomerIdentification"
+        originalScreenPackage="wsc.components.shipment.customerpickup" type="diffrential">
+        <Namespaces>
+            <SourceNamespaces>
+                <Source
+                    description="Namespace to hold the Customer Verification Method"
+                    isExtn="true"
+                    scExtensibilityArrayItemId="extn_SourceNamespaces_6" value="extn_custMethod"/>
+            </SourceNamespaces>
+        </Namespaces>
+        <Items>
+            <FilteringSelect _sc_extensibility_operation="change"
+                _sc_extensibility_referenceUId="cmbCustVerfMethod"
+                renderHidden="true" required="false"/>
+            <FilteringSelect _sc_extensibility_moveOrder="1"
+                _sc_extensibility_operation="insert"
+                _sc_extensibility_position="after"
+                _sc_extensibility_referenceUId="cmbCustVerfMethod"
+                class="zeroWidthLabelKey longTextbox nonEditable"
+                label="$(_scSimpleBundle:Label_Customer_Verification_Method)"
+                required="true" uId="extn_CustomerVerification">
+                <BindingData>
+                    <SourceBinding namespace="extn_custMethod" path="CustomerVerification.Method"/>
+                    <TargetBindings>
+                        <TargetBinding
+                            namespace="CustomerVerificationNotes_Input"
+                            path="Notes.Note.NoteText" scExtensibilityArrayItemId="extn_TargetBindings_0"/>
+                        <TargetBinding
+                            namespace="CustomerVerificationMethodSelected"
+                            path="CustomerVerification.Method" scExtensibilityArrayItemId="extn_TargetBindings_1"/>
+                    </TargetBindings>
+                    <OptionsBinding
+                        descriptionField="CodeShortDescription"
+                        namespace="CustomerVerficationMethodList"
+                        path="CommonCodeList.CommonCode" valueField="CodeValue"/>
+                </BindingData>
+            </FilteringSelect>
+            <DataLabel _sc_extensibility_operation="change"
+                _sc_extensibility_referenceUId="lblShipmentNo" renderHidden="true"/>
+        </Items>
+    </ScreenExtension>
+</ExtensionMetaData>

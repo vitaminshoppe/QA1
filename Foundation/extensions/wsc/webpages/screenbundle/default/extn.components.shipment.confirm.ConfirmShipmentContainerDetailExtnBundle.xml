@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ScreenBundle
+    screenBundleId="extn.components.shipment.confirm.ConfirmShipmentContainerDetailExtnBundle" screenId="extn.components.shipment.confirm.ConfirmShipmentContainerDetailExtn">
+    <BundleEntries>
+        <BundleEntry bundleEntryId="extn_custName_DataLabel_label"
+            bundleKey="extn_Customer_Name" bundleValueFn="_scBundle"
+            property="label" type="WIDGET" uId="extn_custName"/>
+        <BundleEntry bundleEntryId="extn_statusDate_DataLabel_label"
+            bundleKey="extn_Pack_Date" bundleValueFn="_scBundle"
+            property="label" type="WIDGET" uId="extn_statusDate"/>
+    </BundleEntries>
+</ScreenBundle>

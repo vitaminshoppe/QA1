@@ -1,8 +1,9 @@
 <OrderList>
 <Order Status="" CustomerLastName="" OrderNo="" CustomerFirstName="" CustomerPONo="" OrderDate="" EnteredBy="">
 <OrderLines>
-<OrderLine OrderLineKey="" LineType="" CustomerPONo=""  Status="" StatusQuantity="" MaxLineStatus="" ConditionVariable1="" >
-<Extn ExtnLastPickDate="" />
+<OrderLine OrderLineKey="" LineType="" CustomerPONo=""  Status="" StatusQuantity="" MaxLineStatus="" ConditionVariable1="" ShipNode="" OrderedQty="" >
+<Extn ExtnLastPickDate="" ExtnLastPickDateForCancel=""/>
+<Item ItemID="" />
 <LinePriceInfo LineTotal=""/>
 </OrderLine>
 </OrderLines>

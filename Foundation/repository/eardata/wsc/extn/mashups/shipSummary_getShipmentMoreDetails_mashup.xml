@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mashups>
+    <mashup description="Get Shipment Details" endpoint="EP_CONFIG"
+        id="shipSummary_getShipmentMoreDetails" mashuptype="XAPI"
+        skipDataProvider="false" transactional="true">
+        <classInformation name="com.ibm.wsc.shipment.details.WSCShipmentSummaryMoreDetails"/>
+        <API Name="getShipmentDetails">
+            <Input>
+                <Shipment
+                    DisplayLocalizedFieldInLocale="xml:CurrentUser:/User/@Localecode"
+                    SellerOrganizationCode="" ShipNode=""
+                    ShipmentKey="xml:scControllerInput:/Shipment/@ShipmentKey" ShipmentNo="xml:scControllerInput:/Shipment/@ShipmentNo"/>
+            </Input>
+            <Template>
+                <Shipment ShipmentKey="" ShipmentNo="">
+                    <ShipmentLines>
+                        <ShipmentLine ShipmentLineKey="">
+                            <OrderLine OrderLineKey="">
+                                <PersonInfoMarkFor DayPhone=""
+                                    EMailID="" FirstName="" LastName="" PersonInfoKey=""/>
+                            </OrderLine>
+                            <Order OrderNo="">
+                                <PaymentMethods>
+                                    <PaymentMethod CreditCardName=""
+                                    CreditCardNo=""
+                                    CreditCardType=""
+                                    DisplayCreditCardNo=""
+                                    PaymentKey="" PaymentType="" PaymentTypeGroup="" PaymentReference1="" PaymentReference2="" PaymentReference3="" PaymentReference4="" PaymentReference5="" DisplaySvcNo="" />
+                                </PaymentMethods>
+                            </Order>
+                        </ShipmentLine>
+                    </ShipmentLines>
+                </Shipment>
+            </Template>
+        </API>
+        <APINamespace inputNS="getShipmentDetailsMore_input" outputNS="getShipmentDetailsMore_output"/>
+        <AlternateResourceIds>
+            <AlternateResourceId altResourceId="WSC000008"/>
+        </AlternateResourceIds>
+    </mashup>
+</mashups>

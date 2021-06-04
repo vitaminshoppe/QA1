@@ -40,5 +40,10 @@
             bundleEntryId="extn_textfield_Marketplace_TextField_label"
             bundleKey="extn_Marketplace_Order_Number"
             bundleValueFn="_scBundle" property="label" type="WIDGET" uId="extn_textfield_Marketplace"/>
+        <BundleEntry
+            bundleEntryId="extn_textfield_wholesaleOrder_TextField_label"
+            bundleKey="extn_Wholesale_Order"
+            bundleValueFn="_scBundle" property="label"
+            type="WIDGET" uId="extn_textfield_wholesaleOrder"/>
     </BundleEntries>
 </ScreenBundle>

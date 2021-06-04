@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mashups>
+    <mashup cached="PAGE"
+        description="Get Shipment details by Original Shipment Key"
+        endpoint="EP_CONFIG"
+        id="customerpickup_getShipmentDetailByOriginalShipmentKey"
+        mashuptype="XAPI" skipDataProvider="false" transactional="true">
+        <classInformation name="com.ibm.wsc.common.mashups.WSCBaseMashup"/>
+        <API Name="getSortedShipmentDetails">
+            <Input>
+                <Shipment
+                    DisplayLocalizedFieldInLocale="xml:CurrentUser:/User/@Localecode" ShipmentKey=""/>
+            </Input>
+            <Template>
+                <Shipment ShipmentKey="" ShipmentNo="" Status="" TransactionId="">
+                    <ShipmentLines>
+                        <ShipmentLine ItemID="" KitCode=""
+                            OrderHeaderKey="" OrderLineKey="" OrderNo=""
+                            ProductClass="" Quantity="" ShipmentKey=""
+                            ShipmentLineKey="" ShipmentLineNo=""
+                            ShipmentSubLineNo="" UnitOfMeasure="">
+                            <OrderLine GiftFlag="" IsBundleParent="" ItemGroupCode="">
+                                <ItemDetails ItemGroupCode="" ItemID="" UnitOfMeasure="">
+                                    <PrimaryInformation
+                                    ExtendedDisplayDescription=""
+                                    ImageID="" ImageLabel="" ImageLocation=""/>
+									<ItemAliasList>
+                                 <ItemAlias AliasValue="" AliasName=""/>
+                                 </ItemAliasList>
+                                </ItemDetails>
+                            </OrderLine>
+                        </ShipmentLine>
+                    </ShipmentLines>
+                </Shipment>
+            </Template>
+        </API>
+        <APINamespace
+            inputNS="customerpickup_getShipmentDetailByOriginalShipmentKey_input" outputNS="customerpickup_getShipmentDetailByOriginalShipmentKey_output"/>
+        <AlternateResourceIds>
+            <AlternateResourceId altResourceId="WSCSYS00001"/>
+            <AlternateResourceId altResourceId="WSC000001"/>
+        </AlternateResourceIds>
+    </mashup>
+</mashups>

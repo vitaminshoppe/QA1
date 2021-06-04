@@ -5,8 +5,19 @@
         originalScreen="wsc.components.shipment.container.pack.ContainerPackContainerList"
         originalScreenPackage="wsc.components.shipment.container.pack" type="diffrential">
         <Items>
+            <NumberTextBox _sc_extensibility_operation="change"
+                _sc_extensibility_referenceUId="containerWeight"
+                hint="$(_scSimpleBundle:extn_Sequence_No)"
+                label="$(_scSimpleBundle:extn_Sequence_No)" title="$(_scSimpleBundle:extn_Sequence_No)"/>
+            <ContentPane _sc_extensibility_operation="change"
+                _sc_extensibility_referenceUId="weightDetails" renderHidden="true"/>
             <ContentPane _sc_extensibility_operation="change"
                 _sc_extensibility_referenceUId="weightDetails" renderHidden="false"/>
+            <ContentPane _sc_extensibility_moveOrder="5"
+                _sc_extensibility_operation="insert"
+                _sc_extensibility_position="after"
+                _sc_extensibility_referenceUId="uidAction"
+                class="containerDetails" uId="extn_Information"/>
             <Button _sc_extensibility_operation="change"
                 _sc_extensibility_referenceUId="saveButton" renderHidden="false"/>
             <Label _sc_extensibility_operation="change"
@@ -21,8 +32,10 @@
                 _sc_extensibility_operation="insert"
                 _sc_extensibility_position="after"
                 _sc_extensibility_referenceUId="lbl_NoOfProducts"
-                class="groupHeader hashNumberAlign autoLabelZeroWidth blockComponent comappsWrapWord"
-                label="$(_scSimpleBundle:extn_Container_Options)" uId="extn_parcel">
+                class="groupHeader blockComponent comappsWrapWord"
+                groupAlignment="horizontal"
+                label="$(_scSimpleBundle:extn_Packaging_Type)"
+                labelAlignment="vertical" required="true" uId="extn_parcel">
                 <BindingData>
                     <RadioBinding>
                         <Option label="$(_scSimpleBundle:extn_Envelope)"
@@ -43,6 +56,21 @@
                 _sc_extensibility_referenceUId="saveButton"
                 class="idxLabel weightUnit zeroWidthLabelKey"
                 label="$(_scSimpleBundle:extn_Sequence_No)" uId="extn_seq"/>
+            <DataLabel _sc_extensibility_moveOrder="6"
+                _sc_extensibility_operation="insert"
+                _sc_extensibility_position="first"
+                _sc_extensibility_referenceUId="extn_Information"
+                class="groupHeader hashNumberAlign autoLabelZeroWidth blockComponent comappsWrapWord"
+                label="$(_scSimpleBundle:extn__Please_click_on_Update_button_before_clicking_on_Finish_Pack)"
+                spanLabel="true" uId="extn_InfoMessage"/>
         </Items>
+        <Subscribers>
+            <Local>
+                <Subscriber description="extnToggleUpdateButton"
+                    eventId="extn_parcel_onChange" isExtn="true" sequence="51">
+                    <Handler methodName="extnToggleUpdateButton"/>
+                </Subscriber>
+            </Local>
+        </Subscribers>
     </ScreenExtension>
 </ExtensionMetaData>

@@ -8,5 +8,7 @@
             mashupRefId="extn_Print_Customer_Receipt" permissionId=""/>
         <MashupRef extnType="ADD" mashupId="extn_printpickpackreceipt"
             mashupRefId="extn_printpickpackreceipt" permissionId=""/>
+        <MashupRef extnType="ADD" mashupId="extn_Print_Pack_Receipt"
+            mashupRefId="extn_Print_Pack_Receipt" permissionId=""/>
     </MashupRefs>
 </Controller>

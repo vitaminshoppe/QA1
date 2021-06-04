@@ -14,6 +14,50 @@
                     <SourceBinding namespace="Shipment" path="Shipment.CustomerPoNo"/>
                 </BindingData>
             </DataLabel>
+            <DataLabel _sc_extensibility_moveOrder="3"
+                _sc_extensibility_operation="insert"
+                _sc_extensibility_position="before"
+                _sc_extensibility_referenceUId="lbl_Products"
+                label="$(_scBundle:extn_Customer_Name)" uId="extn_customername">
+                <BindingData>
+                    <SourceBinding namespace="Shipment" path="Shipment.Extn.ExtnName"/>
+                </BindingData>
+            </DataLabel>
+            <DataLabel _sc_extensibility_moveOrder="4"
+                _sc_extensibility_operation="insert"
+                _sc_extensibility_position="before"
+                _sc_extensibility_referenceUId="lbl_timeRemaining"
+                class="blockComponent autoLabelZeroWidth comappsWrapWord orderNumber"
+                label="$(_scBundle:extn_Customer_Name)" uId="extn_CustNameBOSS">
+                <BindingData>
+                    <SourceBinding namespace="Shipment" path="Shipment.Extn.ExtnName"/>
+                </BindingData>
+            </DataLabel>
+            <DataLabel _sc_extensibility_moveOrder="8"
+                _sc_extensibility_operation="insert"
+                _sc_extensibility_position="after"
+                _sc_extensibility_referenceUId="lbl_Status"
+                label="$(_scSimpleBundle:extn_TestLabel)" uId="extn_test"/>
+            <Link _sc_extensibility_moveOrder="6"
+                _sc_extensibility_operation="insert"
+                _sc_extensibility_position="after"
+                _sc_extensibility_referenceUId="lbl_timeRemaining"
+                class="blockComponent autoLabelZeroWidth comappsWrapWord "
+                renderHidden="true" uId="extn_checkSTS" value="$(_scSimpleBundle:extn_Check_STS)"/>
         </Items>
+        <Subscribers>
+            <Local>
+                <Subscriber description="extnCheckSTS"
+                    eventId="extn_checkSTS_onClick" isExtn="true" sequence="51">
+                    <Handler methodName="extnCheckSTS"/>
+                </Subscriber>
+            </Local>
+        </Subscribers>
+        <MashupRefs>
+            <Behavior>
+                <MashupRef extnType="ADD"
+                    mashupId="extn_getOrderDetails" mashupRefId="extn_getOrderDetails"/>
+            </Behavior>
+        </MashupRefs>
     </ScreenExtension>
 </ExtensionMetaData>

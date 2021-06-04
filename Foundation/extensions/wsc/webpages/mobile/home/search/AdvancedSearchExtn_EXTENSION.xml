@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ExtensionMetaData>
+    <ScreenExtension extnClassName="AdvancedSearchExtn"
+        extnPackage="extn.mobile.home.search"
+        originalScreen="wsc.mobile.home.search.AdvancedSearch"
+        originalScreenPackage="wsc.mobile.home.search" type="diffrential">
+        <Items>
+            <TextField _sc_extensibility_operation="change"
+                _sc_extensibility_referenceUId="txt_SearchCustFirstName" renderHidden="true"/>
+            <TextField _sc_extensibility_moveOrder="1"
+                _sc_extensibility_operation="insert"
+                _sc_extensibility_position="after"
+                _sc_extensibility_referenceUId="txt_SearchCustFirstName"
+                hint="$(_scSimpleBundle:Label_TextField_Firstname)"
+                scuiDataType="FirstName" uId="extn_searchFirstName">
+                <BindingData>
+                    <SourceBinding
+                        namespace="SavedAdvancedSearchCriteria" path="Shipment.Extn.ExtnCaseInsensitiveFirstName"/>
+                    <TargetBindings>
+                        <TargetBinding
+                            namespace="getAdvancedShipmentList_input"
+                            path="Shipment.Extn.ExtnCaseInsensitiveFirstName" scExtensibilityArrayItemId="extn_TargetBindings_0"/>
+                    </TargetBindings>
+                </BindingData>
+            </TextField>
+            <TextField _sc_extensibility_moveOrder="2"
+                _sc_extensibility_operation="insert"
+                _sc_extensibility_position="after"
+                _sc_extensibility_referenceUId="txt_SearchCustLastName"
+                hint="$(_scSimpleBundle:Label_TextField_Lastname)"
+                scuiDataType="LastName" uId="extn_searchLastName">
+                <BindingData>
+                    <SourceBinding
+                        namespace="SavedAdvancedSearchCriteria" path="Shipment.Extn.ExtnCaseInsensitiveLastName"/>
+                    <TargetBindings>
+                        <TargetBinding
+                            namespace="getAdvancedShipmentList_input"
+                            path="Shipment.Extn.ExtnCaseInsensitiveLastName" scExtensibilityArrayItemId="extn_TargetBindings_0"/>
+                    </TargetBindings>
+                </BindingData>
+            </TextField>
+            <TextField _sc_extensibility_operation="change"
+                _sc_extensibility_referenceUId="txt_SearchCustLastName" renderHidden="true"/>
+            <TextField _sc_extensibility_operation="change"
+                _sc_extensibility_referenceUId="txt_SearchCustEmail" renderHidden="true"/>
+            <TextField _sc_extensibility_moveOrder="3"
+                _sc_extensibility_operation="insert"
+                _sc_extensibility_position="after"
+                _sc_extensibility_referenceUId="txt_SearchCustEmail"
+                hint="$(_scSimpleBundle:TextField_CustEmailHint)"
+                scuiDataType="EMailID" uId="extn_searchEmail">
+                <BindingData>
+                    <SourceBinding
+                        namespace="SavedAdvancedSearchCriteria" path="Shipment.Extn.ExtnCaseInsensitiveEmail"/>
+                    <TargetBindings>
+                        <TargetBinding
+                            namespace="getAdvancedShipmentList_input"
+                            path="Shipment.Extn.ExtnCaseInsensitiveEmail" scExtensibilityArrayItemId="extn_TargetBindings_0"/>
+                    </TargetBindings>
+                </BindingData>
+            </TextField>
+        </Items>
+        <Subscribers>
+            <Local>
+                <Subscriber eventId="extn_searchLastName_onKeyUp"
+                    isExtn="true" sequence="51">
+                    <Handler methodName="searchOrdersOnEnter"/>
+                </Subscriber>
+                <Subscriber eventId="extn_searchFirstName_onKeyUp"
+                    isExtn="true" sequence="51">
+                    <Handler methodName="searchOrdersOnEnter"/>
+                </Subscriber>
+            </Local>
+        </Subscribers>
+    </ScreenExtension>
+</ExtensionMetaData>

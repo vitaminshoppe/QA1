@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mashups>
+    <mashup description="Get Shipment Container list based on SCAC"
+        endpoint="EP_CONFIG"
+        id="confirmShipment_getShipmentContainerDetailsByScac"
+        mashuptype="XAPI" skipDataProvider="false" transactional="true">
+        <classInformation name="com.ibm.wsc.shipment.confirm.ShipmentContainerDetailsByScacMashup"/>
+        <API Name="getShipmentContainerList">
+            <Input>
+                <Container
+                    DisplayLocalizedFieldInLocale="xml:CurrentUser:/User/@Localecode" MaximumRecords="">
+                    <Shipment
+                          EnterpriseCode="" ExpectedShipmentDate="" FromExpectedShipmentDate="" ToExpectedShipmentDate=""  ExpectedShipmentDateQryType="DATERANGE"  
+
+  IsPackProcessComplete="Y"
+                        SCAC="xml:scControllerInput:/Scac/@value"
+                        ShipNode="xml:CurrentStore:/Store/@ShipNode" ShipmentConfirmUpdatesDone="N"/>
+                </Container>
+            </Input>
+            <Template>
+                <Containers TotalNumberOfRecords="">
+                    <Container ContainerNo="" ShipmentContainerKey=""
+                        ShipmentKey="" TrackingNo="" TrackingURL="">
+                        <Shipment CarrierServiceCode=""
+                            DisplayOrderNo="" SCAC="" ScacAndService="" ShipmentNo=""/>
+                    </Container>
+                </Containers>
+            </Template>
+        </API>
+        <APINamespace inputNS="getShipmentContainerList_input" outputNS="getShipmentContainerList_output"/>
+        <AlternateResourceIds>
+            <AlternateResourceId altResourceId="WSC000020"/>
+        </AlternateResourceIds>
+    </mashup>
+</mashups>

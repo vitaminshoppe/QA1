@@ -16,9 +16,14 @@ public class VSICreateShipmentOnRelease extends VSIBaseCustomAPI implements VSIC
 	private YFCLogCategory log = YFCLogCategory.instance(VSICreateShipmentOnRelease.class);
 	public void createShipmentOnRelease(YFSEnvironment env, Document inXml)
 	{
+		log.info("VSICreateShipmentOnReleaseUpdated.createShipmentOnRelease() => "+SCXmlUtil.getString(inXml));
 		try
 		{
 		Element orderElement = inXml.getDocumentElement();
+		Element personInfoBillTo = (Element) orderElement.getElementsByTagName(ELE_PERSON_INFO_BILL_TO).item(0);
+		String name = personInfoBillTo.getAttribute(ATTR_FIRST_NAME);
+		String lastName = personInfoBillTo.getAttribute(ATTR_LAST_NAME);
+		name = name.concat(" ").concat(lastName);
 		String orderHeaderKey = orderElement.getAttribute(ATTR_ORDER_HEADER_KEY);
 		Element orderLine = (Element) orderElement.getElementsByTagName(ELE_ORDER_LINE).item(0);
 		NodeList orderLineNode = orderElement.getElementsByTagName(ELE_ORDER_LINE);
@@ -31,6 +36,9 @@ public class VSICreateShipmentOnRelease extends VSIBaseCustomAPI implements VSIC
 		eleShipment.setAttribute(ATTR_SHIP_NODE, orderLine.getAttribute(ATTR_SHIP_NODE));
 		eleShipment.setAttribute(ATTR_SHIPMENT_TYPE, ATTR_SOM_SHIPMENT_TYPE);
 		eleShipment.setAttribute(ATTR_SHIP_CUST_PO_NO, orderLine.getAttribute(ATTR_CUSTOMER_PO_NO));
+		Element extnEle = createShipmentInput.createElement(ELE_EXTN);
+		extnEle.setAttribute(ATTR_EXTN_NAME, name);
+		eleShipment.appendChild(extnEle);
 		Element eleShipmentLines = createShipmentInput.createElement(ELE_SHIPMENT_LINES);
 		for(int i=0; i< orderLineNode.getLength(); i++)
 		{
@@ -58,6 +66,7 @@ public class VSICreateShipmentOnRelease extends VSIBaseCustomAPI implements VSIC
 			eleShipmentLines.appendChild(eleShipmentLine);
 		}
 		eleShipment.appendChild(eleShipmentLines);
+		log.info("VSICreateShipmentOnReleaseUpdated createShipmentInput => "+SCXmlUtil.getString(createShipmentInput));
 		VSIUtils.invokeAPI(env, API_CREATE_SHIPMENT,createShipmentInput);
 		}
 		catch(Exception e)
@@ -65,5 +74,6 @@ public class VSICreateShipmentOnRelease extends VSIBaseCustomAPI implements VSIC
 			log.info("Exception in VSICreateShipmentOnRelease.createShipmentOnRelease() as below => ");
 			e.printStackTrace();
 		}
-	}	
+	}
+	
 }

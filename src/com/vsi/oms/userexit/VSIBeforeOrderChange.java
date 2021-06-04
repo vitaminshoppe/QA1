@@ -42,6 +42,7 @@ public class VSIBeforeOrderChange implements VSIConstants{
 			log.info("================Inside beforeOrderChange================================");
 		}
 		String	poBoxPatternString = ".*[Pp][ ]*[.]?[ ]*[Oo][ ]*[-.]?[ ]*([Bb][Oo][Xx])+.*";
+		String postOfficeBoxPattern=".*([Pp][Oo][Ss][Tt])[ ]*[.]?[ ]*([Oo][Ff][Ff][Ii][Cc][Ee])[ ]*[-.]?[ ]*([Bb][Oo][Xx])+.*";
 		Element elePersonInfoshipToOutput =  null;
 		Element eleOrder = inXML.getDocumentElement();
 		//OMS-1767-Start
@@ -53,6 +54,9 @@ public class VSIBeforeOrderChange implements VSIConstants{
 			eleOrder.removeAttribute("OptmizationType");
 		}
 		Element orderElement = null;
+		Element orderElementForCount = null;
+		int shpCount = 0;
+		int pickCount = 0;
 		if(!YFCObject.isNull(eleOrder)){
 			
 			//creating input for getOrderList API call
@@ -65,6 +69,35 @@ public class VSIBeforeOrderChange implements VSIConstants{
 			eleOrderElement.setAttribute(VSIConstants.ATTR_MAX_RECORDS, "1");
 			
 			outdoc = VSIUtils.invokeAPI(env, VSIConstants.TEMPLATE_BEFOREORDERCHANGE_GETORDERLIST, VSIConstants.API_GET_ORDER_LIST, getOrderListInput);
+			
+			if(!YFCObject.isNull(outdoc)){
+				if(log.isDebugEnabled()){
+					log.debug("Inside Condition for checking count");
+				}
+				
+				Element orderListElementForCount = outdoc.getDocumentElement();
+				orderElementForCount = SCXmlUtil.getChildElement(orderListElementForCount, VSIConstants.ELE_ORDER);
+				Element eleOrderLinesForCount = SCXmlUtil.getChildElement(orderElementForCount, VSIConstants.ELE_ORDER_LINES);
+				if(!YFCObject.isNull(eleOrderLinesForCount)){
+					ArrayList<Element> alOrderLinesForCount = SCXmlUtil.getChildren(eleOrderLinesForCount, VSIConstants.ELE_ORDER_LINE);
+					
+					for(Element eleOrderLineForCount:alOrderLinesForCount){
+						if(log.isDebugEnabled()){
+							log.debug("Inside for loop for iterating getOrderList Order Lines");
+						}
+						String strDeliveryMethodForCount = eleOrderLineForCount.getAttribute(VSIConstants.ATTR_DELIVERY_METHOD);
+						
+						if(strDeliveryMethodForCount.equals("SHP")){
+							shpCount++;
+						}
+						
+						if(strDeliveryMethodForCount.equals("PICK")){
+							pickCount++;
+						}
+					}
+				}
+			}
+			
 			String orderType = SCXmlUtil.getXpathAttribute(outdoc.getDocumentElement(), "/OrderList/Order/@OrderType");
 			//OMS-1799 start
 			if(!YFCCommon.isStringVoid(orderType)&&!(VSIConstants.WHOLESALE).equalsIgnoreCase(orderType)){
@@ -135,7 +168,7 @@ public class VSIBeforeOrderChange implements VSIConstants{
 								 		String addressLine2 = SCXmlUtil.getAttribute(elePersonInfoShipTo, VSIConstants.ATTR_ADDRESS2);
 								 		// If AddressLine1 or AddressLine2 contain "PO Box", set AddressLine6 = Y
 								 		if(Pattern.matches(poBoxPatternString, addressLine1)
-				 								|| Pattern.matches(poBoxPatternString, addressLine2)){
+				 								|| Pattern.matches(poBoxPatternString, addressLine2) || Pattern.matches(postOfficeBoxPattern, addressLine1) || Pattern.matches(postOfficeBoxPattern, addressLine2)){
 								 			isPOBox = true; 
 								 		}
 								 		
@@ -510,6 +543,7 @@ public class VSIBeforeOrderChange implements VSIConstants{
 						eleOrderLine1.setAttribute(VSIConstants.ATTR_FULFILLMENT_TYPE, "SHIP_TO_HOME");
 						
 					}else if(strDeliveryMethod.equalsIgnoreCase("PICK")){
+						
 						isPick = true;
 						if(!"SHIP_TO_STORE".equals(strFulfillmentType))
 						{
@@ -569,11 +603,25 @@ public class VSIBeforeOrderChange implements VSIConstants{
 					}
 				}
 				
+				if(log.isDebugEnabled()){
+					log.verbose("SHP Count: " + shpCount);
+					log.debug("SHP Count: " + shpCount);
+					log.verbose("PICK Count: " + pickCount);
+					log.debug("PICK Count: " + pickCount);
+				}
+				//Address import to header level from line level should not happen for mixed cart order
+				/*Commenting for OMS-3207
+				 if(shpCount > 0 && pickCount > 0)
+				{
+					importAddressToHeader = false;
+				}
+				
 				if(importAddressToHeader)
 				{
 					//stamping personinfoshipTo from OrderLine to Order Level
 					SCXmlUtil.importElement(eleOrder, elePersonInfoShipTo);
 				}
+				Commenting for OMS-3207*/
 				
 				// Checking values of both flags to reset AllocationRuleID
 				if(isSTH)
@@ -600,7 +648,7 @@ public class VSIBeforeOrderChange implements VSIConstants{
 					 		String addressLine2 = SCXmlUtil.getAttribute(elePersonInfoshipToOutput, VSIConstants.ATTR_ADDRESS2);
 					 		// If AddressLine1 or AddressLine2 contain "PO Box", set AddressLine6 = Y
 					 		if(Pattern.matches(poBoxPatternString, addressLine1)
-	 								|| Pattern.matches(poBoxPatternString, addressLine2))
+	 								|| Pattern.matches(poBoxPatternString, addressLine2) || Pattern.matches(postOfficeBoxPattern, addressLine1) || Pattern.matches(postOfficeBoxPattern, addressLine2))
 					 		{
 					 			elePersonInfoshipToOutput.setAttribute("AddressLine6", "Y");
 					 			SCXmlUtil.importElement(eleOrder, elePersonInfoshipToOutput);
@@ -861,27 +909,43 @@ public class VSIBeforeOrderChange implements VSIConstants{
 		prop = properties;
 		
 	}
-	private void updatePipeline(YFSEnvironment env, Document inXml){		
+	private void updatePipeline(YFSEnvironment env, Document inXml){
 		
-		NodeList nlOrderLines = inXml.getDocumentElement().getElementsByTagName(VSIConstants.ELE_ORDER_LINE);
-		if(!YFSObject.isVoid(nlOrderLines)){
-			for(int i=0;i<nlOrderLines.getLength();i++){
-				Element eleOrderLine = (Element) nlOrderLines.item(i);
-				String strDeliveryMethod = "";
-				//System.out.println("SHP_PIPELINE_ID: "+ prop.getProperty("SHP_PIPELINE_ID"));
-				//System.out.println("PICK_PIPELINE_ID: "+ prop.getProperty("PICK_PIPELINE_ID"));
-				strDeliveryMethod = eleOrderLine.getAttribute(VSIConstants.ATTR_DELIVERY_METHOD);
-				if(VSIConstants.ATTR_DEL_METHOD_PICK.equals(strDeliveryMethod)){
-					eleOrderLine.setAttribute(VSIConstants.ATTR_PIPELINE_ID, prop.getProperty("PICK_PIPELINE_ID"));
-					//OMS-1821 : Start
-					eleOrderLine.setAttribute(VSIConstants.ATTR_CARRIER_SERVICE_CODE, "");
-					//OMS-1821 : End
-					eleOrderLine.setAttribute(ATTR_CONDITION_VARIBALE1,FLAG_N);
-				}else if(VSIConstants.ATTR_DEL_METHOD_SHP.equals(strDeliveryMethod)){
-					eleOrderLine.setAttribute(VSIConstants.ATTR_PIPELINE_ID, prop.getProperty("SHP_PIPELINE_ID"));
+		//Mixed Cart Changes -- Start
+		log.info("Inside updatePipeline method");
+		Element eleInXML=inXml.getDocumentElement();
+		String strModRsnCode=eleInXML.getAttribute(ATTR_MODIFICATION_REASON_CODE);
+		if(!YFCCommon.isVoid(strModRsnCode) && "DraftOrder".equals(strModRsnCode)){
+			log.info("Draft Order Scenario, Pipeline details will be updated");
+			log.info("Order Details before updating Pipeline Details: "+SCXmlUtil.getString(inXml));
+		//Mixed Cart Changes -- End
+			
+			NodeList nlOrderLines = inXml.getDocumentElement().getElementsByTagName(VSIConstants.ELE_ORDER_LINE);
+			if(!YFSObject.isVoid(nlOrderLines)){
+				for(int i=0;i<nlOrderLines.getLength();i++){
+					Element eleOrderLine = (Element) nlOrderLines.item(i);
+					String strDeliveryMethod = "";
+					//System.out.println("SHP_PIPELINE_ID: "+ prop.getProperty("SHP_PIPELINE_ID"));
+					//System.out.println("PICK_PIPELINE_ID: "+ prop.getProperty("PICK_PIPELINE_ID"));
+					strDeliveryMethod = eleOrderLine.getAttribute(VSIConstants.ATTR_DELIVERY_METHOD);
+					if(VSIConstants.ATTR_DEL_METHOD_PICK.equals(strDeliveryMethod)){
+						eleOrderLine.setAttribute(VSIConstants.ATTR_PIPELINE_ID, prop.getProperty("PICK_PIPELINE_ID"));
+						//OMS-1821 : Start
+						eleOrderLine.setAttribute(VSIConstants.ATTR_CARRIER_SERVICE_CODE, "");
+						//OMS-1821 : End
+						eleOrderLine.setAttribute(ATTR_CONDITION_VARIBALE1,FLAG_N);
+					}else if(VSIConstants.ATTR_DEL_METHOD_SHP.equals(strDeliveryMethod)){
+						eleOrderLine.setAttribute(VSIConstants.ATTR_PIPELINE_ID, prop.getProperty("SHP_PIPELINE_ID"));
+					}
 				}
+				//Mixed Cart Changes -- Start
+				log.info("Order Details after updating Pipeline Details: "+SCXmlUtil.getString(inXml));
+				//Mixed Cart Changes -- End
 			}
-		}
+		//Mixed Cart Changes -- Start
+		}		
+		log.info("Exiting updatePipeline method");
+		//Mixed Cart Changes -- End
 	}
 
 }//end of class

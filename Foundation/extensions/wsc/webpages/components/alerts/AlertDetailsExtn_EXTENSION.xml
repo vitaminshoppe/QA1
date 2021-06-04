@@ -27,6 +27,17 @@
                         namespace="Inbox" path="Inbox.Quantity"/>
                 </BindingData>
             </DataLabel>
+			<DataLabel _sc_extensibility_moveOrder="3"
+                _sc_extensibility_operation="insert"
+                _sc_extensibility_position="after"
+                _sc_extensibility_referenceUId="extn_Quantity"
+                class="autoLabelZeroWidth blockComponent hashNumberAlign"
+                label="$(_scSimpleBundle:extn_CustName)" uId="extn_CustName">
+                <BindingData>
+                    <SourceBinding dynamicBindingFunc="CustomerName"
+                        namespace="Inbox" path="Inbox.Name"/>
+                </BindingData>
+            </DataLabel>
         </Items>
     </ScreenExtension>
 </ExtensionMetaData>

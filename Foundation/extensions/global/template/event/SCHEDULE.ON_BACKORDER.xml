@@ -7,7 +7,7 @@ US Government Users Restricted Rights - Use, duplication or disclosure restricte
 -->
 <!-- SCHEDULE.ON_BACKORDER event xml -->
 <Order BillToID="" BuyerOrganizationCode="" DocumentType=""
-    EnterpriseCode="" OrderHeaderKey="" OrderNo="" SellerOrganizationCode="" OrderType="">
+    EnterpriseCode="" OrderHeaderKey="" OrderNo="" SellerOrganizationCode="" OrderType="" EntryType="">
     <OrderLines>
         <OrderLine ShipNode="" OrderLineKey="" OrderedQty="" OriginalOrderedQty=""
             PrimeLineNo="" SubLineNo="" LineType="" CustomerPONo="">

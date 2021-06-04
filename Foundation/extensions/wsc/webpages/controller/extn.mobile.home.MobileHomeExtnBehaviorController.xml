@@ -2,4 +2,13 @@
 <Controller
     className="com.sterlingcommerce.ui.web.platform.controller.SCUIXAPIMashupController"
     controllerId="extn.mobile.home.MobileHomeExtnBehaviorController"
-    requestMethodSupported="POST" screenId="extn.mobile.home.MobileHomeExtn"/>
+    requestMethodSupported="POST" screenId="extn.mobile.home.MobileHomeExtn">
+    <MashupRefs>
+        <MashupRef extnType="MODIFY"
+            mashupId="mobileHomeReadyForPacking_getShipmentListCount"
+            mashupRefId="pack_getShipmentListCount" permissionId=""/>
+        <MashupRef extnType="ADD"
+            mashupId="confirmShipment_getShipmentContainerListCount"
+            mashupRefId="extn_shipPackages_getShipmentListCount" permissionId=""/>
+    </MashupRefs>
+</Controller>

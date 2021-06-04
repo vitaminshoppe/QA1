@@ -26,7 +26,7 @@ US Government Users Restricted Rights - Use, duplication or disclosure restricte
     SearchCriteria2="" SellerOrganizationCode="" ShipCompleteFlag=""
     ShipToID="" Status="" TaxExemptFlag="" TaxExemptionCertificate=""
     TaxJurisdiction="" TaxPayerId="" TermsCode=""
-    TotalAdjustmentAmount="" isHistory="">
+    TotalAdjustmentAmount="" isHistory="" >
 	
 	<Extn>
 	<VSIOrderTOBList>
@@ -76,7 +76,9 @@ US Government Users Restricted Rights - Use, duplication or disclosure restricte
                 Department="" EMailID="" EveningFaxNo="" EveningPhone=""
                 FirstName="" JobTitle="" LastName="" MiddleName=""
                 MobilePhone="" OtherPhone="" PersonID=""
-                PersonInfoKey="" State="" Suffix="" Title="" ZipCode=""/>
+                PersonInfoKey="" State="" Suffix="" Title="" ZipCode="">
+				<Extn ExtnMarkForStoreNo="" />
+			</PersonInfoShipTo>
             <PersonInfoMarkFor AddressLine1="" AddressLine2=""
                 AddressLine3="" AddressLine4="" AddressLine5=""
                 AddressLine6="" AlternateEmailID="" Beeper="" City=""
@@ -157,7 +159,7 @@ US Government Users Restricted Rights - Use, duplication or disclosure restricte
     <OrderAudit AuditTransactionId="" NewBuffer="" OldBuffer=""
         OrderAuditKey="" OrderHeaderKey="" OrderLineKey=""
         OrderReleaseKey="" ReasonCode="" ReasonText="" Reference1=""
-        Reference2="" Reference3="" Reference4="" XMLFlag="">
+        Reference2="" Reference3="" Reference4="" XMLFlag="" CreateUserName="" Createts="" Createuserid="" ModifyUserName="" Modifyts="" Modifyuserid="">
         <Order EnterpriseCode="" OrderNo=""/>
         <OrderAuditLevels>
             <OrderAuditLevel ModificationLevel="" OrderLineKey="" OrderReleaseKey="">

@@ -22,7 +22,7 @@
         <Extn/>
         <OrderLines>
             <OrderLine CustomerLinePONo=""
-                CustomerPONo="09801200788243779100"
+                CustomerPONo="09801200788243779100" 
                 LineType="PICK_IN_STORE" MaxLineStatus="1500"
                 MinLineStatus="1500"
                 Modifyts="2020-07-17T03:12:13-04:00"
@@ -73,7 +73,7 @@
                     <Extn ExtnActSkuID="SO-1146"
                         ExtnBrandTitle="Solaray" ExtnItemSize="100.00"
                         ExtnItemType="VEGCAP" ExtnItemUOM="EA"/>
-                </ItemDetails>
+                </ItemDetails>				
                 <LineOverallTotals Charges="0.00" Discount="5.00"
                     ExtendedPrice="24.87" LineTotal="19.87"
                     OptionPrice="0.00" PricingQty="3.00" Tax="0.00" UnitPrice="8.29"/>
@@ -131,7 +131,7 @@
                 </LineTaxes>
                 <OrderStatuses>
                     <OrderStatus Status="1500"
-                        StatusDescription="No Action" StatusQty="3"/>
+                        StatusDescription="No Action" StatusQty="3" StatusDate=""/>
                 </OrderStatuses>
             </OrderLine>
             <OrderLine CustomerLinePONo=""

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ExtensionMetaData>
+    <ScreenExtension extnClassName="ShipmentSummaryExtn"
+        extnPackage="extn.components.shipment.summary"
+        originalScreen="wsc.components.shipment.summary.ShipmentSummary"
+        originalScreenPackage="wsc.components.shipment.summary" type="diffrential">
+        <Items>
+            <Button _sc_extensibility_operation="change"
+                _sc_extensibility_referenceUId="lnkBRP" label="$(_scSimpleBundle:extn_Begin_Pick_Pack)"/>
+            <DataLabel _sc_extensibility_operation="change"
+                _sc_extensibility_referenceUId="lblShipmentNo" renderHidden="true"/>
+            <DataLabel _sc_extensibility_moveOrder="1"
+                _sc_extensibility_operation="insert"
+                _sc_extensibility_position="before"
+                _sc_extensibility_referenceUId="pnlPersonMarkFor"
+                class="blockComponent autoLabelZeroWidth comappsWrapWord paymentMethod"
+                label="$(_scSimpleBundle:extn_Payment_Method)"
+                spanLabel="true" uId="extn_paymentmethod">
+                <BindingData>
+                    <SourceBinding dynamicBindingFunc="Paymethod"
+                        namespace="getShipmentDetailsMore_output" path="ShipmentLines.ShipmentLine.Order.PaymentMethods.PaymentMethod.Paymethod"/>
+                </BindingData>
+            </DataLabel>
+            <DataLabel _sc_extensibility_moveOrder="2"
+                _sc_extensibility_operation="remove"
+                _sc_extensibility_position="first"
+                _sc_extensibility_referenceUId="_extensibilityHiddenWidgetsHolder" uId="lblPaymentMethod"/>
+        </Items>
+    </ScreenExtension>
+</ExtensionMetaData>

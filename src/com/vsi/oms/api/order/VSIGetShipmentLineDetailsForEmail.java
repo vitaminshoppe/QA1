@@ -3,9 +3,11 @@ package com.vsi.oms.api.order;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.HashMap;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -289,7 +291,7 @@ public class VSIGetShipmentLineDetailsForEmail {
 								Element calRtEle = getCalInDoc
 										.getDocumentElement();
 								calRtEle.setAttribute("CalendarId", shipnode);
-								calRtEle.setAttribute("OrganizationCode", "VSI");
+								calRtEle.setAttribute("OrganizationCode", shipnode);
 
 								Document getCalOutDoc = VSIUtils
 										.invokeAPI(
@@ -382,6 +384,7 @@ public class VSIGetShipmentLineDetailsForEmail {
 							ohk);
 					emailXML = VSIUtils.invokeService(env,
 							"VSIGetAddntlDataForEmail", inDoc);
+					validateShippedOrderLines(inXML, emailXML);		
 					Element overAllTotEle = (Element) emailXML
 							.getElementsByTagName("OverallTotals").item(0);
 					String shippingCharge = overAllTotEle
@@ -554,5 +557,32 @@ public class VSIGetShipmentLineDetailsForEmail {
 		}
 		
 	}
+	
+	private void validateShippedOrderLines(Document shipmentDoc,Document emailDoc) throws TransformerException {
+			log.info("validateShippedOrderLines method");
+
+		 NodeList shipmentLineNL = shipmentDoc
+					.getElementsByTagName("ShipmentLine");
+			NodeList orderLineNL = emailDoc.getElementsByTagName("OrderLine");
+			Element orderLinesEle = XMLUtil.getElementByXPath(emailDoc, "/Order/OrderLines");
+			HashMap<String, Element> hMapShipmentLineUnique = new HashMap<String, Element>();
+
+			for (int i = 0; i < shipmentLineNL.getLength(); i++) {
+				Element shipLineEle = (Element) shipmentLineNL.item(i);
+				String olKey = shipLineEle.getAttribute(VSIConstants.ATTR_ORDER_LINE_KEY);
+				hMapShipmentLineUnique.put(olKey, shipLineEle);
+			}
+			for(int j = 0; j < orderLineNL.getLength(); j++) {
+				Element orderLineEle = (Element) orderLineNL.item(j);
+				String orderLineKey = orderLineEle.getAttribute(VSIConstants.ATTR_ORDER_LINE_KEY);
+				if(!hMapShipmentLineUnique.containsKey(orderLineKey)) {
+					orderLinesEle.removeChild(orderLineEle);
+					j--;
+				}
+				
+			}
+			
+			
+	 }
 
 }

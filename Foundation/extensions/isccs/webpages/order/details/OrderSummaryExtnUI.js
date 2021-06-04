@@ -60,6 +60,21 @@ methodName : "setDisplayChannel"
 }
 ,
 {
+	  eventId: 'afterScreenInit'
+
+,	  sequence: '51'
+
+
+
+
+,handler : {
+methodName : "extn_afterScreenInit"
+
+ 
+}
+}
+,
+{
 	  eventId: 'afterScreenLoad'
 
 ,	  sequence: '51'
@@ -84,6 +99,21 @@ methodName : "dataMigration"
 
 ,handler : {
 methodName : "handleAddressChange"
+
+ 
+}
+}
+,
+{
+	  eventId: 'onExtnMashupCompletion'
+
+,	  sequence: '51'
+
+
+
+
+,handler : {
+methodName : "onExtnMashupCompletion"
 
  
 }

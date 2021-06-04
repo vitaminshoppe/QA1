@@ -72,17 +72,61 @@
                 _sc_extensibility_operation="move"
                 _sc_extensibility_position="before"
                 _sc_extensibility_referenceUId="lblOrderDateDisplay" uId="lblChannelDisplay"/>
+            <DataLabel _sc_extensibility_moveOrder="13"
+                _sc_extensibility_operation="insert"
+                _sc_extensibility_position="before"
+                _sc_extensibility_referenceUId="lblEnterpriseCodeDisplay"
+                label="$(_scBundle:extn_BOL_Number)"
+                renderHidden="true" uId="extn_datalabel_BolNumber">
+                <BindingData>
+                    <SourceBinding
+                        namespace="getCompleteOrderDetails_output" path="Order.Extn.ExtnBolNo"/>
+                </BindingData>
+            </DataLabel>
+            <DataLabel _sc_extensibility_moveOrder="14"
+                _sc_extensibility_operation="insert"
+                _sc_extensibility_position="before"
+                _sc_extensibility_referenceUId="lblEnterpriseCodeDisplay"
+                label="$(_scBundle:extn_Delivery_Date)"
+                renderHidden="true" scuiDataType="Date" uId="extn_datalabel_deliveryDate">
+                <BindingData>
+                    <SourceBinding
+                        namespace="getCompleteOrderDetails_output" path="Order.Extn.ExtnDeliveryDate"/>
+                </BindingData>
+            </DataLabel>	
+            <DataLabel _sc_extensibility_moveOrder="15"
+                _sc_extensibility_operation="insert"
+                _sc_extensibility_position="after"
+                _sc_extensibility_referenceUId="extn_datalabel_deliveryDate"
+                label="$(_scSimpleBundle:extn_Wholesale_PO)"
+                renderHidden="true" uId="extn_datalabel_wholesalePONo">
+                <BindingData>
+                    <SourceBinding
+                        namespace="getCompleteOrderDetails_output" path="Order.CustomerPONo"/>
+                </BindingData>
+            </DataLabel>			
             <Label _sc_extensibility_operation="change"
                 _sc_extensibility_referenceUId="lblOrderNo" label="$(_scSimpleBundle:blank)"/>
         </Items>
         <Subscribers>
             <Local>
+                <Subscriber
+                    description="Sets the enterprise name as display Channel"
+                    eventId="afterScreenInit" isExtn="true" sequence="19">
+                    <Handler methodName="setDisplayChannel"/>
+                </Subscriber>
+                <Subscriber eventId="afterScreenInit" isExtn="true" sequence="51">
+                    <Handler methodName="extn_afterScreenInit"/>
+                </Subscriber>
                 <Subscriber eventId="afterScreenLoad" isExtn="true" sequence="51">
-                    <Handler
-                        description="Check whether this is a migrated order by checking /Order/Extn/@ExtnIsMigratedOrder" methodName="checkMigratedOrderFlag"/>
+                    <Handler methodName="dataMigration"/>
                 </Subscriber>
                 <Subscriber eventId="adressChanged" isExtn="true" sequence="51">
                     <Handler methodName="handleAddressChange"/>
+                </Subscriber>
+                <Subscriber eventId="onExtnMashupCompletion"
+                    isExtn="true" sequence="51">
+                    <Handler methodName="onExtnMashupCompletion"/>
                 </Subscriber>
             </Local>
         </Subscribers>

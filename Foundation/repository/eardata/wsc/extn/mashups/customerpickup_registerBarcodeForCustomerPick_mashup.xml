@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mashups>
+    <mashup description="Translate Bar Code to Product Details"
+        endpoint="EP_CONFIG"
+        id="customerpickup_registerBarcodeForCustomerPick"
+        mashuptype="XAPI" skipDataProvider="false" transactional="true">
+        <classInformation name="com.ibm.wsc.shipment.common.mashups.RegisterBarcodeCustomMashup"/>
+        <API Name="registerBarcodeForCustomerPick">
+            <Input>
+                <BarCode BarCodeData="" BarCodeType="Item" DisplayLocalizedFieldInLocale="xml:CurrentUser:/User/@Localecode">
+                    <ContextualInfo
+                        EnterpriseCode="xml:CurrentStore:/Store/@EnterpriseCode" OrganizationCode="xml:CurrentStore:/Store/@ShipNode"/>
+                    <ShipmentContextualInfo
+                        SellerOrganizationCode="xml:CurrentStore:/Store/@EnterpriseCode"
+                        ShipNode="xml:CurrentStore:/Store/@ShipNode"
+                        ShipmentKey="" ShipmentNo=""/>
+                </BarCode>
+            </Input>
+            <Template>
+                <BarCode BarCodeData="" BarCodeType="">
+                    <Translations BarCodeTranslationSource="" TotalNumberOfRecords="">
+                        <Translation>
+                            <ContextualInfo BuyerOrganizationCode=""
+                                EnterpriseCode="" OrganizationCode="" SellerOrganizationCode=""/>
+                            <ItemContextualInfo AlternateUOM=""
+                                InventoryUOM="" ItemID="" KitCode=""
+                                ProductClass="" Quantity=""/>
+                            <ShipmentContextualInfo
+                                SellerOrganizationCode="" ShipNode=""
+                                ShipmentKey="" ShipmentLineKey="" ShipmentNo=""/>
+                        </Translation>
+                    </Translations>
+                    <Shipment ShipmentKey="">
+                        <ShipmentLine CancelReason=""
+                            CustomerPickedQuantity=""
+                            IsCustomerPickComplete="" ItemID=""
+                            OrderHeaderKey="" OrderLineKey="" OrderNo=""
+                            OriginalQuantity="" Quantity=""
+                            ShipmentKey="" ShipmentLineKey=""
+                            ShipmentLineNo="" ShipmentSubLineNo=""
+                            ShortageQty="" ShortageResolutionReason="" UnitOfMeasure="">
+                            <OrderLine IsBundleParent="" ItemGroupCode="">
+                                <ItemDetails ItemGroupCode="" ItemID="" UnitOfMeasure="">
+                                    <PrimaryInformation
+                                    ExtendedDisplayDescription=""
+                                    ImageID="" ImageLabel="" ImageLocation=""/>
+                                    <ClassificationCodes Model=""/>
+									<ItemAliasList>
+                                 <ItemAlias AliasValue="" AliasName=""/>
+                                 </ItemAliasList>
+                                </ItemDetails>
+                            </OrderLine>
+                        </ShipmentLine>
+                    </Shipment>
+                </BarCode>
+            </Template>
+        </API>
+        <APINamespace inputNS="translateBarCode_input" outputNS="translateBarCode_output"/>
+        <AlternateResourceIds>
+            <AlternateResourceId altResourceId="WSCSYS00001"/>
+            <AlternateResourceId altResourceId="WSC000001"/>
+        </AlternateResourceIds>
+    </mashup>
+</mashups>

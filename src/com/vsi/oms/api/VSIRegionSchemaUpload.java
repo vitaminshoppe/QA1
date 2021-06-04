@@ -36,7 +36,9 @@ public class VSIRegionSchemaUpload {
 		lSourcingRegion.add("Northeast");
 		lSourcingRegion.add("Region 3");
 		lSourcingRegion.add("Region 4");
-		
+		//OMS-2839: Start
+		lSourcingRegion.add("Store_Ship_AZ_Rio");
+		//OMS-2839: End
 		// disable enable cache
 		if(!YFCCommon.isVoid(firstMessage) || !YFCCommon.isVoid(lastMessage))
 		{

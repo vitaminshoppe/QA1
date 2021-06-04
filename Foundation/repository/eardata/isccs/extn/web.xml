@@ -71,7 +71,7 @@
     </context-param>
     <context-param>
         <param-name>scui-consider-application-cookies-only</param-name>
-        <param-value>false</param-value>
+        <param-value>true</param-value>
     </context-param>
     <context-param>
         <param-name>scui-additional-cookie-name-list</param-name>

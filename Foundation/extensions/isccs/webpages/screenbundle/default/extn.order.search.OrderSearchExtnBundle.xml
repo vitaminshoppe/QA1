@@ -17,6 +17,11 @@
             bundleKey="extn_Customer_PO_" bundleValueFn="_scBundle"
             property="label" type="WIDGET" uId="txt_custPoNo"/>
         <BundleEntry
+            bundleEntryId="extn_textfield_wholesalePONo_TextField_label"
+            bundleKey="extn_Wholesale_Order"
+            bundleValueFn="_scSimpleBundle" property="label"
+            type="WIDGET" uId="extn_textfield_wholesalePONo"/>
+        <BundleEntry
             bundleEntryId="extn_textfield_PaymentTechOrder_TextField_label"
             bundleKey="extn_PaymentTech_Order_"
             bundleValueFn="_scSimpleBundle" property="label"
@@ -24,7 +29,7 @@
         <BundleEntry
             bundleEntryId="extn_textfield_TrackingNo_TextField_label"
             bundleKey="extn_Tracking_Number"
-            bundleValueFn="_scSimpleBundle" property="label"
+            bundleValueFn="_scBundle" property="label"
             type="WIDGET" uId="extn_textfield_TrackingNo"/>
         <BundleEntry bundleEntryId="txt_custEmailId_TextField_label"
             bundleKey="extn_Customer_Email" bundleValueFn="_scBundle"

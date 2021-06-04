@@ -184,11 +184,12 @@ public class VSICheckOutDeniedToRiskified {
 		}
 		//OMS-2405 -- End
 		
-		checkoutOrder.setCurrency(VSIConstants.ATTR_CURRENCY);		
-		if(!YFCObject.isVoid(strEntryType)&&!YFCObject.isVoid(strExtnCheckoutId)&&!((VSIConstants.ENTRYTYPE_CC).equalsIgnoreCase(strEntryType))){
+		checkoutOrder.setCurrency(VSIConstants.ATTR_CURRENCY);
+		//OMS-3078 Changes -- Start
+		/*if(!YFCObject.isVoid(strEntryType)&&!YFCObject.isVoid(strExtnCheckoutId)&&!((VSIConstants.ENTRYTYPE_CC).equalsIgnoreCase(strEntryType))){
 			checkoutOrder.setCheckoutId(strExtnCheckoutId);
-		}
-		
+		}*/
+		//OMS-3078 Changes -- End
 		//Changes for OMS-2192 -- Start
 		String strExtnReorder = eleOrderExtn.getAttribute(VSIConstants.ATTR_EXTN_RE_ORDER);		
 

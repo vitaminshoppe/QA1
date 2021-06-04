@@ -17,6 +17,12 @@
                 _sc_extensibility_referenceUId="ChangeProductVariation" renderHidden="true"/>
             <Link _sc_extensibility_operation="change"
                 _sc_extensibility_referenceUId="copyOrder" renderHidden="true"/>
+            <Link _sc_extensibility_moveOrder="2"
+                _sc_extensibility_operation="insert"
+                _sc_extensibility_position="last"
+                _sc_extensibility_referenceUId="ordertasks"
+                class="relatedTaskLink" renderHidden="true"
+                uId="extn_link_updateBol" value="$(_scSimpleBundle:extn_Update_BOL)"/>
             <Link _sc_extensibility_operation="change"
                 _sc_extensibility_referenceUId="rescheduleAppointment" renderHidden="true"/>
             <Link _sc_extensibility_moveOrder="1"
@@ -31,16 +37,33 @@
         </Items>
         <Subscribers>
             <Local>
+                <Subscriber eventId="afterScreenInit" isExtn="true" sequence="51">
+                    <Handler methodName="restrictAddLinesForShippedOrder"/>
+                </Subscriber>
+                <Subscriber eventId="afterScreenInit" isExtn="true" sequence="52">
+                    <Handler methodName="extn_afterScreenInit"/>
+                </Subscriber>
                 <Subscriber description="fulfillGiftCard_onClick"
                     eventId="extn_giftCardFulfillment_onClick"
                     isExtn="true" sequence="51">
                     <Handler methodName="fulfillGiftCard_onClick"/>
                 </Subscriber>
-				<Subscriber eventId="afterScreenInit" isExtn="true" sequence="51">
-                    <Handler methodName="restrictAddLinesForShippedOrder"/>
-                </Subscriber
+                <Subscriber eventId="extn_link_updateBol_onClick"
+                    isExtn="true" sequence="51">
+                    <Handler methodName="extn_UpdateBOLNoOnClickHandler"/>
+                </Subscriber>
+                <Subscriber eventId="onExtnMashupCompletion"
+                    isExtn="true" sequence="51">
+                    <Handler methodName="onExtnMashupCompletion"/>
+                </Subscriber>
             </Local>
         </Subscribers>
+        <MashupRefs>
+            <Behavior>
+                <MashupRef extnType="ADD"
+                    mashupId="extn_changeOrder_OrderEditorRT" mashupRefId="extn_changeOrder_OrderEditorRT"/>
+            </Behavior>
+        </MashupRefs>
     </ScreenExtension>
 </ExtensionMetaData>
 	

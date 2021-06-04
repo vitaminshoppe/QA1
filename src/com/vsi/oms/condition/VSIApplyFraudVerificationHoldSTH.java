@@ -29,11 +29,14 @@ public class VSIApplyFraudVerificationHoldSTH implements YCPDynamicConditionEx {
 
 		boolean bApplyFraudVerHold = true;
 		boolean bCreditCardOrder = false;
+		//OMS-2924 Changes -- Start
+		boolean bPaypalOrder = false;
+		//OMS-2924 Changes -- End
 		double dAmount=0;
 		String strDTCOFlag=null;
 		Element eleOrder = inXML.getDocumentElement();
 		if(log.isDebugEnabled()){
-		log.info("VSIApplyFraudVerificationHoldSTH.evaluateCondition Input XML :" + SCXmlUtil.getString(inXML));
+		log.verbose("VSIApplyFraudVerificationHoldSTH.evaluateCondition Input XML :" + SCXmlUtil.getString(inXML));
 		log.info("==============Inside VSIApplyFraudVerificationHoldSTH================================");
 		}
 		if(!YFCObject.isNull(eleOrder)){
@@ -45,24 +48,37 @@ public class VSIApplyFraudVerificationHoldSTH implements YCPDynamicConditionEx {
 				for(int i=0; i<nlPaymentMethod.getLength(); i++){
 					Element elePaymentMethod = (Element) nlPaymentMethod.item(i);
 					String strPaymentType = elePaymentMethod.getAttribute(VSIConstants.ATTR_PAYMENT_TYPE);
-					if(VSIConstants.PAYMENT_MODE_CC.equals(strPaymentType)){
-						log.info("Credit Card is used in this Order");
-						bCreditCardOrder=true;
+					//OMS-2924 Changes -- Start
+					if(VSIConstants.PAYMENT_MODE_CC.equals(strPaymentType) || VSIConstants.PAYMENT_MODE_PAYPAL.equals(strPaymentType)){
+						if(VSIConstants.PAYMENT_MODE_CC.equals(strPaymentType)){
+							bCreditCardOrder=true;
+							log.info("Credit Card is used in this Order");
+						}else if(VSIConstants.PAYMENT_MODE_PAYPAL.equals(strPaymentType)){
+							bPaypalOrder=true;
+							log.info("Paypal is used in this Order");
+						}
+						//OMS-2924 Changes -- End
 						String strAmount = elePaymentMethod.getAttribute(VSIConstants.ATTR_MAX_CHARGE_LIMIT);
 						if(!YFCCommon.isVoid(strAmount)){
 							dAmount = Double.parseDouble(strAmount);
 						}
 						if((dAmount==0) || (dAmount==0.0) || (dAmount==0.00)){
-							bCreditCardOrder=false;
-							log.info("Credit Card Request Amount is zero");
+							//OMS-2924 Changes -- Start
+							if(VSIConstants.PAYMENT_MODE_CC.equals(strPaymentType)){
+								bCreditCardOrder=false;
+								log.info("Credit Card Request Amount is zero");
+							}else if(VSIConstants.PAYMENT_MODE_PAYPAL.equals(strPaymentType)){
+								bPaypalOrder=false;
+								log.info("Paypal Request Amount is zero");
+							}
+							//OMS-2924 Changes -- End
 						}						
-						break;
 					}
 				}
-				if(!bCreditCardOrder){
-					log.info("Non Credit Card Order, hold will not be applied");
+				if(!bCreditCardOrder && !bPaypalOrder){
+					log.info("Non Credit Card/Paypal Order, hold will not be applied");
 					bApplyFraudVerHold=false;
-					log.info("VSIApplyFraudVerificationHoldSTH.evaluateCondition output: " +bApplyFraudVerHold);
+					log.verbose("VSIApplyFraudVerificationHoldSTH.evaluateCondition output: " +bApplyFraudVerHold);
 					return bApplyFraudVerHold;
 				}
 				//OMS-2332 End
@@ -106,7 +122,7 @@ public class VSIApplyFraudVerificationHoldSTH implements YCPDynamicConditionEx {
 			}
 		}
 		if(log.isDebugEnabled()){
-		log.info("VSIApplyFraudVerificationHoldSTH.evaluateCondition output: " +bApplyFraudVerHold );
+		log.verbose("VSIApplyFraudVerificationHoldSTH.evaluateCondition output: " +bApplyFraudVerHold );
 		}
 		return bApplyFraudVerHold;
 	}

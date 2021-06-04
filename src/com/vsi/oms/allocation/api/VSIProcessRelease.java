@@ -44,7 +44,7 @@ public class VSIProcessRelease extends VSIBaseCustomAPI implements VSIConstants 
 			log.info("strTransferNo"+strTransferNo);
 			// Apply JDA Transfer number by calling changeRelease API
 			if(eleOrderRelease.getAttribute(ATTR_SEND_RELEASE).equalsIgnoreCase(FLAG_Y) && eleOrderRelease.getAttribute(ATTR_REVERSE_ALLOCATION).equalsIgnoreCase(FLAG_Y))
-				invokeChangeRelease(env, inputDoc, strTransferNo);
+				invokeChangeRelease(env, inputDoc, strTransferNo, "");
 			if(log.isDebugEnabled()){
 			log.endTimer("VSIProcessRelease.processRelease : END");
 			}
@@ -66,7 +66,7 @@ public class VSIProcessRelease extends VSIBaseCustomAPI implements VSIConstants 
 		}
 		return docJDAOut;
 	}
-	public void invokeChangeRelease(YFSEnvironment env, Document inputDoc, String strTransferNo)
+	public void invokeChangeRelease(YFSEnvironment env, Document inputDoc, String strTransferNo, String sfsCodeValue)
 	{
 		try
 		{
@@ -74,6 +74,8 @@ public class VSIProcessRelease extends VSIBaseCustomAPI implements VSIConstants 
 			Element eleChangeRelease = docChangeRelease.getDocumentElement();
 			Element eleChangeReleaseExtn = SCXmlUtil.createChild(eleChangeRelease, ELE_EXTN);
 			eleChangeReleaseExtn.setAttribute(ATTR_EXTN_TRANSFER_NO, strTransferNo);
+			if (!sfsCodeValue.equalsIgnoreCase(""))
+				eleChangeRelease.setAttribute(ATTR_SCAC,sfsCodeValue);
 			Element eleOrderRelease = inputDoc.getDocumentElement();
 			Element eleOrderElement = SCXmlUtil.getChildElement(eleOrderRelease, ELE_ORDER);
 			eleChangeRelease.setAttribute(ATTR_SHIP_CUST_PO_NO, eleOrderRelease.getAttribute(ATTR_SHIP_CUST_PO_NO));
@@ -83,7 +85,7 @@ public class VSIProcessRelease extends VSIBaseCustomAPI implements VSIConstants 
 			eleChangeRelease.setAttribute(ATTR_SELECT_METHOD, SELECT_METHOD_WAIT);
 			eleChangeRelease.setAttribute(ATTR_OVERRIDE, FLAG_Y);
 			eleChangeRelease.setAttribute(ATTR_ORDER_RELEASE_KEY, eleOrderRelease.getAttribute(ATTR_ORDER_RELEASE_KEY));
-			VSIUtils.invokeAPI(env, TEMPLATE_ORD_REL_ORD_REL_KEY, API_CHANGE_RELEASE, docChangeRelease);
+			VSIUtils.invokeAPI(env, API_CHANGE_RELEASE, docChangeRelease);
 		}
 		catch(Exception e)
 		{

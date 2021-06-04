@@ -2045,4 +2045,162 @@ public static final String ATTR_USER_KEY="UserKey";
     	public static final String ATTR_PICKED_QTY = "PickedQty";
     	
     	//OMS - 2745 END
+		
+		//OMS - 2703 START
+    	
+    	public static final String ATTR_ACTIVATE_FLAG = "Activateflag";
+    	public static final String ELE_EMPLOYEE_DETAIL = "employeeDetail";
+    	public static final String ELE_STORE_NUM = "storeNmb";
+    	public static final String ATTR_DISPLAY_USER_ID = "DisplayUserID";
+    	public static final String ELE_FIRST_NAME = "firstName";
+    	public static final String ELE_MIDDLE_NAME = "middleName";
+    	public static final String ELE_LAST_NAME = "lastName";
+    	public static final String ATTR_LOCALE_CODE = "Localecode";
+    	public static final String ELE_EMPLOYEE_ID = "employeeID";
+    	public static final String ATTR_PASSWORD = "Password";
+		public static final String COMMON_CODE_PASSWORD = "password";
+    	public static final String ATTR_MENU_ID = "MenuId";
+    	public static final String ATTR_ORG_KEY = "OrganizationKey";
+    	public static final String ATTR_SESSION_TIMEOUT = "SessionTimeout";
+    	public static final String ATTR_THEME = "Theme";
+    	public static final String ATTR_USERNAME = "Username";
+    	public static final String ELE_QUEUE_SUB_LIST = "QueueSubscriptionList";
+    	public static final String ELE_QUEUE_SUBSCRIPTION = "QueueSubscription";
+    	public static final String ATTR_QUEUE_KEY = "QueueKey";
+    	public static final String ATTR_QUEUE_KEY_VALUE = "VSI_RESTOCK_";
+    	public static final String ELE_USER_GROUP_LISTS = "UserGroupLists";
+    	public static final String ELE_USER_GROUP_LIST = "UserGroupList";
+    	public static final String ATTR_USER_GROUP_DESC = "UsergroupDescription";
+    	public static final String ATTR_USER_GROUP_KEY = "UsergroupKey";
+    	public static final String ATTR_USER_GROUP_NAME = "UsergroupName";
+    	public static final String LOAD_USER_COMMON_CODE_TYPE = "LoadSOMUser";
+    	public static final String ELE_EMPLOYEE_STATUS = "employeeStatus";
+    	
+    	//OMS - 2703 END
+		
+		//Fedex Change: Start
+    	public static final String FEDEX_DC_COMMON_CODE="VSI_FEDEX_DC";
+    	//Fedex Change : End
+		
+		//OMS 2770 Changes-  START
+       
+        public static final String SFS_SCAC_COMMON_CODE = "SFS_SCAC";
+       
+        //OMS 2770 Changes -  END
+		
+		//OMS - 2771 START
+       
+        public static final String SHIP_NODE_6101_VALUE = "6101";
+        public static final String ATTR_ACTUAL_QUANTITY = "ActualQuantity";
+        public static final String ORDER_TYPE_VALUE = "Ship_to_Home";
+        public static final String SHIP_STATUS_VALUE = "SHIP";
+        public static final String PROP_SFS_FORCED_ALLOCATION_URL = "SFS_FORCED_ALLOCATION_URL";
+        public static final String ELE_ERROR_CODE = "errorcode";
+        public static final String ELE_REQUEST_RESPONSE = "request_response";
+        public static final String ALERT_SFS_SHIP_JDA_SERVICE_CALL_FAILURE_EXCEPTION_TYPE = "VSI_SFS_SHIP_JDA_SERVICE_CALL_FAILURE_ALERT";
+        public static final String ALERT_SFS_SHIP_JDA_SERVICE_CALL_FAILURE_DETAIL_DESCRIPTION = "SFS - Ship JDA Service Failure Alert";
+        public static final String ALERT_SFS_SHIP_JDA_SERVICE_CALL_FAILURE_QUEUE = "VSI_SFS_SHIP_JDA_SERVICE_FAILURE_ALERT_Q";
+        public static final String ALERT_SFS_SHIP_JDA_REQ_POST_Q_FAILURE_EXCEPTION_TYPE = "VSI_SFS_SHIP_JDA_REQ_POST_Q_FAILURE_ALERT";
+        public static final String ALERT_SFS_SHIP_JDA_REQ_POST_Q_FAILURE_DETAIL_DESCRIPTION = "SFS - Ship Confirm JDA Req Posting into MQ Failure Alert.Kindly reporcess.";
+        public static final String ALERT_SFS_SHIP_JDA_REQ_POST_Q_FAILURE_QUEUE = "VSI_SFS_SHIP_JDA_REQ_POST_Q_FAILURE";
+        public static final String SERVICE_SFS_SHIP_JDA_ALLOCATION_REQUEST_DB = "VSISFSShipConfirmJDAAllocationReq_DB";
+        public static final String SERVICE_SFS_SHIP_JDA_ALLOCATION_REQUEST_Q = "VSISFSShipConfirmJDAAllocationReq_Q";
+        public static final String SERVICE_SFS_SHIP_JDA_ALLOCATION_RESPONSE = "VSISFSShipConfirmJDAAllocationResponse_DB";
+       
+        //OMS - 2771 END
+		
+		//OMS - 2875 START
+        
+        public static final String ATTR_EXTN_NAME = "ExtnName";
+        
+        //OMS - 2875 END
+       
+        //OMS 2871-  START
+        public static final String SERVICE_SFS_UNPACK_VOID_MSG = "VSISFSUnPackVoid_PutMsg_Q";
+        //OMS 2871-  END
+
+       //OMS 2909 - START
+        public static final String ELE_DATE = "Date";
+        public static final String ELE_RESOURCE_POOL = "ResourcePool";
+        public static final String ATTR_RESOURCE_POOL_ID = "ResourcePoolId";
+        public static final String BOSS_VALUE = "BOSS";
+        public static final String ATTR_PROVIDER_ORG_CODE = "ProviderOrganizationCode";
+        public static final String ATTR_CAPACITY_ORG_CODE = "CapacityOrganizationCode";
+        public static final String ATTR_CAPACITY_UOM = "CapacityUnitOfMeasure";
+        public static final String CAPACITY_UOM_VALUE = "RELEASE";
+        public static final String API_GET_RESOURCE_POOL_CAPACITY = "getResourcePoolCapacity";
+       //OMS 2909 - END
+
+       //OMS 2869 -  START
+        public static final String XPATH_INVOICE_SHIPMENTKEY = "//InvoiceHeader/Shipment/@ShipmentKey";
+        public static final String TRANS_OBJ_SHIPMENTKEY = "eShipmentKey";
+        public static final String TRANS_OBJ_SCAC = "eSCACandServiceDesc";
+        public static final String ATTR_TRACKING_URL = "TrackingURL";
+       //OMS 2869 -  END
+      
+     //OMS-3003 : Start
+     public static final String THREE = "3";
+     //OMS-3003 : End
+	 
+	 //OMS-3011 : Start
+     public static final String SHIP_NODE_6102_VALUE = "6102";
+   	//OMS-3011 : End
+	//OMS-2903 : Start
+     public static final String SCAC_DHL = "DHL";
+	  public static final String TRACKING_COMMON_CODE_DHL = "DHL-GLOBAL";
+   	//OMS-2903 : End
+	  
+	//OMS-3149: Start
+	public static final String DHL_TRACKING_COMMON_CODE = "DHL";
+	//OMS-3149: End
+        
+    //OMS-3168 : Start
+      public static final String US_TERRITORIES = "US_Territories";
+      public static final String VSI_US_TERRITORIE_SR =  "VSI_US_TERRITORIE_SR";
+   //OMS-3168 : End
+
+    //OMS-3212 :Start
+      public static final String IS_STS_CANCEL_ENABLED = "STS_CANCEL";
+      public static final String CANCEL_MODIFICATION_CODE = "VSI_CANCEL_NO_INV";
+      public static final String STS_CANCEL_HOLD = "VSI_STS_CANCEL_HOLD";
+      public static final String TEMPLATE_GET_ORDER_HOLD_TYPE_LIST_STS = "global/template/api/getOrderHoldTypeList_STSCancel.xml";
+      public static final String ATTR_MODIFY_REASON_TEXT_STS = "VSI_STS_CANCEL";
+    //OMS-3212 :End
+	
+	//OMS-changes for wholesale Project : Start
+	public static final String SEQ_WHOLESALE_INVOICE="VSI_WH_INV_SEQ";	
+	public static final String ATTR_ALL_WH_REGIONS="VSI_ALL_WH_REGIONS";
+	public static final String ATTR_ALL_WH_ORG="VSI_ALL_WH_ORG";
+	public static final String ATTR_EXTN_DC_FOR_STORE ="ExtnDCForStore";
+	public static final String ATTR_EXTN_SINGLE_CARTON ="ExtnSingleCarton";
+	public static final String ATTR_VSI_WH_CHANGE_ORDER="VSI_WH_CHANGE_ORDER";
+	public static final String ATTR_EXTN_BOL_NO="ExtnBolNo";
+	public static final String ATTR_EXTN_DELIVERY_DATE="ExtnDeliveryDate";
+	public static final String ATTR_BOL_NO="BolNo";
+	public static final String ATTR_VSI_WH_BOLNO_FROM_UI="VSI_WH_BOLNO_FROM_UI";
+	public static final String ATTR_INVOICE_DETAIL="InvoiceDetail";
+    public static final String SERVICE_GET_SHIPMENT_LIST_FOR_ORDER_INV="VSIWHOrderGetShipmentList";
+	public static final String SERVICE_GET_SHIPMENT_LINE="VSIWHGetShipmentLine";
+	//OMS-changes for wholesale Project : End
+
+     //OMS-3278: Start
+      public static final String ELE_SCHEDULE_ORDER ="ScheduleOrder";
+    //OMS-3278: End
+
+   
+     //OMS-3062 : Start
+	 public static final String ELE_TAX_SUMMARY = "TaxSummary";
+         public static final String SHIPPING_TAX_VALUE = "Shipping Tax";
+	 public static final String ATTR_OVERALL_TAX = "OverallTax";
+	 public static final String ATTR_REMAINING_TAX = "RemainingTax";
+	 public static final String TAX_SUMMARY_DETAIL = "TaxSummaryDetail";
+         public static final String TEMPLATE_GET_ORD_LIST = "global/template/api/getOrderList_VSIRemoveShpChrgAndShpTax.xml";
+    //OMS-3062 : End
+		//OMS 3383: Start
+	public static final String  ENTRYTYPE_WEB = "WEB";
+	public static final String BLANK_SHIPNODE_EXCEPTION_DETAIL_DESCRIPTION = "Exception due to blank ship node";
+	//OMS 3383: End
+	//OMS 3420: Start
+	public static final String BLANK_PERSONSHIPTO_ALERT_DETAIL_DESCRIPTION = "Exception due to blank zipcode/state in PersonInfoShipTo";
+	//OMS 3420: End
 }

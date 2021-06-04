@@ -9,26 +9,23 @@
                 _sc_extensibility_operation="insert"
                 _sc_extensibility_position="after"
                 _sc_extensibility_referenceUId="m_lnk_RT_PrintReceipt"
-                class="relatedTaskLink" spanLabel="true"
-                uId="extn_printpickpackreceipt" value="$(_scSimpleBundle:extn_Print_Pick_Pack_Receipt)">
-                <BindingData>
-                    <SourceBinding
-                        dynamicBindingFunc="printPickPackReceipt"
-                        namespace="getShipmentDetails_output" path="Shipment.ShipmentKey"/>
-                </BindingData>
-            </Link>
+                class="relatedTaskLink" disabled="true"
+                renderHidden="true" spanLabel="true"
+                uId="extn_printpickpackreceipt" value="$(_scSimpleBundle:extn_Print_Pick_Pack_Receipt)"/>
             <Link _sc_extensibility_moveOrder="3"
                 _sc_extensibility_operation="insert"
                 _sc_extensibility_position="after"
                 _sc_extensibility_referenceUId="extn_printpickpackreceipt"
-                class="relatedTaskLink" spanLabel="true"
-                uId="extn_customerpickupreceipt" value="$(_scSimpleBundle:extn_Print_Customer_Receipt)">
-                <BindingData>
-                    <SourceBinding
-                        dynamicBindingFunc="printCustomerReceipt"
-                        namespace="getShipmentDetails_output" path="Shipment.ShipmentKey"/>
-                </BindingData>
-            </Link>
+                class="relatedTaskLink" disabled="true"
+                renderHidden="true" spanLabel="true"
+                uId="extn_customerpickupreceipt" value="$(_scSimpleBundle:extn_Print_Customer_Receipt)"/>
+            <Link _sc_extensibility_moveOrder="4"
+                _sc_extensibility_operation="insert"
+                _sc_extensibility_position="before"
+                _sc_extensibility_referenceUId="m_lnk_RT_PackShipment"
+                class="relatedTaskLink" disabled="true"
+                renderHidden="true" spanLabel="true"
+                uId="extn_printpackreceipt" value="$(_scSimpleBundle:extn_Print_Pack_Receipt)"/>
         </Items>
         <Subscribers>
             <Local>
@@ -40,6 +37,10 @@
                     isExtn="true" sequence="51">
                     <Handler methodName="printCustomerReceipt"/>
                 </Subscriber>
+                <Subscriber eventId="extn_printpackreceipt_onClick"
+                    isExtn="true" sequence="51">
+                    <Handler methodName="printPackReceipt"/>
+                </Subscriber>
             </Local>
         </Subscribers>
         <MashupRefs>
@@ -48,6 +49,8 @@
                     mashupId="extn_Print_Customer_Receipt" mashupRefId="extn_Print_Customer_Receipt"/>
                 <MashupRef extnType="ADD"
                     mashupId="extn_printpickpackreceipt" mashupRefId="extn_printpickpackreceipt"/>
+                <MashupRef extnType="ADD"
+                    mashupId="extn_Print_Pack_Receipt" mashupRefId="extn_Print_Pack_Receipt"/>
             </Behavior>
         </MashupRefs>
     </ScreenExtension>

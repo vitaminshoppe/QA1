@@ -78,7 +78,16 @@ public class GetotherDetails implements VSIConstants {
 		}else if(!(YFCCommon.isVoid(nSCAC)) && nSCAC.equalsIgnoreCase(SCAC_USPS)){
 			eleCommonCodeInput.setAttribute(ATTR_CODE_TYPE, TRACKING_COMMON_CODE_USPS);
 		}
-		
+		//OMS-2719: Start
+		else if(!(YFCCommon.isVoid(nSCAC)) && nSCAC.equalsIgnoreCase(SCAC_FEDEX)){
+			eleCommonCodeInput.setAttribute(ATTR_CODE_TYPE, TRACKING_COMMON_CODE_FEDEX);
+		}
+		//OMS-2719: END
+		//OMS-2903: Start
+		else if(!(YFCCommon.isVoid(nSCAC)) && nSCAC.equalsIgnoreCase(SCAC_DHL)){
+					eleCommonCodeInput.setAttribute(ATTR_CODE_TYPE, TRACKING_COMMON_CODE_DHL);
+		}
+		//OMS-2903: END
 		//Invoke common code list based on the carrier or carrier service
 		String strCodeLongDesc =null;
 		if(!YFCCommon.isVoid(eleCommonCodeInput.getAttribute(ATTR_CODE_TYPE))){

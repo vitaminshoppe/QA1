@@ -7,9 +7,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.TimeZone;
 
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -29,29 +26,14 @@ public class VSICancelPickedOrders extends VSIBaseCustomAPI implements VSIConsta
 	{
 		try
 		{
-				log.info("================Inside VSICancelPickedOrders Class and cancelPickedOrders Method================");
-				log.info("Printing Input XML :"+SCXmlUtil.getString(inXml));
-			
 				Element orderStatusEle = (Element) inXml.getElementsByTagName(ELE_ORDER_STATUS).item(0);
 				String originalOrderLineKey = orderStatusEle.getAttribute(ATTR_ORDER_LINE_KEY);
 				Document getOrderLineListDoc = SCXmlUtil.createDocument(ELE_ORDER_LINE);
 				Element eleOrderLine = getOrderLineListDoc.getDocumentElement();
 				eleOrderLine.setAttribute(ATTR_ORDER_LINE_KEY, originalOrderLineKey);
-				eleOrderLine.setAttribute(ATTR_DOCUMENT_TYPE, ATTR_DOCUMENT_TYPE_SALES);	
-				//Add template to fetch condition variable1 for Order Monitor Cancel on backroom picked status change				
+				eleOrderLine.setAttribute(ATTR_DOCUMENT_TYPE, ATTR_DOCUMENT_TYPE_SALES);		
 				Document getOrderLineListOutputDoc = VSIUtils.invokeAPI(env, TEMPLATE_ORDER_LINE_LIST,API_GET_ORDER_LINE_LIST, getOrderLineListDoc);
-				//SOM Restock changes -- Start				
-				log.info("Printing getOrderLineList output: "+SCXmlUtil.getString(getOrderLineListOutputDoc));
-				
-				Element eleOrderLineList=getOrderLineListOutputDoc.getDocumentElement();
-				Element eleOrdLine=(Element)eleOrderLineList.getElementsByTagName(ELE_ORDER_LINE).item(0);
-				String strOrderedQty=eleOrdLine.getAttribute(ATTR_ORD_QTY);
-				String strShipNode=eleOrdLine.getAttribute(ATTR_SHIP_NODE);
-				String strCustPONo=eleOrdLine.getAttribute(ATTR_CUST_PO_NO);
-				Element eleItem=SCXmlUtil.getChildElement(eleOrdLine, ELE_ITEM);
-				String strItemId=eleItem.getAttribute(ATTR_ITEM_ID);
-				//SOM Restock changes -- End
-				Element eleExtn = (Element) getOrderLineListOutputDoc.getElementsByTagName(ELE_EXTN).item(0);				
+				Element eleExtn = (Element) getOrderLineListOutputDoc.getElementsByTagName(ELE_EXTN).item(0);
 				String lastPickDate = null;
 				if(eleExtn.getAttribute(ATTR_EXTN_LAST_PICK_DATE_FOR_CANCEL) != "")
 					lastPickDate = eleExtn.getAttribute(ATTR_EXTN_LAST_PICK_DATE_FOR_CANCEL);
@@ -79,7 +61,6 @@ public class VSICancelPickedOrders extends VSIBaseCustomAPI implements VSIConsta
     				Element getOrderListEle = getOrderListInXML.getDocumentElement();
     				getOrderListEle.setAttribute(ATTR_ORDER_HEADER_KEY,orderHeaderKey);
     				getOrderListEle.setAttribute(ATTR_DOCUMENT_TYPE, ATTR_DOCUMENT_TYPE_SALES);
-					//Add template to fetch condition variable1 for Order Monitor Cancel on backroom picked status change
     				Document getOrderListOutXML = VSIUtils.invokeAPI(env, TEMPLATE_GET_ORDER_LIST_FOR_ORDER_MONITOR, API_GET_ORDER_LIST, getOrderListInXML);
     				NodeList orderLineNode = getOrderListOutXML.getElementsByTagName(ELE_ORDER_LINE);
     				int orderLineNodeLength = orderLineNode.getLength();
@@ -88,15 +69,13 @@ public class VSICancelPickedOrders extends VSIBaseCustomAPI implements VSIConsta
     					Element orderLineEle = (Element) getOrderListOutXML.getElementsByTagName(ELE_ORDER_LINE).item(0);
     					String lineType = orderLineEle.getAttribute(ATTR_LINE_TYPE);
     					if(lineType.equalsIgnoreCase(LINETYPE_PUS) || lineType.equalsIgnoreCase(LINETYPE_STS))
-    							changeOrderLineCancellation(orderHeaderKey, orderLineEle.getAttribute(ATTR_CONDITION_VARIBALE1),originalOrderLineKey, env,strItemId,strOrderedQty,strShipNode,strCustPONo);
+    							changeOrderLineCancellation(orderHeaderKey, originalOrderLineKey, env);
     				}
     				else
     				{
     					int shipToStore = 0, pickInStore = 0;
     					String lastPickDateVal = null;
-    					//ArrayList<String> orderLineKeys = new ArrayList<String>();
-						ArrayList<Element> orderLineObjects = new ArrayList<Element>();
-						
+    					ArrayList<String> orderLineKeys = new ArrayList<String>();
     					for(int l=0; l< orderLineNodeLength; l++)
     					{
     						Element orderLineEle = (Element) getOrderListOutXML.getElementsByTagName(ELE_ORDER_LINE).item(l);
@@ -111,7 +90,6 @@ public class VSICancelPickedOrders extends VSIBaseCustomAPI implements VSIConsta
     						for(int l=0; l< orderLineNodeLength; l++)
     						{
     							Element orderLineEle = (Element) getOrderListOutXML.getElementsByTagName(ELE_ORDER_LINE).item(l);
-    							String conditionVar = orderLineEle.getAttribute(ATTR_CONDITION_VARIBALE1);
             					double maxLineStatus = Double.parseDouble(orderLineEle.getAttribute(ATTR_MAX_LINE_STATUS));
             					Element elemExtn = (Element) orderLineEle.getElementsByTagName(ELE_EXTN).item(0);
             					log.info("elemExtn.getAttribute(ATTR_EXTN_LAST_PICK_DATE_FOR_CANCEL) => "+elemExtn.getAttribute(ATTR_EXTN_LAST_PICK_DATE_FOR_CANCEL));
@@ -129,9 +107,8 @@ public class VSICancelPickedOrders extends VSIBaseCustomAPI implements VSIConsta
         						SimpleDateFormat formater = new SimpleDateFormat(YYYY_MM_DD_T_HH_MM_SS);
         		                Calendar calculatedLastPickDate = Calendar.getInstance();
         		                calculatedLastPickDate.setTime(formater.parse(lastPickDateVal));
-								//Add one more status condition for Order Monitor Cancel on backroom picked status change
-        		                if(((maxLineStatus == 3200.500) && (currentTime.compareTo(calculatedLastPickDate) > 0)) || ((maxLineStatus == 3350.30) && (currentTime.compareTo(calculatedLastPickDate) > 0) && (conditionVar.equalsIgnoreCase("Y"))))
-        								changeOrderLineCancellation(orderHeaderKey, orderLineEle.getAttribute(ATTR_CONDITION_VARIBALE1), orderLineEle.getAttribute(ATTR_ORDER_LINE_KEY), env,strItemId,strOrderedQty,strShipNode,strCustPONo);
+        		                if((maxLineStatus == 3200.500) && (currentTime.compareTo(calculatedLastPickDate) > 0))
+        								changeOrderLineCancellation(orderHeaderKey, orderLineEle.getAttribute(ATTR_ORDER_LINE_KEY), env);
     						}
     					}
     					else if(shipToStore > 0 && pickInStore > 0)
@@ -141,7 +118,6 @@ public class VSICancelPickedOrders extends VSIBaseCustomAPI implements VSIConsta
     						{
     							Element orderLineEle = (Element) getOrderListOutXML.getElementsByTagName(ELE_ORDER_LINE).item(j);
             					String lineTypeValue = orderLineEle.getAttribute(ATTR_LINE_TYPE);
-								String conditionVariable= orderLineEle.getAttribute(ATTR_CONDITION_VARIBALE1);
             					double maxLineStatus = Double.parseDouble(orderLineEle.getAttribute(ATTR_MAX_LINE_STATUS));
             					Element elemExtn = (Element) orderLineEle.getElementsByTagName(ELE_EXTN).item(0);
             					log.info("Combo - elemExtn.getAttribute(ATTR_EXTN_LAST_PICK_DATE_FOR_CANCEL) => "+elemExtn.getAttribute(ATTR_EXTN_LAST_PICK_DATE_FOR_CANCEL));
@@ -159,29 +135,23 @@ public class VSICancelPickedOrders extends VSIBaseCustomAPI implements VSIConsta
             					SimpleDateFormat formater = new SimpleDateFormat(YYYY_MM_DD_T_HH_MM_SS);
         		                Calendar calculatedLastPickDate = Calendar.getInstance();
         		                calculatedLastPickDate.setTime(formater.parse(lastPickDateVal));
-            					if((lineTypeValue.equalsIgnoreCase(LINETYPE_PUS) && (maxLineStatus == 3200.500) && (currentTime.compareTo(calculatedLastPickDate) > 0)) || (lineTypeValue.equalsIgnoreCase(LINETYPE_PUS) && (maxLineStatus == 3350.30) && (currentTime.compareTo(calculatedLastPickDate) > 0) && (conditionVariable.equalsIgnoreCase("Y"))))
-									orderLineObjects.add(orderLineEle);
-            						//orderLineKeys.add(orderLineEle.getAttribute(ATTR_ORDER_LINE_KEY));
-            					else if((lineTypeValue.equalsIgnoreCase(LINETYPE_STS) && (maxLineStatus < 3200.500) && (currentTime.compareTo(calculatedLastPickDate) > 0)) || (lineTypeValue.equalsIgnoreCase(LINETYPE_STS) && (maxLineStatus < 3350.30) && (currentTime.compareTo(calculatedLastPickDate) > 0) && (conditionVariable.equalsIgnoreCase("Y"))) )
+            					if(lineTypeValue.equalsIgnoreCase(LINETYPE_PUS) && (maxLineStatus == 3200.500) && (currentTime.compareTo(calculatedLastPickDate) > 0))
+            						orderLineKeys.add(orderLineEle.getAttribute(ATTR_ORDER_LINE_KEY));
+            					else if(lineTypeValue.equalsIgnoreCase(LINETYPE_STS) && (maxLineStatus < 3200.500) && (currentTime.compareTo(calculatedLastPickDate) > 0))
             					{
             						bosts = true;
             						break;
             					}
-            					else if ((lineTypeValue.equalsIgnoreCase(LINETYPE_STS) && (maxLineStatus == 3200.500) && (currentTime.compareTo(calculatedLastPickDate) > 0))|| (lineTypeValue.equalsIgnoreCase(LINETYPE_STS) && (maxLineStatus == 3350.30) && (currentTime.compareTo(calculatedLastPickDate) > 0) && (conditionVariable.equalsIgnoreCase("Y"))) )
+            					else if (lineTypeValue.equalsIgnoreCase(LINETYPE_STS) && (maxLineStatus == 3200.500) && (currentTime.compareTo(calculatedLastPickDate) > 0))
             					{
-									orderLineObjects.add(orderLineEle);
-            						//orderLineKeys.add(orderLineEle.getAttribute(ATTR_ORDER_LINE_KEY));
+            						orderLineKeys.add(orderLineEle.getAttribute(ATTR_ORDER_LINE_KEY));
             					}
     						}
     						if(!bosts)
     						{
-    							//Iterator<String> iter = orderLineKeys.iterator();
-    						   //   while (iter.hasNext())
-    						    //	  changeOrderLineCancellation(orderHeaderKey, iter.next().toString(), env);
-								
-									Iterator<Element> iter = orderLineObjects.iterator();
+    							Iterator<String> iter = orderLineKeys.iterator();
     						      while (iter.hasNext())
-    						    	  changeOrderLineCancellation(orderHeaderKey, iter.next().getAttribute(ATTR_CONDITION_VARIBALE1).toString(), iter.next().getAttribute(ATTR_ORDER_LINE_KEY).toString(), env,strItemId,strOrderedQty,strShipNode,strCustPONo);
+    						    	  changeOrderLineCancellation(orderHeaderKey, iter.next().toString(), env);
     						}
     					}
     				}
@@ -192,77 +162,10 @@ public class VSICancelPickedOrders extends VSIBaseCustomAPI implements VSIConsta
 			e.printStackTrace();
 		}
 	}
-	public void changeOrderLineCancellation(String orderHeaderKey, String ConditionVariable1, String orderLineKey, YFSEnvironment env, String strItemId, String strOrderedQty, String strShipNode, String strCustPONo)
+	public void changeOrderLineCancellation(String orderHeaderKey, String orderLineKey, YFSEnvironment env)
 	{
 		try
-		{ 
-			int totalNumberOfRecords = 0;
-			log.info("Invoking changeOrderLineCancellation => OH Key "+orderHeaderKey+" Con Var "+ConditionVariable1+" orderLineKey "+orderLineKey);
-			
-			if(ConditionVariable1.equalsIgnoreCase("Y")){
-				Document getShipmentListInputDoc = SCXmlUtil.createDocument(ELE_SHIPMENT);
-				Element eleShipment = getShipmentListInputDoc.getDocumentElement();
-				eleShipment.setAttribute(ATTR_ORDER_HEADER_KEY, orderHeaderKey);
-				
-				Document getShipmentListOuputDoc = VSIUtils.invokeAPI(env, TEMPLATE_SHIPMENT_LIST, API_GET_SHIPMENT_LIST, getShipmentListInputDoc);
-				Element shipments = (Element) getShipmentListOuputDoc.getElementsByTagName(ELE_SHIPMENTS).item(0);					
-				totalNumberOfRecords = Integer.parseInt(shipments.getAttribute(ATTR_TOTAL_NUMBER_OF_RECORDS));
-				NodeList shipmentNode = getShipmentListOuputDoc.getElementsByTagName(ELE_SHIPMENT);				
-				int shipmentNodeLength = shipmentNode.getLength();
-				log.info("totalNumberOfRecords => OH Key"+totalNumberOfRecords);
-				if (totalNumberOfRecords > 0) {				
-				for(int l=0; l< shipmentNodeLength; l++)
-				{
-					Element shipmentEle = (Element) getShipmentListOuputDoc.getElementsByTagName(ELE_SHIPMENT).item(l);
-					String shipmentkey = shipmentEle.getAttribute(ATTR_SHIPMENT_KEY);
-					
-					Document getChangeShipmentInputDoc = SCXmlUtil.createDocument(ELE_SHIPMENT);
-					Element eleChngShipment = getChangeShipmentInputDoc.getDocumentElement();
-					eleChngShipment.setAttribute(ATTR_SHIPMENT_KEY, shipmentkey);
-					eleChngShipment.setAttribute(ATTR_ACTION, "Cancel");
-					
-					log.info("changeShipment API Input: "+SCXmlUtil.getString(getChangeShipmentInputDoc));
-					
-					Document docOutChangeShipment = VSIUtils.invokeAPI(env, VSIConstants.API_CHANGE_SHIPMENT,
-							getChangeShipmentInputDoc);
-					
-					log.info("changeShipment API Output: "+SCXmlUtil.getString(docOutChangeShipment));
-					
-				}
-				}
-				
-				//SOM Restock changes -- Start
-				String strQueueId="VSI_RESTOCK_"+strShipNode;
-				Document docInboxIn=XMLUtil.createDocument(ELE_INBOX);
-				Element eleInboxIn=docInboxIn.getDocumentElement();
-				eleInboxIn.setAttribute(ATTR_ACTIVE_FLAG, FLAG_Y);
-				eleInboxIn.setAttribute(ATTR_ORDER_HEADER_KEY, orderHeaderKey);
-				eleInboxIn.setAttribute(ATTR_ORDER_LINE_KEY, orderLineKey);
-				eleInboxIn.setAttribute(ATTR_ORDER_NO, strCustPONo);
-				eleInboxIn.setAttribute(ATTR_EXCEPTION_TYPE, "Restock");
-				eleInboxIn.setAttribute(ATTR_QUEUE_ID, strQueueId);
-				eleInboxIn.setAttribute(ATTR_SHIPNODE_KEY, strShipNode);
-				Element eleInbxRfrncsLst=SCXmlUtil.createChild(eleInboxIn, ELE_INBOX_REFERANCES_LIST);
-				Element eleItemReference=SCXmlUtil.createChild(eleInbxRfrncsLst, ELE_INBOX_REFERANCES);
-				eleItemReference.setAttribute(ATTR_NAME, ATTR_ITEM_ID);
-				eleItemReference.setAttribute(ATTR_REFERENCE_TYPE, "TEXT");
-				eleItemReference.setAttribute(ATTR_VALUE, strItemId);
-				Element eleQtyReference=SCXmlUtil.createChild(eleInbxRfrncsLst, ELE_INBOX_REFERANCES);
-				eleQtyReference.setAttribute(ATTR_NAME, "Qty");
-				eleQtyReference.setAttribute(ATTR_REFERENCE_TYPE, "TEXT");
-				eleQtyReference.setAttribute(ATTR_VALUE, strOrderedQty);
-				
-				log.info("createException API Input: "+SCXmlUtil.getString(docInboxIn));				
-				
-				VSIUtils.invokeAPI(env, API_CREATE_EXCEPTION, docInboxIn);
-				
-				log.info("createException API was invoked successfully");
-				
-				//SOM Restock changes -- End
-		
-		}
-		
-		
+		{
 		Document changeOrderDoc = SCXmlUtil.createDocument(ELE_ORDER);
 		Element eleOrder = changeOrderDoc.getDocumentElement();
 		eleOrder.setAttribute(ATTR_OVERRIDE, VSIConstants.FLAG_Y);
@@ -274,12 +177,7 @@ public class VSICancelPickedOrders extends VSIBaseCustomAPI implements VSIConsta
 		//Prod Issue Fix: Start
 		eleOrder.setAttribute(ATTR_MODIFICATION_REASON_CODE, NO_CUSTOMER_PICK);
 		//Prod Issue Fix: End
-		
-		log.info("changeOrder API Input: "+SCXmlUtil.getString(changeOrderDoc));
-		
 		VSIUtils.invokeAPI(env, API_CHANGE_ORDER, changeOrderDoc);
-		
-		log.info("changeOrder API was invoked successfully");
 		}
 		catch(Exception e)
 		{

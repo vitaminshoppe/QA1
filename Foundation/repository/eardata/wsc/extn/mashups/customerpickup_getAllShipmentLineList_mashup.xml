@@ -25,10 +25,10 @@
                                 <PrimaryInformation
                                     ExtendedDisplayDescription=""
                                     ImageID="" ImageLabel="" ImageLocation=""/>
-                                <ClassificationCodes Model=""/>
 								<ItemAliasList>
-								 <ItemAlias AliasValue="" AliasName=""/>
-								 </ItemAliasList>
+									<ItemAlias AliasValue="" AliasName=""/>
+                                </ItemAliasList>
+                                <ClassificationCodes Model=""/>
                             </ItemDetails>
                         </OrderLine>
                     </ShipmentLine>

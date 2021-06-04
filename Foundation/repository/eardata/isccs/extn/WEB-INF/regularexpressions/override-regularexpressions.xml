@@ -1,0 +1,3 @@
+<RegularExpressions>
+<RegularExpression id="sc-cookie-value-pattern" javaPattern="^[a-zA-Z0-9.!\-\/+=_ :\^]*$" jsPattern="^[a-zA-Z0-9.!\-\/+=_ :\^]*$"/>
+</RegularExpressions>

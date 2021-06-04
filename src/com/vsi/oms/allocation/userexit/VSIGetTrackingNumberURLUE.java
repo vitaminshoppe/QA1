@@ -67,6 +67,11 @@ public class VSIGetTrackingNumberURLUE implements YCDGetTrackingNumberURLUE,VSIC
 						eleCommonCodeInput.setAttribute(ATTR_CODE_TYPE, TRACKING_COMMON_CODE_FEDEX);
 					}
 					//OMS-2719: END
+					//OMS-2903: START
+					else if(!(YFCCommon.isVoid(strCarrier)) && strCarrier.equalsIgnoreCase(SCAC_DHL)){
+						eleCommonCodeInput.setAttribute(ATTR_CODE_TYPE, TRACKING_COMMON_CODE_DHL);
+					}
+					//OMS-2903: End
 					//Invoke common code list based on the carrier or carrier service
 					String strCodeLongDesc =null;
 					if(!YFCCommon.isVoid(eleCommonCodeInput.getAttribute(ATTR_CODE_TYPE))){

@@ -10,15 +10,21 @@
 			<OrderLine CustomerPONo="" DeliveryMethod=""
 				OrderHeaderKey="" OrderLineKey="" LineType="" OrderedQty=""
 				ReqDeliveryDate="" ReqShipDate="" SCAC="" ScacAndService=""
-				ShipNode="" PrimeLineNo="" SubLineNo="">
+				ShipNode="" PrimeLineNo="" SubLineNo="" CarrierServiceCode="" >
 				
 				
-				<Item ItemDesc="" ItemID="" ProductClass="" UnitOfMeasure="" />
+				<Item ItemDesc="" ItemID="" ItemSize="" ProductClass="" UnitOfMeasure="" />
 					
 				
 				<ItemDetails>
 				 <Extn ExtnActSkuID="" ExtnBrand="" ExtnBrandTitle="" ExtnItemSize="" ExtnItemType="" ExtnItemUOM=""/>
 				</ItemDetails>
+				
+				<LineCharges>
+					<LineCharge>
+						<Extn/>
+					</LineCharge>
+				</LineCharges>
 
 				<PersonInfoShipTo AddressLine1="" AddressLine2=""
 					AddressLine3="" AddressLine4="" AddressLine5="" AddressLine6=""
@@ -35,9 +41,17 @@
 					OptionPrice="" PercentProfitMargin="" PricingQty=""
 					ShippingBaseCharge="" ShippingCharges="" ShippingDiscount=""
 					ShippingTotal="" Tax="" UnitPrice="" />
+					
+				 <Promotions>
+			       <Promotion Description="" />
+		         </Promotions>
 			
 			</OrderLine>
 		</OrderLines>
+		
+		<Promotions>
+			<Promotion Description="" />
+		</Promotions>
 
 		<PaymentMethods>
 			<PaymentMethod CreditCardExpDate="" CreditCardName=""
@@ -48,6 +62,9 @@
 				TotalCharged="" TotalAuthorized="">
 			</PaymentMethod>
 		</PaymentMethods>
+		<HeaderCharges>
+			<HeaderCharge/>
+		</HeaderCharges>
 		<PersonInfoBillTo AddressLine1="North Bergen"
 			AddressLine2="" AddressLine3="" AddressLine4="" AlternateEmailID=""
 			Beeper="" City="" Company="" Country="" DayPhone="" Department=""
@@ -55,9 +72,7 @@
 			MiddleName="" MobilePhone="" OtherPhone="" PersonID="" State=""
 			Suffix="" ZipCode="" />
 		
-		<OverallTotals GrandCharges="" GrandDiscount=""
-			GrandShippingCharges="" GrandShippingDiscount="" GrandShippingTotal=""
-			GrandTax="" GrandTotal="" LineSubTotal="" />
+		<OverallTotals/>
 			
 	</Order>
 </OrderList>

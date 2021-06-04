@@ -394,21 +394,6 @@
             </Template>
         </API>
     </mashup>
-    <mashup id="orderSummary_getCompleteOrderDetails">
-        <API Name="getCompleteOrderDetails">
-            <Input/>
-            <Template>
-                <Order OrderName="">
-                    <PriceInfo/>
-                    <OverallTotals/>
-                    <Extn ExtnIsMigrated=""/>
-                    <OrderLines>
-                        <OrderLine DeliveryMethod=""/>
-                    </OrderLines>
-                </Order>
-            </Template>
-        </API>
-    </mashup>
     <mashup id="returnSummary_getCompleteOrderDetails">
         <API Name="getCompleteOrderDetails">
             <Input/>
@@ -473,6 +458,14 @@
 					</LineCharges>
 					<!--  OMS-1449 : END-->
                     <Extn ExtnIsMigrated=""  ExtnTotalDiscount="" ExtnTotalTax="" ExtnLineTotal=""/>
+					<Shipnode>
+                        <ShipNodePersonInfo AddressLine1=""
+                            AddressLine2="" AddressLine3=""
+                            AddressLine4="" AddressLine5=""
+                            AddressLine6="" AlternateEmailID="" City=""
+                            Country="" DayPhone="" EMailID=""
+                            EveningPhone="" FirstName="" LastName="" MiddleName=""/>
+                    </Shipnode>
                 </OrderLine>
             </Template>
         </API>

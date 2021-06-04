@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ScreenBundle
+    screenBundleId="extn.components.shipment.summary.ShipmentSummaryExtnBundle" screenId="extn.components.shipment.summary.ShipmentSummaryExtn">
+    <BundleEntries>
+        <BundleEntry bundleEntryId="lnkBRP_Button_label"
+            bundleKey="extn_Begin_Pick_Pack"
+            bundleValueFn="_scSimpleBundle" property="label"
+            type="WIDGET" uId="lnkBRP"/>
+        <BundleEntry bundleEntryId="extn_paymentmethod_DataLabel_label"
+            bundleKey="extn_Payment_Method"
+            bundleValueFn="_scSimpleBundle" property="label"
+            type="WIDGET" uId="extn_paymentmethod"/>
+    </BundleEntries>
+</ScreenBundle>

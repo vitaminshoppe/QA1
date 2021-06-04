@@ -41,12 +41,18 @@ function(
 			var payTechAttr = _scModelUtils.hasAttributeInModelPath("Order.PaymentTechOrderId",root);					
 			var trackingNoAttr = _scModelUtils.hasAttributeInModelPath("Order.TrackingNo",root);
 			var mkpCustPOAttr = _scModelUtils.hasAttributeInModelPath("Order.MarketPlaceCustPONo",root);
+			var whlsaleCustPOAttr = _scModelUtils.hasAttributeInModelPath("Order.WholesaleCustPONo",root);
 
 			 if(mkpCustPOAttr) 
 			 {
 				 root.Order.CustomerPONo=root.Order.MarketPlaceCustPONo;
 				delete root.Order["MarketPlaceCustPONo"];
-			 }					
+			 }	
+			if(whlsaleCustPOAttr) {
+				root.Order.CustomerPONo=root.Order.WholesaleCustPONo;
+				root.Order.CustomerPONoQryType="FLIKE";
+				delete root.Order["WholesaleCustPONo"];
+			}
 
 			if(trackingNoAttr){
 

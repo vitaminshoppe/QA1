@@ -1,11 +1,11 @@
 package com.vsi.oms.api;
-
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import com.sterlingcommerce.baseutil.SCXmlUtil;
-import com.vsi.oms.shipment.api.VSIUpdateTrailerInInvoice;
+
 import com.vsi.oms.utils.VSIConstants;
 import com.vsi.oms.utils.VSIUtils;
 import com.vsi.oms.utils.XMLUtil;
@@ -15,7 +15,7 @@ import com.yantra.yfs.japi.YFSEnvironment;
 
 public class VSIWholesaleSendInvoice implements VSIConstants {
 
-	private YFCLogCategory log = YFCLogCategory.instance(VSIUpdateTrailerInInvoice.class);
+	private YFCLogCategory log = YFCLogCategory.instance(VSIWholesaleSendInvoice.class);
 
 	public Document sendInvoiceInformation(YFSEnvironment env, Document inXML) throws Exception {
 
@@ -69,9 +69,42 @@ public class VSIWholesaleSendInvoice implements VSIConstants {
 				String strIsLastInvoiceForOrder = SCXmlUtil.getXpathAttribute(eleInDoc, "/InvoiceDetail/InvoiceHeader/Extn/@ExtnIsLastInvoiceForOrder");
 
 				if (strIsLastInvoiceForOrder.equalsIgnoreCase(FLAG_Y)) {
-
+					
+					
 					docOutputOrderInvoiceList = getdocOutputOrderInvoiceListOrder(env, strOrderHeaderKey,
 							strShipmentKeyIn);
+					
+				
+					
+			//Wholesale order level change - start
+					
+					
+					Document docShipment = SCXmlUtil.createDocument(VSIConstants.ELE_SHIPMENT);
+					Element eleShip = docShipment.getDocumentElement();		
+					eleShip.setAttribute(VSIConstants.ATTR_ORDER_HEADER_KEY, strOrderHeaderKey);
+					
+					Document docOutputShipment = VSIUtils.invokeService(env,SERVICE_GET_SHIPMENT_LIST_FOR_ORDER_INV, docShipment);
+					
+					
+					Element eleOutShipments = docOutputShipment.getDocumentElement();
+					Element eleOutShipment=(Element) eleOutShipments.getElementsByTagName(ELE_SHIPMENT).item(0);				
+					
+					Element eleInvoiceHeader = (Element) docOutputOrderInvoiceList.getElementsByTagName(ELE_INVOICE_HEADER).item(0);						
+					SCXmlUtil.importElement(eleInvoiceHeader, eleOutShipment);
+					
+					Document docShipmentLine = SCXmlUtil.createDocument(VSIConstants.ELE_SHIPMENT_LINE);
+					Element eleShipLine = docShipmentLine.getDocumentElement();		
+					eleShipLine.setAttribute(VSIConstants.ATTR_ORDER_HEADER_KEY, strOrderHeaderKey);
+					
+					Document docOutputShipmentLine = VSIUtils.invokeService(env,SERVICE_GET_SHIPMENT_LINE, docShipmentLine);
+					Element eleOutShipmentLine = docOutputShipmentLine.getDocumentElement();
+					
+					Element eleInShipment = (Element) docOutputOrderInvoiceList.getElementsByTagName(ELE_SHIPMENT).item(0);						
+					SCXmlUtil.importElement(eleInShipment, eleOutShipmentLine);	
+						
+												
+				//Wholesale order level change - End
+					
 				}
 			}
 
@@ -128,6 +161,12 @@ public class VSIWholesaleSendInvoice implements VSIConstants {
 
 				// Update SendInvoice="Y" Flag in the Output
 				docOutputOrderInvoiceList.getDocumentElement().setAttribute(ATTR_SEND_INVOICE, "Y");
+				
+				// OMS-3497 Start
+				String strOHKey = SCXmlUtil.getXpathAttribute(eleInDoc,
+						"/InvoiceDetail/InvoiceHeader/Order/@OrderHeaderKey");
+				addBolNoAndExpectedDeliveryDate(env, docOutputOrderInvoiceList, strEnterpriseCode,strOHKey);
+				// OMS-3497 End
 
 				if (log.isDebugEnabled()) {
 					log.debug("Ouput XML docOutputOrderInvoiceList in class VSIWholesaleSendInvoice"
@@ -137,10 +176,74 @@ public class VSIWholesaleSendInvoice implements VSIConstants {
 			}
 
 		}
+		
+		
 
 		return docOutputOrderInvoiceList;
 
 	}
+
+	// OMS-3497 Start
+	/**
+	 * @param env
+	 * @param docOutputOrderInvoiceList
+	 * @param strEnterpriseCode
+	 * @throws Exception
+	 * @throws DOMException
+	 */
+	private void addBolNoAndExpectedDeliveryDate(YFSEnvironment env, Document docOutputOrderInvoiceList,
+			String strEnterpriseCode ,String strOrderHeaderKey) throws Exception, DOMException {
+		String strExtnBolNo = null;
+		String strExtnDeliveryDate = null;
+		
+		Document docInputOrderList = XMLUtil.createDocument(ELE_ORDER);
+		Element eleOrderInput = docInputOrderList.getDocumentElement();
+		eleOrderInput.setAttribute(ATTR_ORDER_HEADER_KEY, strOrderHeaderKey);
+		Document docOutputOrderList = VSIUtils.invokeService(env, VSIConstants.SERVICE_GET_ORDER_LIST,
+				docInputOrderList);
+		if (!YFCCommon.isVoid(docOutputOrderList)) {
+			Element eleOrderOutput = (Element) docOutputOrderList.getDocumentElement()
+					.getElementsByTagName(ELE_ORDER).item(0);
+			if (!YFCCommon.isVoid(eleOrderOutput)) {
+				
+
+				Element eleOrderExtn = SCXmlUtil.getChildElement(eleOrderOutput, ELE_EXTN);
+				if (!YFCCommon.isVoid(eleOrderExtn)) {
+					strExtnBolNo = eleOrderExtn.getAttribute(ATTR_EXTN_BOL_NO);
+					strExtnDeliveryDate = eleOrderExtn.getAttribute(ATTR_EXTN_DELIVERY_DATE);
+				}
+			}
+		}
+		
+		
+		Element eleCommonCode = (Element) (VSIUtils
+				.getCommonCodeList(env, ATTR_VSI_WH_BOLNO_FROM_UI, strEnterpriseCode, ATTR_DEFAULT).get(0));
+		if (!YFCCommon.isVoid(eleCommonCode)) {
+			String strCodeShortDesc = eleCommonCode.getAttribute(ATTR_CODE_SHORT_DESCRIPTION);
+			if (log.isDebugEnabled()) {
+				log.debug("VSIWholesaleProcessASNMessage.createAndPostASNMessage: CodeShortdesc is "
+						+ strCodeShortDesc);
+			}
+
+			if (strCodeShortDesc.equalsIgnoreCase(FLAG_Y)) {
+				
+				NodeList nlInovoiceHeaderElement = docOutputOrderInvoiceList.getElementsByTagName(ELE_INVOICE_HEADER);
+				for (int i = 0; i < nlInovoiceHeaderElement.getLength(); i++) {
+				Element	eleInvoiceHeader = (Element) nlInovoiceHeaderElement.item(i);					
+				Element eleShipment = SCXmlUtil.getChildElement(eleInvoiceHeader, ELE_SHIPMENT);				
+				if (!YFCCommon.isVoid(eleShipment) && (!YFCCommon.isVoid(strExtnDeliveryDate)))
+				{					
+				eleShipment.setAttribute(ATTR_EXPECTED_DELIVERY_DATE, strExtnDeliveryDate);
+				eleShipment.setAttribute(ATTR_BOL_NO, strExtnBolNo);
+				}
+				}
+
+			}
+		}
+		
+	}
+	
+	// OMS-3497 End
 
 	// Get OrderInvoiceListDtl For Trailer
 	private Document getdocOutputOrderInvoiceListTrailer(YFSEnvironment env, String strSendTrailerInvoice,
@@ -179,7 +282,7 @@ public class VSIWholesaleSendInvoice implements VSIConstants {
 		Document getOrderInvoiceListInXML = SCXmlUtil.createDocument(ELE_ORDER_INVOICE);
 		Element eleOrderInvoice = getOrderInvoiceListInXML.getDocumentElement();
 		SCXmlUtil.setAttribute(eleOrderInvoice, ATTR_ORDER_HEADER_KEY, strOrderHeaderKey);
-		SCXmlUtil.setAttribute(eleOrderInvoice, ATTR_INVOICE_TYPE, INVOICE_TYPE_SHIPMENT);
+		SCXmlUtil.setAttribute(eleOrderInvoice, ATTR_INVOICE_TYPE, "ORDER");
 
 		Document getOrderInvoiceListOutXML = VSIUtils.invokeService(env, SERVICE_GET_ORDER_INVOICE_LIST, getOrderInvoiceListInXML);
 
@@ -194,7 +297,7 @@ public class VSIWholesaleSendInvoice implements VSIConstants {
 			Document getOrderInvoiceDetailsOutXML = VSIUtils.invokeService(env, SERVICE_GET_ORDER_INVOICE_DETAILS, getOrderInvoiceDetailsInXML);
 			SCXmlUtil.importElement(docOrderInvoiveDtlOut.getDocumentElement(), getOrderInvoiceDetailsOutXML.getDocumentElement());
 		}
-
+       
 
 
 		return docOrderInvoiveDtlOut;

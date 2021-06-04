@@ -1,6 +1,8 @@
 package com.vsi.oms.api.order;
 
 import java.rmi.RemoteException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -11,6 +13,7 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.NodeList;
 
 import com.sterlingcommerce.baseutil.SCXmlUtil;
+import com.vsi.oms.condition.VSIMixedCartCondition;
 import com.vsi.oms.utils.VSIConstants;
 import com.vsi.oms.utils.VSIDBUtil;
 import com.vsi.oms.utils.VSIUtils;
@@ -28,6 +31,7 @@ import com.yantra.yfs.japi.YFSException;
 public class VSISendInvoice implements VSIConstants{
 //OMS-2510: End
 	private YFCLogCategory log = YFCLogCategory.instance(VSISendInvoice.class);
+	private static final String TAG = VSISendInvoice.class.getSimpleName();
 	YIFApi api;
 	public Document vsiSendInvoice(YFSEnvironment env, Document inXML)
 	throws Exception {
@@ -42,26 +46,42 @@ public class VSISendInvoice implements VSIConstants{
 		Element orderLineElement = (Element) inXML.getElementsByTagName("OrderLine").item(0);
 		//OMS-2510: Start
 		String strShipNodeKey=null;
-		boolean isBossShipment=true;
+		//OMS-3065/3066: Start
+		boolean isBossShipment=false;
+		boolean isShippingAppeasement = false;
+		boolean isMixcartOrder = false;
+		//OMS-3065/3066: End
 		Element eleInvHeaderShipment = (Element) inXML.getElementsByTagName(ELE_SHIPMENT).item(0);
 		Element eleShipNode = (Element) inXML.getElementsByTagName(ELE_SHIP_NODE).item(0);
-		strShipNodeKey=eleShipNode.getAttribute(ATTR_SHIPNODE_KEY);
-		if (VSI_VADC.equals(strShipNodeKey) || VSI_AZDC.equals(strShipNodeKey) )
+		//OMS-3037 : Start
+		if(!YFCObject.isVoid(eleShipNode))
 		{
-			isBossShipment=false;
+			strShipNodeKey=eleShipNode.getAttribute(ATTR_SHIPNODE_KEY);
+			if (VSI_VADC.equals(strShipNodeKey) || VSI_AZDC.equals(strShipNodeKey) || SHIP_NODE_CC.equals(strShipNodeKey))     //OMS-2970 Change
+			{
+				isBossShipment=false;
+			}
+			//OMS-3065/3066:Start
+			else
+				isBossShipment=true;
+			//OMS-3065/3066:End
 		}
+		//OMS-3037 : End
 		//OMS-2510: End
 		if (sInvoiceType.equalsIgnoreCase("CREDIT_MEMO") ||sInvoiceType.equalsIgnoreCase("INFO") || sInvoiceType.equalsIgnoreCase("DEBIT_MEMO")){
 			if(!YFCObject.isVoid(orderLineElement)){
 				strLineType = orderLineElement.getAttribute("LineType");
 				strShipNode=orderLineElement.getAttribute("ShipNode");
 				strCustomerOrderNo=orderLineElement.getAttribute("CustomerPONo");
+				isMixcartOrder = isMixCartOrderCondition(inXML);
+			}else {
+				isShippingAppeasement = true;
 			}
 
 				sDateInvoiced=invoiceHeaderele.getAttribute("DateInvoiced");
 				Element createShipmentEle = XMLUtil.appendChild(inXML, invoiceHeaderele, "Shipment", "");
 				
-				if(!YFCCommon.isVoid(strShipNode))
+				if(!isMixcartOrder && !YFCCommon.isVoid(strShipNode))
 				{
 					createShipmentEle.setAttribute("ShipNode", strShipNode);
 				}
@@ -139,6 +159,18 @@ public class VSISendInvoice implements VSIConstants{
 		}
 
 		
+		//Wholesale Order Invoice Changes
+		if (sInvoiceType.equalsIgnoreCase("ORDER"))
+				{
+			sDateInvoiced=invoiceHeaderele.getAttribute("DateInvoiced");
+			Element createShipmentEle = XMLUtil.appendChild(inXML, invoiceHeaderele, "Shipment", "");
+			createShipmentEle.setAttribute("ShipDate", sDateInvoiced);
+			createShipmentEle.setAttribute(VSIConstants.ATTR_DELIVERY_METHOD,VSIConstants.ATTR_DEL_METHOD_SHP);
+			Element createShipmentExtnEle = XMLUtil.appendChild(inXML, createShipmentEle, "Extn", "");
+			createShipmentExtnEle.setAttribute("ShipmentSeqNo", "1");
+				}
+		
+		//Wholesale Order Invoice Changes
 		
 		//Element shipmentElem = (Element) inXML.getElementsByTagName("Shipment").item(0);
 		//Commemted for  for Omni 2.0 jira 769
@@ -167,8 +199,73 @@ public class VSISendInvoice implements VSIConstants{
 		/*OMS-1220 changes : end */
 		/*OMS-1351/1352 changes -start */
 		String isDTCOrder = null;
-		isDTCOrder=orderExtnEle.getAttribute("ExtnDTCOrder");
+		//OMS-3034 Changes -- Start
+		//isDTCOrder=orderExtnEle.getAttribute("ExtnDTCOrder");
+		//OMS-3034 Changes -- End
 		/*OMS-1351/1352 changes -end */
+		//Mixed Cart Changes -- Start
+		//OMS-3034 Changes -- Start
+		//if(YFCCommon.isVoid(isDTCOrder)){
+		//OMS-3034 Changes -- End
+		
+		String strOrderType=orderEle.getAttribute(ATTR_ORDER_TYPE);
+		String strEntryType=orderEle.getAttribute(ATTR_ENTRY_TYPE);
+		//OMS-3082 Changes -- Start
+		String attrDelMeth = null;
+		if(!YFCCommon.isVoid(orderLineElement) && !isMixcartOrder)
+		{
+			attrDelMeth = orderLineElement.getAttribute(VSIConstants.ATTR_DELIVERY_METHOD);
+		}
+		/*Element eleShipment=SCXmlUtil.getChildElement(invoiceHeader, ELE_SHIPMENT);
+		String strDlvryMthd=eleShipment.getAttribute(ATTR_DELIVERY_METHOD);*/
+		//OMS-3082 Changes -- End
+		if(isShippingAppeasement || isMixcartOrder) {
+			if(log.isDebugEnabled()){
+				log.debug("Setting isDTCOrder flag as Y");
+			}
+			isDTCOrder=FLAG_Y;
+		}		
+		else if((ATTR_ORDER_TYPE_VALUE.equals(strOrderType)||MARKETPLACE.equals(strOrderType))&&								//OMS-3151 Changes
+				(WEB.equals(strEntryType)||ENTRYTYPE_CC.equals(strEntryType)||MARKETPLACE.equals(strEntryType))&&		//OMS-3151 Changes
+				ATTR_DEL_METHOD_SHP.equals(attrDelMeth)){		//OMS-3082 Changes
+			if(log.isDebugEnabled()){
+				log.debug("Setting isDTCOrder flag as Y");
+			}
+			isDTCOrder=FLAG_Y;
+		}else{
+			if(log.isDebugEnabled()){
+				log.debug("Setting isDTCOrder flag as N");
+			}
+			isDTCOrder=FLAG_N;
+		}
+		//OMS-3034 Changes -- Start
+		orderExtnEle.setAttribute(ATTR_EXTN_DTC_ORDER, isDTCOrder);
+		if(log.isDebugEnabled()){
+			log.debug("ExtnDTCOrder attribute is stamped on the invoice");
+		}
+			
+		//}
+		//OMS-3034 Changes -- End
+		//Mixed Cart Changes -- End
+		//OMS-3011 Changes -- Start
+		String enteredBy=null;
+		Element orderElement = (Element) inXML.getElementsByTagName(VSIConstants.ELE_ORDER).item(0);
+		enteredBy=orderElement.getAttribute(VSIConstants.ATTR_ENTERED_BY);
+		
+		if(!isMixcartOrder  && isBossShipment && ATTR_DEL_METHOD_SHP.equals(attrDelMeth) && !"RETURN".equals(sInvoiceType) && SHIP_NODE_6101_VALUE.equals(enteredBy)){		//OMS-3076 Changes		//OMS-3082 Changes
+			if(log.isDebugEnabled()){
+				log.debug("BOSS order and hence EnteredBy attribute is stamped as 6102 on the invoice");
+			}
+			orderEle.setAttribute(ATTR_ENTERED_BY, SHIP_NODE_6102_VALUE);
+			//OMS-3173 Changes -- Start
+			enteredBy=SHIP_NODE_6102_VALUE;
+			//OMS-3173 Changes -- End
+		}else if(!(MARKETPLACE.equals(strOrderType) || strOrderType.equalsIgnoreCase(VSIConstants.ATTR_ORDER_TYPE_POS)) && (isMixcartOrder || isShippingAppeasement)) {
+			orderEle.setAttribute(ATTR_ENTERED_BY, SHIP_NODE_6101_VALUE);
+			//OMS-3173 Changes -- Start
+			enteredBy=SHIP_NODE_6101_VALUE;
+		}
+		//OMS-3011 Changes -- End
 		String invoiceKey = invoiceHeader.getAttribute("OrderInvoiceKey");
 		String OHK = orderEle.getAttribute(VSIConstants.ATTR_ORDER_HEADER_KEY);
 		String returnSeqId = invoiceHeader.getAttribute("ReturnSeqIdentifier");
@@ -176,15 +273,9 @@ public class VSISendInvoice implements VSIConstants{
 		
 		//Start: Added during Payment Changes added  04-27-2017 
 		// Setting shipnode for SHP virtual store orders
-		String enteredBy=null;
-		Element orderElement = (Element) inXML.getElementsByTagName(VSIConstants.ELE_ORDER).item(0);
-		enteredBy=orderElement.getAttribute(VSIConstants.ATTR_ENTERED_BY);
+		
 		//String attrOrderType = inXML.getDocumentElement().getAttribute(VSIConstants.ATTR_ORDER_TYPE);
-		String attrDelMeth = null;
-		if(!YFCCommon.isVoid(orderLineElement))
-		{
-			attrDelMeth = orderLineElement.getAttribute(VSIConstants.ATTR_DELIVERY_METHOD);
-		}
+		
 		
 		if(YFCCommon.isVoid(attrDelMeth) && "Y".equals(isDTCOrder))
 		{
@@ -220,10 +311,22 @@ public class VSISendInvoice implements VSIConstants{
 		String seqNum =VSIConstants.SEQ_VSI_SEQ_TRANID;
 		String shipNodePadded= "";
 		
-		
+		//SA Changes -- Start
+		String strRegisterNo="";
+		//SA Changes -- End
 		if(!YFCCommon.isVoid(returnSeqId))
 		{
 			seqNum = seqNum +"5_";
+			//SA Changes -- Start
+			strRegisterNo="5";
+			printLogs("Inside If condition, RegisterNo is set as 5");
+			//SA Changes -- End
+		}else if(!(MARKETPLACE.equals(strOrderType) || strOrderType.equalsIgnoreCase(VSIConstants.ATTR_ORDER_TYPE_POS)) && (isShippingAppeasement || isMixcartOrder)) {
+			seqNum = seqNum +"5_";
+			//SA Changes -- Start
+			strRegisterNo="5";
+			printLogs("Inside Else If condition, RegisterNo is set as 5");
+			//SA Changes -- End
 		}
 		else
 		{
@@ -235,6 +338,10 @@ public class VSISendInvoice implements VSIConstants{
 					if(log.isDebugEnabled()){
 						log.debug("BOSS ReOrders, seqNum"+seqNum);
 					}
+					//SA Changes -- Start
+					strRegisterNo="98";
+					printLogs("Inside condition for BOSS Shipment for Reorder, RegisterNo is set as 98");
+					//SA Changes -- End
 			} 
 			else if(isBossShipment && !YFCCommon.isVoid(isSubscriptionOrder) && FLAG_Y.equals(isSubscriptionOrder) && (ATTR_DEL_METHOD_SHP.equalsIgnoreCase(attrDelMeth)&& !YFCCommon.isVoid(attrDelMeth)))
 			{
@@ -242,6 +349,10 @@ public class VSISendInvoice implements VSIConstants{
 				if(log.isDebugEnabled()){
 					log.debug("BOSS Subscription Order, seqNum"+seqNum);
 				}
+				//SA Changes -- Start
+				strRegisterNo="97";
+				printLogs("Inside condition for BOSS Shipment for Subscription Order, RegisterNo is set as 97");
+				//SA Changes -- End
 				
 			}
 			else if(isBossShipment && !YFCCommon.isVoid(isOrigADPOrder) && FLAG_Y.equals(isOrigADPOrder) && (ATTR_DEL_METHOD_SHP.equalsIgnoreCase(attrDelMeth)&& !YFCCommon.isVoid(attrDelMeth)))
@@ -250,14 +361,22 @@ public class VSISendInvoice implements VSIConstants{
 				if(log.isDebugEnabled()){
 					log.debug("BOSS Template Order, seqNum"+seqNum);
 				}
+				//SA Changes -- Start
+				strRegisterNo="96";
+				printLogs("Inside condition for BOSS Shipment for Original ADP Order, RegisterNo is set as 96");
+				//SA Changes -- End
 				
-			}
+			}			
 			else if(isBossShipment && (ATTR_DEL_METHOD_SHP.equalsIgnoreCase(attrDelMeth)&& !YFCCommon.isVoid(attrDelMeth)))
 			{
 				seqNum = seqNum +"95_";
 				if(log.isDebugEnabled()){
 					log.debug("BOSS Order, seqNum"+seqNum);
 			}
+				//SA Changes -- Start
+				strRegisterNo="95";
+				printLogs("Inside condition for BOSS Shipment for DTC order, RegisterNo is set as 95");
+				//SA Changes -- End
 			}
 			/*OMS-1220 changes :start*/
 			else if(!YFCCommon.isVoid(strExtnReOrder) && VSIConstants.FLAG_Y.equals(strExtnReOrder) && VSIConstants.ATTR_DEL_METHOD_SHP.equalsIgnoreCase(attrDelMeth))
@@ -267,6 +386,10 @@ public class VSISendInvoice implements VSIConstants{
 				if(log.isDebugEnabled()){
 					log.debug("ReOrders, seqNum"+seqNum);
 				}
+				//SA Changes -- Start
+				strRegisterNo="92";
+				printLogs("Inside condition for DTC Reorder, RegisterNo is set as 92");
+				//SA Changes -- End
 			} 
 			/*OMS-1220 changes :end*/
 			/*OMS-1352 changes start*/
@@ -276,6 +399,10 @@ public class VSISendInvoice implements VSIConstants{
 				if(log.isDebugEnabled()){
 					log.debug("strExtnReOrder:Y and isDTCOrder: N or null, seqNum"+seqNum);
 				}
+				//SA Changes -- Start
+				strRegisterNo="94";
+				printLogs("Inside condition for Non-DTC Reorder, RegisterNo is set as 94");
+				//SA Changes -- End
 				
 			}
 			/*OMS-1352 changes end*/
@@ -286,32 +413,73 @@ public class VSISendInvoice implements VSIConstants{
 				if(log.isDebugEnabled()){
 					log.debug("isSubscriptionOrder:Y and isDTCOrder: N or null, seqNum"+seqNum);
 				}
+				//SA Changes -- Start
+				strRegisterNo="93";
+				printLogs("Inside condition for Non-DTC Subscription Order, RegisterNo is set as 93");
+				//SA Changes -- End
 				
 			}
 			/*OMS-1351 changes end*/
 			else if(!YFCCommon.isVoid(isSubscriptionOrder) && "Y".equals(isSubscriptionOrder))
 			{
 				seqNum = seqNum +"91_";
+				//SA Changes -- Start
+				strRegisterNo="91";
+				printLogs("Inside condition for Subscription Order, RegisterNo is set as 91");
+				//SA Changes -- End
 			} // Auto delivery orders get 91_
+			//OMS-3158 Changes -- Start
+			else if(!YFCCommon.isVoid(isOrigADPOrder) && FLAG_Y.equals(isOrigADPOrder) && (ATTR_DEL_METHOD_PICK.equalsIgnoreCase(attrDelMeth)&& !YFCCommon.isVoid(attrDelMeth)))
+			{
+				seqNum = seqNum +"99_";
+				if(log.isDebugEnabled()){
+					log.debug("BOPUS Template Order, seqNum"+seqNum);
+				}
+				//SA Changes -- Start
+				strRegisterNo="99";
+				printLogs("Inside condition for ADP BOPUS order, RegisterNo is set as 99");
+				//SA Changes -- End
+			}
+			//OMS-3158 Changes -- End
 			//original ADP order changes done for OMS-857
 			else if(!YFCCommon.isVoid(isOrigADPOrder) && "Y".equals(isOrigADPOrder))
 			{
 				seqNum = seqNum +"9_";
+				//SA Changes -- Start
+				strRegisterNo="9";
+				printLogs("Inside condition for Original ADP Order, RegisterNo is set as 9");
+				//SA Changes -- End
 			}
 			else if(ordType != null && ordType.equalsIgnoreCase(VSIConstants.ATTR_ORDER_TYPE_POS)){
 				seqNum = seqNum+VSIConstants.ATTR_TRAN_SEQ_POS_PICK;
+				//SA Changes -- Start
+				strRegisterNo="88";
+				printLogs("Inside condition for POS Order, RegisterNo is set as 88");
+				//SA Changes -- End
 			}// All POS order get 88_
 			//OMS-2010 start
 			else if (!YFCCommon.isStringVoid(ordType)&&VSIConstants.WHOLESALE.equalsIgnoreCase(ordType)) {
 				seqNum = seqNum + VSIConstants.ATTR_TRAN_SEQ_WHOLESALE;
+				//SA Changes -- Start
+				strRegisterNo="1";
+				printLogs("Inside condition for Wholesale Order, RegisterNo is set as 1");
+				//SA Changes -- End
 			}
 			//OMS-2010 End
 			else if(!YFCObject.isVoid(attrDelMeth) && attrDelMeth.equalsIgnoreCase(VSIConstants.ATTR_DEL_METHOD_SHP)){
 				seqNum = seqNum +VSIConstants.ATTR_TRAN_SEQ_SHP;
+				//SA Changes -- Start
+				strRegisterNo="5";
+				printLogs("Inside condition for DTC Order, RegisterNo is set as 5");
+				//SA Changes -- End
 			}//All WEB Ship orders 5_
 			else 
 			{
 				seqNum = seqNum+VSIConstants.ATTR_TRAN_SEQ_WEB_PICK;
+				//SA Changes -- Start
+				strRegisterNo="89";
+				printLogs("RegisterNo is set as 89");
+				//SA Changes -- End
 			}// WEB PICK and STS gets 89_
 			//End: Modified during Payment Changes added  04-27-2017 
 		}
@@ -440,6 +608,10 @@ public class VSISendInvoice implements VSIConstants{
 				shipNodePadded = ("00000" + sShipNode).substring(sShipNode.trim()
 						.length());
 			seqNum = seqNum+shipNodePadded;
+			//SA Changes -- Start
+			String strStoreNo=shipNodePadded;
+			printLogs("StoreNo is set as "+strStoreNo);
+			//SA Changes -- End
 			//OMS-1353 : Start
 			boolean isChangeShipmentReqForTran=false;
 			boolean isChangeShipmentReqForSeq=false;
@@ -479,9 +651,18 @@ public class VSISendInvoice implements VSIConstants{
 			orderInvoice.setAttribute("OrderInvoiceKey", invoiceKey);
 			Element extnElement = changeOrderInvoiceDocument.createElement(VSIConstants.ELE_EXTN);
 			extnElement.setAttribute("ExtnTransactionNo", tranNumber);
+			//SA Changes -- Start
+			extnElement.setAttribute("ExtnRegisterNo", strRegisterNo);
+			extnElement.setAttribute("ExtnStoreNo", strStoreNo);
+			//SA Changes -- End
 			orderInvoice.appendChild(extnElement);
-
+			//SA Changes -- Start
+			printLogs("changeOrderInvoice API input is "+SCXmlUtil.getString(changeOrderInvoiceDocument));
+			//SA Changes -- End
 			api.invoke(env, "changeOrderInvoice", changeOrderInvoiceDocument);
+			//SA Changes -- Start
+			printLogs("changeOrderInvoice API is invoked successfully");
+			//SA Changes -- End
 			//OMS-1353 : Start
 			if (isChangeShipmentReqForSeq ||isChangeShipmentReqForTran)
 			{
@@ -726,4 +907,71 @@ public class VSISendInvoice implements VSIConstants{
 			return strShipmentSeqNo;
 		}
 		//OMS-1353 : End
+		
+		private boolean isMixCartOrderCondition (Document inXml) {
+			Element invoiceHeaderEle=inXml.getDocumentElement();
+			boolean bMixedCart = false;
+			boolean bSTHLinePresent=false;
+			boolean bBOPUSOrSTSPresent=false;
+			boolean bMultiNodePresent=false;
+			NodeList nlLineDetail=invoiceHeaderEle.getElementsByTagName("LineDetail");
+			Element orderEle = (Element) invoiceHeaderEle.getElementsByTagName(VSIConstants.ELE_ORDER).item(0);
+			String strOrderType=orderEle.getAttribute(ATTR_ORDER_TYPE);
+			if(VSIConstants.ATTR_ORDER_TYPE_POS.equals(strOrderType)){
+				
+				printLogs("POS Order, so returning False");
+				
+				bMixedCart=false;
+				
+				return bMixedCart;
+			}
+			String strPreviousNode="";
+			if(!YFCObject.isVoid(nlLineDetail)){
+				int iOrdLneLnth=nlLineDetail.getLength();
+				if(iOrdLneLnth<2){
+					printLogs("There are not enough lines on the order for a Mixed Cart, so returning False");
+					
+					bMixedCart=false;
+					
+					return bMixedCart;
+				}
+				for (int j = 0; j < nlLineDetail.getLength(); j++) {
+					Element eleLineDetail = (Element) nlLineDetail.item(j);
+					Element eleOrderLine =(Element) eleLineDetail.getElementsByTagName("OrderLine").item(0);
+					String strPrimeLineNo=eleOrderLine.getAttribute(VSIConstants.ATTR_PRIME_LINE_NO);
+					String strLineType=eleOrderLine.getAttribute(VSIConstants.ATTR_LINE_TYPE);
+					if(VSIConstants.LINETYPE_STH.equals(strLineType)){
+						bSTHLinePresent=true;
+					}else if(VSIConstants.LINETYPE_PUS.equals(strLineType) || VSIConstants.LINETYPE_STS.equals(strLineType)){
+						bBOPUSOrSTSPresent=true;
+						String strShipNode=eleOrderLine.getAttribute(VSIConstants.ATTR_SHIP_NODE);
+						if(YFCCommon.isVoid(strPreviousNode)){
+							printLogs("Setting the ShipNode value for the first time as "+strShipNode);
+							strPreviousNode=strShipNode;
+						}else if(!strPreviousNode.equals(strShipNode)){
+							printLogs("OrderLine with PrimeLineNo "+strPrimeLineNo+" with ShipNode "+strShipNode+" differnt from previous ShipNode "+strPreviousNode+", so setting MultiNode flag as true");
+							bMultiNodePresent=true;
+						}
+					}
+				}
+				printLogs("Value of bSTHLinePresent: "+bSTHLinePresent);
+				printLogs("Value of bBOPUSOrSTSPresent: "+bBOPUSOrSTSPresent);
+				printLogs("Value of bMultiNodePresent: "+bMultiNodePresent);
+			
+				if((bSTHLinePresent && bBOPUSOrSTSPresent) || bMultiNodePresent){
+					printLogs("Mixed Cart Scenario TRUE");
+					bMixedCart=true;
+				
+				}
+				}
+			return bMixedCart;
+			
+			
+		}
+		
+		private void printLogs(String mesg) {
+			if(log.isDebugEnabled()){
+				log.debug(TAG +" : "+mesg);
+			}
+		}
 }

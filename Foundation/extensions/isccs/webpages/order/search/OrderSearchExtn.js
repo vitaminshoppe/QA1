@@ -165,6 +165,13 @@ console.log("ORDER_SEARCH:	getOrderList input created after VSIGetAJBSettlementL
 					 targetModel.Order.CustomerPONo=targetModel.Order.MarketPlaceCustPONo;
 					delete targetModel.Order["MarketPlaceCustPONo"];
 				 }
+				if (!(_scBaseUtils.isVoid(targetModel.Order.WholesaleCustPONo))) 
+				 {
+					 targetModel.Order.CustomerPONo=targetModel.Order.WholesaleCustPONo;
+					 targetModel.Order.CustomerPONoQryType="FLIKE";
+					delete targetModel.Order["WholesaleCustPONo"];
+					
+				 }
 					_scBaseUtils.setAttributeValue("inputData", targetModel, args);
 					_scBaseUtils.setAttributeValue("argumentList", args, eventDefn);
 					_scEventUtils.fireEventToChild(this, "orderListScreen", "callListApi", eventDefn);

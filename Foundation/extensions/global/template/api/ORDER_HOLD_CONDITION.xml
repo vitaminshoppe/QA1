@@ -21,7 +21,7 @@ US Government Users Restricted Rights - Use, duplication or disclosure restricte
                 MobilePhone="" State="" Suffix="" Title="" ZipCode="" IsAddressesVerified="" PersonInfoKey="" />
 	
 	<OrderLines>
-		<OrderLine DeliveryMethod="" LineType=""/>
+		<OrderLine PrimeLineNo="" DeliveryMethod="" LineType="" ShipNode=""/>
 	</OrderLines>
 	<Extn ExtnSubscriptionOrder="" />
 	<PaymentMethods>

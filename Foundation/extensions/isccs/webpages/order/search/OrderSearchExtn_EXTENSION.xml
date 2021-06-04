@@ -17,6 +17,22 @@
                 _sc_extensibility_referenceUId="txt_orderNo2" label="$(_scBundle:extn_Order_)"/>
             <TextField _sc_extensibility_operation="change"
                 _sc_extensibility_referenceUId="txt_custPoNo" label="$(_scBundle:extn_Customer_PO_)"/>
+            <TextField _sc_extensibility_moveOrder="5"
+                _sc_extensibility_operation="insert"
+                _sc_extensibility_position="after"
+                _sc_extensibility_referenceUId="txt_custPoNo"
+                label="$(_scSimpleBundle:extn_Wholesale_Order)"
+                resourceId="VSIWHOLESALEORDERSEARCH"
+                selectOnClick="true" uId="extn_textfield_wholesalePONo">
+                <BindingData>
+                    <SourceBinding namespace="screenInput" path="Order.WholesaleCustPONo"/>
+                    <TargetBindings>
+                        <TargetBinding
+                            namespace="getAdvancedOrderList_input"
+                            path="Order.WholesaleCustPONo" scExtensibilityArrayItemId="extn_TargetBindings_0"/>
+                    </TargetBindings>
+                </BindingData>
+            </TextField>
             <TextField _sc_extensibility_moveOrder="2"
                 _sc_extensibility_operation="insert"
                 _sc_extensibility_position="before"

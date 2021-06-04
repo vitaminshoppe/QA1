@@ -1,7 +1,7 @@
 <OrderList TotalNumberOfRecords="" >
 <Order Status="" CustomerLastName="" OrderHeaderKey="" OrderNo="" CustomerFirstName="" CustomerPONo="" OrderDate="" EnteredBy="">
 <OrderLines>
-<OrderLine OrderLineKey="" LineType="" CustomerPONo=""  Status="" StatusQuantity="" MaxLineStatus="" ConditionVariable1="" >
+<OrderLine OrderLineKey="" LineType="" CustomerPONo=""  Status="" StatusQuantity="" MaxLineStatus="" ConditionVariable1="" ShipNode="">
 <Extn ExtnLastPickDate="" />
 <LinePriceInfo LineTotal=""/>
 </OrderLine>

@@ -89,7 +89,10 @@ public class VSISendSTHConfirmationEmail implements VSIConstants {
 					}
 				}
 				
-
+				String strShipmentKey = SCXmlUtil.getXpathAttribute(eleOrderInvoice, XPATH_INVOICE_SHIPMENTKEY);
+				log.info("strShipmentKey => "+strShipmentKey);
+				if (!YFCObject.isVoid(strShipmentKey))
+					env.setTxnObject(TRANS_OBJ_SHIPMENTKEY, strShipmentKey);
 				if (!YFCObject.isVoid(sTrackingNo)) {
 					env.setTxnObject("eTrackingValue", sTrackingNo);
 				}

@@ -1,7 +1,11 @@
 package com.vsi.oms.agent;
 
 import java.rmi.RemoteException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -265,21 +269,50 @@ public class VSISendRelease extends YCPBaseTaskAgent implements VSIConstants {
 			Element eleExtn = SCXmlUtil.getChildElement(docOrderRelease.getDocumentElement(), ELE_EXTN);
 			String strTransferNo = eleExtn.getAttribute(ATTR_EXTN_TRANSFER_NO);
 						
-			log.info("docOrderRelease before new logic => " +XMLUtil.getXMLString(docOrderRelease));
+			
 			Element orderReleaseElement = (Element) docOrderRelease.getElementsByTagName(ELE_ORDER_RELEASE).item(0);
 			String shipNodeAttr = orderReleaseElement.getAttribute(ATTR_SHIP_NODE);
-			log.info("shipNodeAttr => "+shipNodeAttr);
 			if((!shipNodeAttr.equalsIgnoreCase(SHIP_NODE_9004_VALUE) && !shipNodeAttr.equalsIgnoreCase(SHIP_NODE_9005_VALUE)) && (sDocumentType.equalsIgnoreCase(DOCUMENT_TYPE)))
 			{
 				if(YFCCommon.isVoid(strTransferNo))
 					{
 						docOrderRelease.getDocumentElement().setAttribute(ATTR_SFS_ALLOCATION, FLAG_Y);
-						docOrderRelease = VSIUtils.invokeService(env, SERVICE_JDA_FORCE_ALLOCATION_WEB_SERVICE, docOrderRelease);
-						log.info("Post SFS JDA docOrderRelease => " +XMLUtil.getXMLString(docOrderRelease));
-						createShipmentOnSendRelease(env,docOrderRelease);
-						log.info("Post createShipment");
+						docOrderRelease = VSIUtils.invokeService(env, SERVICE_JDA_FORCE_ALLOCATION_WEB_SERVICE, docOrderRelease);				
+						Document docGetCommonCodeList = XMLUtil.createDocument(VSIConstants.ELEMENT_COMMON_CODE);
+						Element eleCommonCode = docGetCommonCodeList.getDocumentElement();
+						eleCommonCode.setAttribute(ATTR_CODE_TYPE, SFS_SCAC_COMMON_CODE);
+						Document docGetCommonCodeListOutput = VSIUtils.invokeAPI(env, API_COMMON_CODE_LIST, docGetCommonCodeList);
+						String sfsCodeValue = "";
+						Element orderReleaseEle = (Element) docOrderRelease.getElementsByTagName(ELE_ORDER_RELEASE).item(0);
+						if(docGetCommonCodeListOutput != null)
+						{
+							Element elemCommonCode = (Element) docGetCommonCodeListOutput.getElementsByTagName(ELEMENT_COMMON_CODE).item(0);
+							sfsCodeValue = elemCommonCode.getAttribute(ATTR_CODE_VALUE);
+							if (!sfsCodeValue.equalsIgnoreCase(""))
+									orderReleaseEle.setAttribute(ATTR_SCAC,sfsCodeValue);
+						}
+						Element extnEle = (Element) docOrderRelease.getElementsByTagName(ELE_EXTN).item(0);
+						String transferNoValue = extnEle.getAttribute(ATTR_EXTN_TRANSFER_NO);
+						VSIProcessRelease processReleaseObj = new VSIProcessRelease();
+						processReleaseObj.invokeChangeRelease(env, docOrderRelease, transferNoValue, sfsCodeValue);
+						Element order = (Element) docOrderRelease.getElementsByTagName(ELE_ORDER).item(0);
+						Element personInfoBillTo = (Element) order.getElementsByTagName(ELE_PERSON_INFO_BILL_TO).item(0);
+						String name = personInfoBillTo.getAttribute(ATTR_FIRST_NAME);
+						String lastName = personInfoBillTo.getAttribute(ATTR_LAST_NAME);
+						name = name.concat(" ").concat(lastName);
+						String reqShipDate = orderReleaseEle.getAttribute(ATTR_REQ_SHIP_DATE);
+						SimpleDateFormat formatter = new SimpleDateFormat(YYYY_MM_DD_T_HH_MM_SS);
+						formatter.setTimeZone(TimeZone.getTimeZone(EST_TIME_ZONE));
+		                Calendar calculatedReqShipDate = Calendar.getInstance();
+		                calculatedReqShipDate.setTime(formatter.parse(reqShipDate));
+		                calculatedReqShipDate.add(Calendar.HOUR, 2);
+		                Date date = calculatedReqShipDate.getTime();
+		                String reqShipDateFinalValue = formatter.format(date);
+		                if(log.isDebugEnabled())
+		                	log.info("name => "+name+"reqShipDate => "+reqShipDate+"reqShipDateFinalValue => "+reqShipDateFinalValue);
+		                String carrierServiceCode = orderReleaseEle.getAttribute(ATTR_CARRIER_SERVICE_CODE);
+						createShipmentOnSendRelease(env,docOrderRelease,name,reqShipDateFinalValue,carrierServiceCode);
 						manageTaskQ(env, taskQKeyValue);
-						log.info("Post manageTaskQ");
 					}
 			}
 			else
@@ -287,7 +320,7 @@ public class VSISendRelease extends YCPBaseTaskAgent implements VSIConstants {
 				if(YFCCommon.isVoid(strTransferNo))
 					docOrderRelease = VSIUtils.invokeService(env, SERVICE_PROCESS_RELEASE, docOrderRelease);
 				
-				log.info("docOrderRelease => " +XMLUtil.getXMLString(docOrderRelease));
+				
 			// Send release to WMS
 			try {				
 					VSIUtils.invokeService(env, SERVICE_SEND_RELEASE_TO_WMS, docOrderRelease);
@@ -318,10 +351,8 @@ public class VSISendRelease extends YCPBaseTaskAgent implements VSIConstants {
 						else
 							itemId=itemEle.getAttribute(ATTR_ITEM_ID).toString()+" "+itemId;
 				}
-				log.info("WMS catch - itemId =>  "+ itemId);
 				if(itemId.length() >= 31)
 					itemId = itemId.substring(0,31).concat("...");
-				log.info("Truncated/Entire WMS catch - itemId =>  "+ itemId);
 				Document getOrderListInXML=XMLUtil.createDocument(ELE_ORDER);
 				Element getOrderListEle = getOrderListInXML.getDocumentElement();
 				getOrderListEle.setAttribute(ATTR_ORDER_HEADER_KEY,orderHeaderKey);
@@ -331,17 +362,17 @@ public class VSISendRelease extends YCPBaseTaskAgent implements VSIConstants {
 				VSIInvokeJDAWebservice jda = new VSIInvokeJDAWebservice();
 				jda.alertForJDASendReleaseFailure(env, itemId, orderNo, orderHeaderKey, ALERT_SEND_RELEASE_JDA_WMS_EXCEPTION_TYPE, ALERT_SEND_RELEASE_JDA_WMS_DETAIL_DESCRIPTION, ALERT_SEND_RELEASE_JDA_WMS_QUEUE);
 				VSIProcessRelease processReleaseObj = new VSIProcessRelease();
-				processReleaseObj.invokeChangeRelease(env, docOrderRelease, "");
+				processReleaseObj.invokeChangeRelease(env, docOrderRelease, "", "");
 				throw new YFSException(JDA_EXCEPTION_ERROR_CODE,JDA_EXCEPTION_ERROR_CODE,JDA_EXCEPTION_ERROR_MSG);
 			}
 			
-			log.info("Post WMS Success");
+			
 			Element extnEle = (Element) docOrderRelease.getElementsByTagName(ELE_EXTN).item(0);
 			String transferNoValue = extnEle.getAttribute(ATTR_EXTN_TRANSFER_NO);
 			VSIProcessRelease processReleaseObj = new VSIProcessRelease();
-			processReleaseObj.invokeChangeRelease(env, docOrderRelease, transferNoValue);
+			processReleaseObj.invokeChangeRelease(env, docOrderRelease, transferNoValue, "");
 			
-			log.info("Post Change Release");
+			
 			// Change status to SentToNode (3200.600)
 			Document docChngOrdStat = SCXmlUtil.createDocument(ELE_ORDER_STATUS_CHANGE);
 			Element eleChngOrdStat = docChngOrdStat.getDocumentElement();
@@ -358,7 +389,7 @@ public class VSISendRelease extends YCPBaseTaskAgent implements VSIConstants {
 			VSIUtils.invokeAPI(env, TEMPLATE_ORDER_STATUS_CHANGE_ORDER_RELEASE_KEY, API_CHANGE_ORDER_STATUS,
 					docChngOrdStat);
 			
-			log.info("Post Change Order Status");
+			
 			manageTaskQ(env, taskQKeyValue);
 				
 			}
@@ -494,7 +525,7 @@ public class VSISendRelease extends YCPBaseTaskAgent implements VSIConstants {
 		}
 	}
 	
-	public void createShipmentOnSendRelease(YFSEnvironment env, Document inXml)
+	public void createShipmentOnSendRelease(YFSEnvironment env, Document inXml, String name, String reqShipDateFinalValue, String carrierServiceCode)
     {
         try
         {
@@ -515,6 +546,12 @@ public class VSISendRelease extends YCPBaseTaskAgent implements VSIConstants {
         eleShipment.setAttribute(ATTR_ORDER_HEADER_KEY, orderHeaderKey);
         eleShipment.setAttribute(ATTR_SCAC, orderReleaseElement.getAttribute(ATTR_SCAC));
         eleShipment.setAttribute(ATTR_SHIP_NODE, orderReleaseElement.getAttribute(ATTR_SHIP_NODE));
+        eleShipment.setAttribute(ATTR_EXPECTED_SHIPMENT_DATE, reqShipDateFinalValue);
+        if(carrierServiceCode.equalsIgnoreCase(""))
+        	eleShipment.setAttribute(ATTR_CARRIER_SERVICE_CODE,STANDARD);
+        Element extnEle = createShipmentInput.createElement(ELE_EXTN);
+		extnEle.setAttribute(ATTR_EXTN_NAME, name);
+		eleShipment.appendChild(extnEle);
         Element eleShipmentLines = createShipmentInput.createElement(ELE_SHIPMENT_LINES);
         for(int i=0; i< orderLineNode.getLength(); i++)
         {
@@ -533,9 +570,9 @@ public class VSISendRelease extends YCPBaseTaskAgent implements VSIConstants {
             eleShipmentLines.appendChild(eleShipmentLine);
         }
         eleShipment.appendChild(eleShipmentLines);
-        log.info("createShipmentInput => " +XMLUtil.getXMLString(createShipmentInput));
+       
         Document docCreateShipment = VSIUtils.invokeAPI(env, API_CREATE_SHIPMENT,createShipmentInput);
-        log.info("docCreateShipment => " +XMLUtil.getXMLString(docCreateShipment));
+        
         }
         catch(Exception e)
         {

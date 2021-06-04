@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mashups>
+    <mashup
+        description="Call registerBarCodeForPacking api to pack the item"
+        endpoint="EP_CONFIG"
+        id="containerPack_registerBarCodeForPacking" mashuptype="XAPI"
+        skipDataProvider="false" transactional="true">
+        <classInformation name="com.ibm.wsc.shipment.container.pack.UpdateRegisterBarcodeForPackOutput"/>
+        <API Name="registerBarcodeForPacking">
+            <Input>
+                <BarCode BarCodeData="" BarCodeType="Item" DisplayLocalizedFieldInLocale="xml:CurrentUser:/User/@Localecode">
+                    <ContextualInfo
+                        EnterpriseCode="xml:CurrentStore:/Store/@EnterpriseCode" OrganizationCode="xml:CurrentStore:/Store/@ShipNode"/>
+                    <ShipmentContextualInfo ContainerScm=""
+                        SellerOrganizationCode="xml:CurrentStore:/Store/@EnterpriseCode"
+                        ShipNode="xml:CurrentStore:/Store/@ShipNode"
+                        ShipmentContainerKey="" ShipmentKey="" ShipmentNo=""/>
+                </BarCode>
+            </Input>
+            <Template>
+                <BarCode>
+                    <Shipment SellerOrganizationCode="" ShipNode=""
+                        ShipmentContainerizedFlag="" ShipmentKey=""
+                        ShipmentNo="" Status="">
+                        <ShipmentLine IsPackComplete=""
+                            OriginalQuantity="" PlacedQuantity=""
+                            Quantity="" ShipmentLineKey="" ShortageQty="">
+                            <OrderLine IsBundleParent=""
+                                ItemGroupCode="" KitCode="BUNDLE" KitCodeQryType="NE">
+                                <ItemDetails ItemGroupCode="" ItemID="" UnitOfMeasure="">
+                                    <PrimaryInformation
+                                    ExtendedDisplayDescription=""
+                                    ImageID="" ImageLabel="" ImageLocation=""/>
+                                    <ClassificationCodes Model=""/>
+                                    <ItemInstructionList>
+                                    <ItemInstruction
+                                    InstructionText="" InstructionType=""/>
+                                    </ItemInstructionList>
+									<ItemAliasList>
+								 <ItemAlias AliasValue="" AliasName=""/>
+								 </ItemAliasList>
+                                </ItemDetails>
+                            </OrderLine>
+                            <ContainerDetail ContainerDetailsKey=""
+                                Quantity="" QuantityPlaced=""
+                                ShipmentContainerKey=""
+                                ShipmentLineKey="" UnitOfMeasure=""/>
+                            <Instructions>
+                                <Instruction InstructionText=""
+                                    InstructionType="" SeqNo=""/>
+                            </Instructions>
+                        </ShipmentLine>
+                        <Containers TotalNumberOfRecords="">
+                            <Container ContainerNo="" ContainerScm="" ShipmentContainerKey=""/>
+                        </Containers>
+                    </Shipment>
+                </BarCode>
+            </Template>
+        </API>
+        <APINamespace
+            inputNS="containerPack_registerBarCodeForPacking_input" outputNS="containerPack_registerBarCodeForPacking_output"/>
+        <AlternateResourceIds>
+            <AlternateResourceId altResourceId="WSC000019"/>
+        </AlternateResourceIds>
+    </mashup>
+</mashups>

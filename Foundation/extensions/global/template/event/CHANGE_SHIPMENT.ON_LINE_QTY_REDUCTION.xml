@@ -100,7 +100,7 @@ US Government Users Restricted Rights - Use, duplication or disclosure restricte
     </Instructions>
     <ShipmentLines>
 		<ShipmentLine  ShipmentLineKey=" " ItemID=" " OrderHeaderKey=" " OrderLineKey=" " DocumentType="" OrderNo=" " OrderReleaseKey=" " PrimeLineNo=" " ProductClass=" " Quantity=" " OverShipQuantity=" " ActualQuantity=" " ReleaseNo=" " ShipmentKey=" " UnitOfMeasure=" " ShipmentLineNo=" " SubLineNo=" " ItemDesc=" " Segment=" " SegmentType=" " isHistory="" QuantityReduced="" >
-			<Order BillToID="" Createts="" CustomerPONo="" DocumentType="" EnteredBy="" EnterpriseCode="" EntryType="" MaxOrderStatus="" MaxOrderStatusDesc="" MinOrderStatus="" MinOrderStatusDesc="" Modifyts="" OrderDate="" OrderHeaderKey="" OrderNo="" OrderType=""/>
+			<Order BillToID="" Createts="" CustomerPONo="" DocumentType="" EnteredBy="" EnterpriseCode="" EntryType="" MaxOrderStatus="" MaxOrderStatusDesc="" MinOrderStatus="" MinOrderStatusDesc="" Modifyts="" OrderDate="" OrderHeaderKey="" OrderNo="" OrderType="" Modifyprogid="" CustomerFirstName="" CustomerLastName=""/>
 		<ShipmentLineInvAttRequest LotNumber=" " LotKeyReference=" " ManufacturingDate=" " LotAttribute1=" " LotAttribute2=" " LotAttribute3=" " RevisionNo=" " BatchNo=" "/>
 			<ShipmentTagSerials TotalNumberOfRecords="">
 				<ShipmentTagSerial Quantity=" " SerialNo=" " ShipByDate=" " ShipmentLineKey=" " ShipmentTagSerialKey=" " RevisionNo=" " BatchNo=" " LotNumber=" " LotKeyReference=" " ManufacturingDate=" " LotAttribute1=" " LotAttribute2=" " LotAttribute3=" " />

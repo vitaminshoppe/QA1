@@ -16,6 +16,12 @@
 						</xsl:attribute>
 											
 											<xsl:attribute name="Action">CANCEL</xsl:attribute>
+											<xsl:attribute name="Status">
+							<xsl:value-of select="@Status"></xsl:value-of>
+						</xsl:attribute>
+						<xsl:attribute name="StatusDescription">
+							<xsl:value-of select="@StatusDescription"></xsl:value-of>
+						</xsl:attribute>
 											</OrderLine>
 									</xsl:for-each>
 			

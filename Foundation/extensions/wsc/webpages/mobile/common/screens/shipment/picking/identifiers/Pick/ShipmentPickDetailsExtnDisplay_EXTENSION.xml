@@ -9,6 +9,20 @@
                 _sc_extensibility_position="before"
                 _sc_extensibility_referenceUId="lbl_IncludedInBatch"
                 class="blockComponent autoLabelZeroWidth comappsWrapWord orderNumber" uId="extn_po_no"/>
+            <DataLabel _sc_extensibility_moveOrder="4"
+                _sc_extensibility_operation="insert"
+                _sc_extensibility_position="after"
+                _sc_extensibility_referenceUId="extn_po_no"
+                class="blockComponent autoLabelZeroWidth comappsWrapWord orderNumber" uId="extn_customername"/>
+            <DataLabel __isCurrentOrgInsert="true"
+                _sc_extensibility_moveOrder="9"
+                _sc_extensibility_operation="insert"
+                _sc_extensibility_position="before"
+                _sc_extensibility_referenceUId="lbl_Products" uId="extn_test"/>
+            <Link _sc_extensibility_moveOrder="7"
+                _sc_extensibility_operation="insert"
+                _sc_extensibility_position="after"
+                _sc_extensibility_referenceUId="lbl_timeRemaining" uId="extn_checkSTS"/>
         </Items>
     </ScreenDisplayExtension>
 </ExtensionMetaData>

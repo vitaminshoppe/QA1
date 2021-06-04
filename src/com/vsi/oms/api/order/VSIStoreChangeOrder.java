@@ -73,12 +73,14 @@ public class VSIStoreChangeOrder {
 					try {
 						     
 						     changeAndUnscheduleOrder(env,outDoc);
-						     
-						 if(!YFCObject.isVoid(strCustPoNo)){
+						 
+						//Commenting for OMS-3176 -> Start
+						 /*if(!YFCObject.isVoid(strCustPoNo)){
 							Document emailDoc = VSISendRdyForPckupAndReminderEmails.getEmailContent(env,VSIConstants.ATTR_CUST_PO_NO, strCustPoNo); 
 							VSIUtils.invokeService(env,"VSISendBOPUSToBOSTSConversionEmail", emailDoc);
 							
-						}
+						}*/
+						//Commenting for OMS-3176 -> End
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ExtensionMetaData>
+    <ScreenExtension extnClassName="ConfirmShipmentDetailExtn"
+        extnPackage="extn.components.shipment.confirm"
+        originalScreen="wsc.components.shipment.confirm.ConfirmShipmentDetail"
+        originalScreenPackage="wsc.components.shipment.confirm" type="diffrential">
+        <MashupRefs>
+            <Behavior>
+                <MashupRef extnType="MODIFY"
+                    mashupId="confirmShipment_getShipmentContainerDetailsByScac" mashupRefId="getShipmentContainerDetails"/>
+            </Behavior>
+        </MashupRefs>
+    </ScreenExtension>
+</ExtensionMetaData>

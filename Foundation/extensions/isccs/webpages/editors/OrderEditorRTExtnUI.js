@@ -44,6 +44,36 @@ return _dojodeclare("extn.editors.OrderEditorRTExtnUI",
 local : [
 
 {
+	  eventId: 'afterScreenInit'
+
+,	  sequence: '51'
+
+
+
+
+,handler : {
+methodName : "restrictAddLinesForShippedOrder"
+
+ 
+}
+}
+,
+{
+	  eventId: 'afterScreenInit'
+
+,	  sequence: '52'
+
+
+
+
+,handler : {
+methodName : "extn_afterScreenInit"
+
+ 
+}
+}
+,
+{
 	  eventId: 'extn_giftCardFulfillment_onClick'
 
 ,	  sequence: '51'
@@ -57,9 +87,10 @@ methodName : "fulfillGiftCard_onClick"
 
  
 }
-},
+}
+,
 {
-	  eventId: 'afterScreenInit'
+	  eventId: 'extn_link_updateBol_onClick'
 
 ,	  sequence: '51'
 
@@ -67,11 +98,22 @@ methodName : "fulfillGiftCard_onClick"
 
 
 ,handler : {
-methodName : "dataMigration"
+methodName : "extn_UpdateBOLNoOnClickHandler"
+
+ 
+}
+}
+,
+{
+	  eventId: 'onExtnMashupCompletion'
+
+,	  sequence: '51'
 
 
-},handler : {
-methodName : "restrictAddLinesForShippedOrder"
+
+
+,handler : {
+methodName : "onExtnMashupCompletion"
 
 
 }

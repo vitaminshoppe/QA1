@@ -35,7 +35,7 @@ public class VSISendRdyForPckupAndReminderEmails {
 		if(inXML != null){
 			
 			Element rootEle = inXML.getDocumentElement();
-			String strPickupEmailFlag = null;
+			String strPickupEmailFlag = "";
 			String strCPO = null;
 			HashMap cpomap = new HashMap();
 			NodeList orderAuditLvlNL = rootEle.getElementsByTagName("OrderAuditLevel");
@@ -73,7 +73,7 @@ public class VSISendRdyForPckupAndReminderEmails {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-				if (strPickupEmailFlag != null && strPickupEmailFlag.equals("N")) {	
+				if (!strPickupEmailFlag.equalsIgnoreCase("Y")) {	
 					
 					log.info("pickup Flag condition is met. Inside If block of PickupEmailFlag condition check");		
 					log.info("Value of strCPO" + strCPO);	

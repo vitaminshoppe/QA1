@@ -19,7 +19,7 @@ import com.yantra.yfs.japi.YFSEnvironment;
 
 public class VSIBackOrderAgent extends YCPBaseAgent implements VSIConstants 
 {
-	private static YFCLogCategory log = YFCLogCategory.instance(VSIPaymentHold.class.getName());
+	private static YFCLogCategory log = YFCLogCategory.instance(VSIBackOrderAgent.class.getName());
 	public final List<Document> getJobs(YFSEnvironment env, Document inDoc)
 	{
 			if(log.isDebugEnabled()){
@@ -50,8 +50,7 @@ public class VSIBackOrderAgent extends YCPBaseAgent implements VSIConstants
 			for (int i = 0; i < orderHoldType.getLength(); i++) 
 			{
 				Element eleOrderHoldType = (Element) getOrderHoldTypeListOutput.getElementsByTagName(ELE_ORDER_HOLD_TYPE).item(i);
-				Element elemOrder = (Element) eleOrderHoldType.getElementsByTagName(ELE_ORDER).item(0);
-				Element orderLineElement = (Element) eleOrderHoldType.getElementsByTagName(ELE_ORDER_LINE).item(0);
+				
 				String lastHoldTypeDate = eleOrderHoldType.getAttribute(ATTR_LAST_HOLD_TYPE_DATE);
 				
 				SimpleDateFormat formatter = new SimpleDateFormat(YYYY_MM_DD_T_HH_MM_SS);
@@ -71,33 +70,8 @@ public class VSIBackOrderAgent extends YCPBaseAgent implements VSIConstants
 
                 if (currentTime.compareTo(calculatedOrderTime) > 0)
                 {
-                	//Resolve BO Hold
-                	Document changeOrderDoc = SCXmlUtil.createDocument(ELE_ORDER);
-                	Element eleOrder = changeOrderDoc.getDocumentElement();
-                	eleOrder.setAttribute(ATTR_OVERRIDE, VSIConstants.FLAG_Y);
-                	eleOrder.setAttribute(ATTR_ORDER_HEADER_KEY, eleOrderHoldType.getAttribute(ATTR_ORDER_HEADER_KEY));
-                	Element eleOrderLines = SCXmlUtil.createChild(eleOrder, ELE_ORDER_LINES);
-                	Element elemOrderLine = SCXmlUtil.createChild(eleOrderLines, ELE_ORDER_LINE);
-                	elemOrderLine.setAttribute(ATTR_ORDER_LINE_KEY, eleOrderHoldType.getAttribute(ATTR_ORDER_LINE_KEY));
-                	elemOrderLine.setAttribute(ATTR_ACTION, ACTION_CAPS_MODIFY);
-                	Element eleOrderHoldTypes = SCXmlUtil.createChild(eleOrder, ELE_ORDER_HOLD_TYPES);
-                	Element elemOrderHoldType = SCXmlUtil.createChild(eleOrderHoldTypes, ELE_ORDER_HOLD_TYPE);
-                	elemOrderHoldType.setAttribute(ATTR_HOLD_TYPE, ATTR_BACKORDERED_HOLD_TYPE);
-                	elemOrderHoldType.setAttribute(ATTR_REASON_TEXT, ATTR_RESOLVE_MODIFY_REASON_TEXT);
-                	elemOrderHoldType.setAttribute(ATTR_STATUS, STATUS_RESOLVED);
-                	eleOrderHoldTypes.appendChild(elemOrderHoldType);
-                	elemOrderLine.appendChild(eleOrderHoldTypes);
-                	VSIUtils.invokeAPI(env, API_CHANGE_ORDER, changeOrderDoc);
-						
-                	Document resolveExceptionDoc = SCXmlUtil.createDocument(ELE_RESOLUTION_DETAILS);
-                	Element resolveExceptionEle = resolveExceptionDoc.getDocumentElement();
-                	Element elemInbox = SCXmlUtil.createChild(resolveExceptionEle, ELE_INBOX);
-                	elemInbox.setAttribute(ATTR_ORDER_HEADER_KEY, eleOrderHoldType.getAttribute(ATTR_ORDER_HEADER_KEY));
-                	elemInbox.setAttribute(ATTR_ORDER_NO, elemOrder.getAttribute(ATTR_ORDER_NO));
-                	elemInbox.setAttribute(ATTR_ENTERPRISE_CODE, elemOrder.getAttribute(ATTR_ENTERPRISE_CODE));
-                	elemInbox.setAttribute(ATTR_ORDER_LINE_KEY, orderLineElement.getAttribute(ATTR_ORDER_LINE_KEY));
-                	elemInbox.setAttribute(ATTR_QUEUE_ID, ALERT_BO_QUEUE);
-                	VSIUtils.invokeAPI(env, RESOLVE_EXCEPTION_API,resolveExceptionDoc);
+                	Document docResolveHold = SCXmlUtil.createFromString(SCXmlUtil.getString(eleOrderHoldType));
+                	orderList.add(docResolveHold);
                 }
 			}	
 					}
@@ -112,5 +86,71 @@ public class VSIBackOrderAgent extends YCPBaseAgent implements VSIConstants
 			}
 		public void executeJob(YFSEnvironment env, Document docInput)
 				throws Exception{
+			
+			try {
+			if (log.isVerboseEnabled()) {
+				log.debug("execute Job : \n" + XMLUtil.getXMLString(docInput));
+			}
+			Element eleOrderHoldType = docInput.getDocumentElement();				
+				
+			Element elemOrder = (Element) eleOrderHoldType.getElementsByTagName(ELE_ORDER).item(0);
+			Element orderLineElement = (Element) eleOrderHoldType.getElementsByTagName(ELE_ORDER_LINE).item(0);
+
+        	//Resolve BO Hold
+        	Document changeOrderDoc = SCXmlUtil.createDocument(ELE_ORDER);
+        	Element eleOrder = changeOrderDoc.getDocumentElement();
+        	eleOrder.setAttribute(ATTR_OVERRIDE, VSIConstants.FLAG_Y);
+        	eleOrder.setAttribute(ATTR_SELECT_METHOD, SELECT_METHOD_WAIT);
+        	eleOrder.setAttribute(ATTR_ORDER_HEADER_KEY, eleOrderHoldType.getAttribute(ATTR_ORDER_HEADER_KEY));
+        	Element eleOrderLines = SCXmlUtil.createChild(eleOrder, ELE_ORDER_LINES);
+        	Element elemOrderLine = SCXmlUtil.createChild(eleOrderLines, ELE_ORDER_LINE);
+        	elemOrderLine.setAttribute(ATTR_ORDER_LINE_KEY, eleOrderHoldType.getAttribute(ATTR_ORDER_LINE_KEY));
+        	elemOrderLine.setAttribute(ATTR_ACTION, ACTION_CAPS_MODIFY);
+        	Element eleOrderHoldTypes = SCXmlUtil.createChild(eleOrder, ELE_ORDER_HOLD_TYPES);
+        	Element elemOrderHoldType = SCXmlUtil.createChild(eleOrderHoldTypes, ELE_ORDER_HOLD_TYPE);
+        	elemOrderHoldType.setAttribute(ATTR_HOLD_TYPE, ATTR_BACKORDERED_HOLD_TYPE);
+        	elemOrderHoldType.setAttribute(ATTR_REASON_TEXT, ATTR_RESOLVE_MODIFY_REASON_TEXT);
+        	elemOrderHoldType.setAttribute(ATTR_STATUS, STATUS_RESOLVED);
+        	eleOrderHoldTypes.appendChild(elemOrderHoldType);
+        	elemOrderLine.appendChild(eleOrderHoldTypes);
+        	if (log.isVerboseEnabled()) {
+				log.debug("changeOrderDoc : \n" + XMLUtil.getXMLString(changeOrderDoc));
+			}
+        	VSIUtils.invokeAPI(env, API_CHANGE_ORDER, changeOrderDoc);    	
+        	
+				
+        	Document resolveExceptionDoc = SCXmlUtil.createDocument(ELE_RESOLUTION_DETAILS);
+        	Element resolveExceptionEle = resolveExceptionDoc.getDocumentElement();
+        	Element elemInbox = SCXmlUtil.createChild(resolveExceptionEle, ELE_INBOX);
+        	elemInbox.setAttribute(ATTR_ORDER_HEADER_KEY, eleOrderHoldType.getAttribute(ATTR_ORDER_HEADER_KEY));
+        	elemInbox.setAttribute(ATTR_ORDER_NO, elemOrder.getAttribute(ATTR_ORDER_NO));
+        	elemInbox.setAttribute(ATTR_ENTERPRISE_CODE, elemOrder.getAttribute(ATTR_ENTERPRISE_CODE));
+        	elemInbox.setAttribute(ATTR_ORDER_LINE_KEY, orderLineElement.getAttribute(ATTR_ORDER_LINE_KEY));
+        	elemInbox.setAttribute(ATTR_QUEUE_ID, ALERT_BO_QUEUE);
+        	if (log.isVerboseEnabled()) {
+				log.debug("resolveExceptionDoc : \n" + XMLUtil.getXMLString(resolveExceptionDoc));
+			}
+        	VSIUtils.invokeAPI(env, RESOLVE_EXCEPTION_API,resolveExceptionDoc);
+        	
+        	Document scheduleOrderInput = SCXmlUtil.createDocument(ELE_SCHEDULE_ORDER);
+			Element scheduleOrderElement = scheduleOrderInput.getDocumentElement();
+			scheduleOrderElement.setAttribute(ATTR_ORDER_HEADER_KEY, eleOrderHoldType.getAttribute(ATTR_ORDER_HEADER_KEY));
+			scheduleOrderElement.setAttribute(ATTR_ORDER_LINE_KEY, orderLineElement.getAttribute(ATTR_ORDER_LINE_KEY));
+			scheduleOrderElement.setAttribute(ATTR_CHECK_INVENTORY, FLAG_Y);
+			if (log.isVerboseEnabled()) {
+				log.debug("scheduleOrderInput : \n" + XMLUtil.getXMLString(scheduleOrderInput));
+			}
+			VSIUtils.invokeAPI(env, API_SCHEDULE_ORDER,scheduleOrderInput);
+        	}
+				
+        	catch(Exception e)
+			{
+        		if (log.isVerboseEnabled()) {
+    				log.debug("VSIBackOrderAgent executeJob catch: \n" );
+    			}
+        		e.printStackTrace();
+			}
+			        	
+        
 		}
 }

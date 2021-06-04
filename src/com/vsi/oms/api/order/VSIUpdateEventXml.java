@@ -6,7 +6,6 @@ import org.w3c.dom.Element;
 import com.sterlingcommerce.baseutil.SCXmlUtil;
 import com.vsi.oms.utils.VSIConstants;
 import com.yantra.interop.japi.YIFApi;
-import com.yantra.yfc.core.YFCObject;
 import com.yantra.yfc.log.YFCLogCategory;
 import com.yantra.yfs.japi.YFSEnvironment;
 import com.yantra.yfs.japi.YFSException;
@@ -43,9 +42,8 @@ public class VSIUpdateEventXml {
 			Element eleFromStss=SCXmlUtil.getChildElement(eleinXML, "FromStatuses");
 			Element eleFrmOrdSts=SCXmlUtil.getChildElement(eleFromStss, "OrderStatus");
 			String strOrderReleaseKey="";
-			if(!YFCObject.isVoid(eleFrmOrdSts)){
+			if(eleFrmOrdSts != null)
 				strOrderReleaseKey=eleFrmOrdSts.getAttribute(VSIConstants.ATTR_ORDER_RELEASE_KEY);
-			}			
 			eleOrderAudit.setAttribute(VSIConstants.ATTR_ORDER_RELEASE_KEY, strOrderReleaseKey);
 			eleOrderAudit.setAttribute("ReasonCode", "");
 			eleOrderAudit.setAttribute("ReasonText", "");

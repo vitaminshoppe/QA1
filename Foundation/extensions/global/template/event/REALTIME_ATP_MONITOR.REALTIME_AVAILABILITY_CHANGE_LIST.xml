@@ -7,7 +7,7 @@ US Government Users Restricted Rights - Use, duplication or disclosure restricte
  -->
 <InventoryItem ItemID="" OrganizationCode="" InventoryOrganizationCode=""  InventoryItemKey="" UnitOfMeasure="" ProductClass="">
 	<Item ItemID="" ItemKey="">
-		<Extn ExtnIsMCLItem="" ExtnActSkuID="" ExtnIsDiscontinuedItem="" ExtnSKUType="" ExtnInternetMSRP="" ExtnATGEligible="" />
+		<Extn ExtnIsMCLItem="" ExtnActSkuID="" ExtnIsDiscontinuedItem="" ExtnSKUType="" ExtnInternetMSRP="" ExtnATGEligible="" ExtnSFSEligible=""/>
 	</Item>
 	<AvailabilityChanges>
 		<AvailabilityChange OnhandAvailableQuantity="" OnhandAvailableDate="" FutureAvailableQuantity=""

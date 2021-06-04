@@ -2,11 +2,20 @@
 <ScreenBundle
     screenBundleId="extn.components.shipment.container.pack.ContainerPackContainerListExtnBundle" screenId="extn.components.shipment.container.pack.ContainerPackContainerListExtn">
     <BundleEntries>
+        <BundleEntry bundleEntryId="containerWeight_NumberTextBox_hint"
+            bundleKey="extn_Sequence_No" bundleValueFn="_scSimpleBundle"
+            property="hint" type="WIDGET" uId="containerWeight"/>
+        <BundleEntry bundleEntryId="containerWeight_NumberTextBox_label"
+            bundleKey="extn_Sequence_No" bundleValueFn="_scSimpleBundle"
+            property="label" type="WIDGET" uId="containerWeight"/>
+        <BundleEntry bundleEntryId="containerWeight_NumberTextBox_title"
+            bundleKey="extn_Sequence_No" bundleValueFn="_scSimpleBundle"
+            property="title" type="WIDGET" uId="containerWeight"/>
         <BundleEntry bundleEntryId="lbl_containerWeightUOM_Label_label"
             bundleKey="extn_Sequence" bundleValueFn="_scSimpleBundle"
             property="label" type="WIDGET" uId="lbl_containerWeightUOM"/>
         <BundleEntry bundleEntryId="extn_parcel_RadioButtonSet_label"
-            bundleKey="extn_Container_Options"
+            bundleKey="extn_Packaging_Type"
             bundleValueFn="_scSimpleBundle" property="label"
             type="WIDGET" uId="extn_parcel"/>
         <BundleEntry
@@ -22,5 +31,9 @@
         <BundleEntry bundleEntryId="extn_seq_DataLabel_label"
             bundleKey="extn_Sequence_No" bundleValueFn="_scSimpleBundle"
             property="label" type="WIDGET" uId="extn_seq"/>
+        <BundleEntry bundleEntryId="extn_InfoMessage_DataLabel_label"
+            bundleKey="extn__Please_click_on_Update_button_before_clicking_on_Finish_Pack"
+            bundleValueFn="_scSimpleBundle" property="label"
+            type="WIDGET" uId="extn_InfoMessage"/>
     </BundleEntries>
 </ScreenBundle>

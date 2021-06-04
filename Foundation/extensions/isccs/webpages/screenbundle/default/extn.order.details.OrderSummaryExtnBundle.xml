@@ -30,5 +30,19 @@
         <BundleEntry bundleEntryId="lblOrderNo_Label_label"
             bundleKey="blank" bundleValueFn="_scSimpleBundle"
             property="label" type="WIDGET" uId="lblOrderNo"/>
+        <BundleEntry
+            bundleEntryId="extn_datalabel_BolNumber_DataLabel_label"
+            bundleKey="extn_BOL_Number" bundleValueFn="_scBundle"
+            property="label" type="WIDGET" uId="extn_datalabel_BolNumber"/>
+        <BundleEntry
+            bundleEntryId="extn_datalabel_deliveryDate_DataLabel_label"
+            bundleKey="extn_Delivery_Date"
+            bundleValueFn="_scBundle" property="label"
+            type="WIDGET" uId="extn_datalabel_deliveryDate"/>
+        <BundleEntry
+            bundleEntryId="extn_datalabel_wholesalePONo_DataLabel_label"
+            bundleKey="extn_Wholesale_PO"
+            bundleValueFn="_scSimpleBundle" property="label"
+            type="WIDGET" uId="extn_datalabel_wholesalePONo"/>
     </BundleEntries>
 </ScreenBundle>

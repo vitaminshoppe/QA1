@@ -119,6 +119,79 @@
 		 	<div data-dojo-type="sc/plat/dojo/widgets/DataLabel" 
 	 					data-dojo-props="data_dojo_props_diff: {
 	 								renderHidden : true , 
+		uId : 'extn_datalabel_BolNumber' , 
+		_sc_extensibility_operation : 'insert' , 
+		_sc_extensibility_moveOrder : '13' , 
+		_sc_extensibility_position : 'before' , 
+		_sc_extensibility_referenceUId : 'lblEnterpriseCodeDisplay'  
+ 		,scExtensionDataFn :
+		 function() { 
+			return { 
+			 	bindingData : 	{
+		 sourceBinding : 	{
+		 namespace : 			'getCompleteOrderDetails_output'
+,
+		 path : 			'Order.Extn.ExtnBolNo'
+	}
+	}
+,	
+			 	label : 			'BOL Number:'
+			}
+		}
+	 					}">
+		 	</div>  
+		 	<div data-dojo-type="sc/plat/dojo/widgets/DataLabel" 
+	 					data-dojo-props="data_dojo_props_diff: {
+	 								renderHidden : true , 
+		uId : 'extn_datalabel_deliveryDate' , 
+		_sc_extensibility_operation : 'insert' , 
+		_sc_extensibility_moveOrder : '14' , 
+		_sc_extensibility_position : 'before' , 
+		scuiDataType : 'Date' , 
+		_sc_extensibility_referenceUId : 'lblEnterpriseCodeDisplay'  
+ 		,scExtensionDataFn :
+		 function() { 
+			return { 
+			 	bindingData : 	{
+		 sourceBinding : 	{
+		 namespace : 			'getCompleteOrderDetails_output'
+,
+		 path : 			'Order.Extn.ExtnDeliveryDate'
+	}
+	}
+,	
+			 	label : 			'Delivery Date:'
+			}
+		}
+	 					}">
+		 	</div>  
+		 	<div data-dojo-type="sc/plat/dojo/widgets/DataLabel" 
+	 					data-dojo-props="data_dojo_props_diff: {
+	 								renderHidden : true , 
+		uId : 'extn_datalabel_wholesalePONo' , 
+		_sc_extensibility_operation : 'insert' , 
+		_sc_extensibility_moveOrder : '15' , 
+		_sc_extensibility_position : 'after' , 
+		_sc_extensibility_referenceUId : 'extn_datalabel_deliveryDate'  
+ 		,scExtensionDataFn :
+		 function() { 
+			return { 
+			 	bindingData : 	{
+		 sourceBinding : 	{
+		 namespace : 			'getCompleteOrderDetails_output'
+,
+		 path : 			'Order.CustomerPONo'
+	}
+	}
+,	
+			 	label : 			'Wholesale PO#:'
+			}
+		}
+	 					}">
+		 	</div>  
+		 	<div data-dojo-type="sc/plat/dojo/widgets/DataLabel" 
+	 					data-dojo-props="data_dojo_props_diff: {
+	 								renderHidden : true , 
 		_sc_extensibility_operation : 'change' , 
 		_sc_extensibility_referenceUId : 'lblEnterpriseCodeDisplay'  
 	 					}">

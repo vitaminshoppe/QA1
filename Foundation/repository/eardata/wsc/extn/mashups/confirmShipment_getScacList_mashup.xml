@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mashups>
+    <mashup cached="PAGE"
+        description="Used to load carrier drop down for search criteria"
+        endpoint="EP_CONFIG" id="confirmShipment_getScacList"
+        mashuptype="XAPI" skipDataProvider="false" transactional="true">
+        <classInformation name="com.ibm.wsc.common.mashups.WSCBaseMashup"/>
+        <API Name="getScacList">
+            <Input>
+                <Scac
+                    CallingOrganizationCode="xml:CurrentStore:/Store/@EnterpriseCode"
+                    DisplayLocalizedFieldInLocale="xml:CurrentUser:/User/@Localecode"
+                    IgnoreOrdering="N" MaximumRecords="">
+                    <ComplexQuery>
+                            <Or>
+                                <Exp Name="Scac"
+                                    QryType="FLIKE" Value="FEDEX"/>
+                                <Exp Name="Scac"
+                                    QryType="FLIKE" Value="UPSN"/>
+                            </Or>
+                    </ComplexQuery>
+                    <OrderBy>
+                        <Attribute Name="ScacDesc"/>
+                    </OrderBy>
+                </Scac>
+            </Input>
+            <Template>
+                <ScacList>
+                    <Scac Scac="" ScacDesc="" ScacKey=""/>
+                </ScacList>
+            </Template>
+        </API>
+        <APINamespace inputNS="getScacList_input" outputNS="getScacList_output"/>
+        <AlternateResourceIds>
+            <AlternateResourceId altResourceId="WSC000020"/>
+        </AlternateResourceIds>
+    </mashup>
+</mashups>

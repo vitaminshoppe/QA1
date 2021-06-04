@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mashups>
+    <mashup
+        description="Get Sorted Shipment details for Customer Pick wizard"
+        endpoint="EP_CONFIG"
+        id="customerpickup_getSortedShipmentDetails" mashuptype="XAPI"
+        skipDataProvider="false" transactional="true">
+        <classInformation name="com.ibm.wsc.shipment.customerpickup.mashups.WSCCustomerPickupShipmentDetailsCustomMashup"/>
+        <API Name="getSortedShipmentDetails">
+            <Input>
+                <Shipment
+                    DisplayLocalizedFieldInLocale="xml:CurrentUser:/User/@Localecode" ShipmentKey="xml:scControllerInput:/Shipment/@ShipmentKey"/>
+            </Input>
+            <Template>
+                <Shipment Currency="" EnterpriseCode=""
+                    ExpectedShipmentDate="" GiftFlag="" HoldLocation=""
+                    OriginalShipmentKey="" RequestedDeliveryDate=""
+                    RequestedShipmentDate="" SellerOrganizationCode=""
+                    ShipNode="" ShipmentKey="" ShipmentNo="" Status="" TransactionId="">
+                    <BillToAddress AddressLine1="" AddressLine2=""
+                        City="" Country="" DayFaxNo="" DayPhone=""
+                        EMailID="" EveningFaxNo="" EveningPhone=""
+                        FirstName="" IsCommercialAddress="" LastName=""
+                        MiddleName="" MobilePhone="" PersonInfoKey=""
+                        PreferredShipAddress="" State="" ZipCode=""/>
+                    <ShipmentLines>
+                        <ShipmentLine ItemID="" KitCode=""
+                            OrderHeaderKey="" OrderLineKey="" OrderNo=""
+                            ProductClass="" Quantity="" ShipmentKey=""
+                            ShipmentLineKey="" ShipmentLineNo=""
+                            ShipmentSubLineNo="" UnitOfMeasure="">
+                            <Order>
+                                <PersonInfoBillTo/>
+                                <PaymentMethods>
+                                    <PaymentMethod CreditCardName=""
+                                    CreditCardNo=""
+                                    CreditCardType=""
+                                    DisplayCreditCardNo=""
+                                    PaymentKey="" PaymentType="" PaymentTypeGroup="" PaymentReference1="" PaymentReference2="" PaymentReference3="" PaymentReference4="" PaymentReference5="" DisplaySvcNo="" />
+                                </PaymentMethods>
+                            </Order>
+                            <OrderLine GiftFlag="" IsBundleParent="" ItemGroupCode="">
+                                <ItemDetails ItemGroupCode="" ItemID="" UnitOfMeasure="">
+                                    <PrimaryInformation
+                                    ExtendedDisplayDescription=""
+                                    ImageID="" ImageLabel="" ImageLocation=""/>
+									<ItemAliasList>
+                                 <ItemAlias AliasValue="" AliasName=""/>
+                                 </ItemAliasList>
+                                </ItemDetails>
+                                <LinePriceInfo UnitPrice=""/>
+                                <PersonInfoMarkFor AddressLine1=""
+                                    AddressLine2="" City="" Country=""
+                                    DayFaxNo="" DayPhone="" EMailID=""
+                                    EveningFaxNo="" EveningPhone=""
+                                    FirstName="" IsCommercialAddress=""
+                                    LastName="" MiddleName=""
+                                    MobilePhone="" PersonInfoKey=""
+                                    PreferredShipAddress="" State="" ZipCode=""/>
+                            </OrderLine>
+                        </ShipmentLine>
+                    </ShipmentLines>
+                </Shipment>
+            </Template>
+        </API>
+        <APINamespace inputNS="customerpickup_getShipmentDetails_input" outputNS="customerpickup_getShipmentDetails_output"/>
+        <AlternateResourceIds>
+            <AlternateResourceId altResourceId="WSCSYS00001"/>
+            <AlternateResourceId altResourceId="WSC000001"/>
+        </AlternateResourceIds>
+    </mashup>
+</mashups>

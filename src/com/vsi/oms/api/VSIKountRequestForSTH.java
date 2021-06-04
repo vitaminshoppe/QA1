@@ -64,6 +64,14 @@ public class VSIKountRequestForSTH {
 		String strOrderNo = null;
 		String strRiskifiedFlag=null;
 		log.debug("STHkountRequest input is : "+XMLUtil.getXMLString(inXML));
+		//OMS-2460: Start
+		boolean isInternational= false;
+		String strSourcingClassification=inXML.getDocumentElement().getAttribute(VSIConstants.ATTR_SOURCING_CLASSIFICATION);
+		if(VSIConstants.INTERNATIONAL_ORDER.equals(strSourcingClassification) || "APO_FPO".equals(strSourcingClassification))
+		{
+			isInternational=true;
+		}
+		//OMS-2460: End
 		if(inXML != null){
 			 strOrderHeaderKey = inXML.getDocumentElement().getAttribute(VSIConstants.ATTR_ORDER_HEADER_KEY);
 		}
@@ -242,7 +250,7 @@ public class VSIKountRequestForSTH {
 											if(!YFCObject.isVoid(strStatus)){
 											processRiskifiedResponse(
 													env, strStatus,
-													 strOrderHeaderKey, strOrderNo);
+													 strOrderHeaderKey, strOrderNo,isInternational);
 											}
 											else
 											{
@@ -345,7 +353,7 @@ public class VSIKountRequestForSTH {
 //OMS-2046 START
 
 	private void processRiskifiedResponse(YFSEnvironment env,
-			String strResponse, String ohk, String orderNo) throws YFSException, RemoteException, ParserConfigurationException, YIFClientCreationException {
+			String strResponse, String ohk, String orderNo,boolean isInternational) throws YFSException, RemoteException, ParserConfigurationException, YIFClientCreationException {
 		// TODO Auto-generated method stub
 		log.info("Printing RiskifiedRespnse: " + strResponse);
 		
@@ -355,9 +363,14 @@ public class VSIKountRequestForSTH {
 				Document orderInput = XMLUtil.createDocument(VSIConstants.ELE_ORDER);
 				Element sOrderElement = orderInput.getDocumentElement();
 				sOrderElement.setAttribute(VSIConstants.ATTR_ORDER_HEADER_KEY, ohk);
-				resolveHold(env,ohk);				
+				resolveHold(env,ohk);	
+				//OMS-2460: Start
+				if(!isInternational)
+				{	
 				api = YIFClientFactory.getInstance().getApi();
 				api.executeFlow(env, "VSIScheduleSTH_Q", orderInput);
+				}
+				//OMS-2460: End
 				//OMS-2088
 				sOrderElement.setAttribute(VSIConstants.ATTR_ORDER_NO,orderNo);
 				sOrderElement.setAttribute(VSIConstants.FRAUD_RESULT,"Approved");
@@ -694,11 +707,12 @@ public class VSIKountRequestForSTH {
 		}
 		//OMS-2405 -- End		
 		
-		order.setCurrency(VSIConstants.ATTR_CURRENCY);		
-		if(!YFCObject.isVoid(strEntryType)&&!YFCObject.isVoid(strExtnCheckoutId)&&!((VSIConstants.ENTRYTYPE_CC).equalsIgnoreCase(strEntryType))){
+		order.setCurrency(VSIConstants.ATTR_CURRENCY);
+		//OMS-3078 Changes -- Start
+		/*if(!YFCObject.isVoid(strEntryType)&&!YFCObject.isVoid(strExtnCheckoutId)&&!((VSIConstants.ENTRYTYPE_CC).equalsIgnoreCase(strEntryType))){
 			order.setCheckoutId(strExtnCheckoutId);
-		}
-
+		}*/
+		//OMS-3078 Changes -- End
 		//Changes for OMS-2177 -- Start
 		String strExtnMobileOrder = eleOrderExtn.getAttribute(VSIConstants.ATTR_EXTN_MOBILE_ORDER);
 		//Changes for OMS-2177 -- End
@@ -947,6 +961,12 @@ public class VSIKountRequestForSTH {
 		boolean bcreditCard=false;
 		 boolean bpaypal=false;
 		 boolean bgcCard=false;
+		 //OMS-3187 Changes -- Start
+		 boolean bApplePay=false;
+		//OMS-3187 Changes -- End
+		//OMS-3368 Changes -- Start
+		 boolean bGooglePay=false;
+		//OMS-3368 Changes -- End
 		NodeList nlPaymtMthd = eleOrder
 				.getElementsByTagName(VSIConstants.ELE_PAYMENT_METHOD);
 		int pymthdCount = nlPaymtMthd.getLength();
@@ -985,9 +1005,46 @@ public class VSIKountRequestForSTH {
 						else{
 						 strCreditCardNumber = paymtMthdEle.getAttribute(VSIConstants.ATTR_PAYMENT_REFERENCE_2);
 						}
+					//OMS-3331 Changes -- Start
+					//OMS-3187 Changes -- Start
+					if(!YFCCommon.isVoid(eleExtnPayment)) {
+						String strContactLess=eleExtnPayment.getAttribute("ExtnContactLess");
+						if(!YFCCommon.isVoid(strContactLess) && "Apple".equals(strContactLess)) {
+							order.setGateway("aurus_applepay");
+							bApplePay=true;
+						}
+						//OMS-3368 Changes -- Start
+						else if(!YFCCommon.isVoid(strContactLess) && "Google".equals(strContactLess)) {
+							order.setGateway("aurus_googlepay");
+							bGooglePay=true;
+						}
+						//OMS-3368 Changes -- End
+					}					
+					else if(!YFCCommon.isVoid(strExtnAurusToken) && VSIConstants.FLAG_Y.equals(strExtnAurusToken)){
+					//OMS-3187 Changes -- End
+					order.setGateway("Aurus");
+					}
+					else{
+						order.setGateway("TNS");
+					}
+					//OMS-3331 Changes -- End
 	                    String creditCardBin=null;
 	                    String strCardNo=null;
-	                    if(!YFCCommon.isVoid(strCreditCardNumber) ){
+	                  //OMS-3331 Changes -- Start
+	                    if(bApplePay) {
+	                    	creditCardBin="null";
+	                    	strCardNo=paymtMthdEle.getAttribute("DisplayCreditCardNo");
+	                    }
+	                  //OMS-3368 Changes -- Start
+	                    else if(bGooglePay) {
+	                    	creditCardBin="null";
+	                    	strCardNo=paymtMthdEle.getAttribute("DisplayCreditCardNo");
+	                    	strAvsResp="null";
+	                    	strCVVResp="null";
+	                    }
+	                  //OMS-3368 Changes -- End 
+	                    else if(!YFCCommon.isVoid(strCreditCardNumber) ){
+	                    //OMS-3331 Changes -- End
 						 creditCardBin=strCreditCardNumber.substring(0, 6);
 						 strCardNo=strCreditCardNumber.substring(strCreditCardNumber.length()-4);
 	                    }
@@ -998,14 +1055,6 @@ public class VSIKountRequestForSTH {
 						 order.setPaymentDetails(Arrays.asList(new CreditCardPaymentDetails(creditCardBin, strAvsResp, strCVVResp, strCardNo, strCreditCarType)));
 
 						}
-					if(!YFCCommon.isVoid(strExtnAurusToken) && VSIConstants.FLAG_Y.equals(strExtnAurusToken)){
-					order.setGateway("Aurus");
-					}
-					else{
-						order.setGateway("TNS");
-					}
-						
-
 									}
 				if (strPaymentType != null
 						&& strPaymentType.equalsIgnoreCase(VSIConstants.PAYMENT_MODE_PP)) {
@@ -1063,7 +1112,17 @@ public class VSIKountRequestForSTH {
 			ChargeFreePaymentDetails cfg=createChargeFreePaymentDetailsObj(chargefreePaymentDetails);
 			order.setChargeFreePaymentDetails(cfg);
 		}
-		if(bcreditCard&&(bvoucher||bgcCard)){
+		//OMS--3187 Changes -- Start
+		if(bApplePay&&bcreditCard&&(bvoucher||bgcCard)) {
+			order.setGateway("aurus_applepay");
+		}
+		//OMS-3368 Changes -- Start
+		else if(bGooglePay&&bcreditCard&&(bvoucher||bgcCard)) {
+			order.setGateway("aurus_googlepay");
+		}
+		//OMS-3368 Changes -- End
+		else if(bcreditCard&&(bvoucher||bgcCard)){
+		//OMS--3187 Changes -- End
 			if(!YFCCommon.isVoid(strExtnAurusToken) && VSIConstants.FLAG_Y.equals(strExtnAurusToken)){
 				order.setGateway("Aurus");
 			}

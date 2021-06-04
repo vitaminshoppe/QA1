@@ -53,7 +53,7 @@
 			}
 		}
 	 					}">
-		 	</div>  
+		 	</div> 
 		 	<div data-dojo-type="idx/form/TextBox" 
 	 					data-dojo-props="data_dojo_props_diff: {
 	 								_sc_extensibility_operation : 'change' , 
@@ -66,6 +66,42 @@
 		}
 	 					}">
 		 	</div>  
+		 	<div data-dojo-type="idx/form/TextBox" 
+	 					data-dojo-props="data_dojo_props_diff: {
+	 								uId : 'extn_textfield_wholesalePONo' , 
+		resourceId : 'VSIWHOLESALEORDERSEARCH' , 
+		_sc_extensibility_operation : 'insert' , 
+		_sc_extensibility_moveOrder : '5' , 
+		_sc_extensibility_position : 'after' , 
+		selectOnClick : true , 
+		_sc_extensibility_referenceUId : 'txt_custPoNo'  
+ 		,scExtensionDataFn :
+		 function() { 
+			return { 
+			 	bindingData : 	{
+		 targetBinding : 	[
+	 		{
+		 namespace : 			'getAdvancedOrderList_input'
+,
+		 path : 			'Order.WholesaleCustPONo'
+,
+		 scExtensibilityArrayItemId : 			'extn_TargetBindings_0'
+	}
+	]
+,
+		 sourceBinding : 	{
+		 namespace : 			'screenInput'
+,
+		 path : 			'Order.WholesaleCustPONo'
+	}
+	}
+,	
+			 	label : 			'Wholesale Order#:'
+			}
+		}
+	 					}">
+		 	</div> 			
+
 		 	<div data-dojo-type="idx/form/TextBox" 
 	 					data-dojo-props="data_dojo_props_diff: {
 	 								_sc_extensibility_operation : 'insert' , 

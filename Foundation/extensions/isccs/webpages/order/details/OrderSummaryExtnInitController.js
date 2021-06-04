@@ -23,6 +23,32 @@ return _dojodeclare("extn.order.details.OrderSummaryExtnInitController",
 			
 			
 			
+			
+			
+						,
+
+			
+			
+			 mashupRefs : 	[
+	 		{
+		 sourceBindingOptions : 			''
+,
+		 sequence : 			''
+,
+		 mashupId : 			'orderSummary_getCompleteOrderDetails'
+,
+		 sourceNamespace : 			'getCompleteOrderDetails_output'
+,
+		 mashupRefId : 			'getCompleteOrderDetails'
+,
+		 extnType : 			''
+,
+		 callSequence : 			''
+
+	}
+
+	]
+
 }
 );
 });

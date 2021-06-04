@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ScreenBundle
+    screenBundleId="extn.components.shipment.backroompick.BackroomPickProductScanExtnBundle" screenId="extn.components.shipment.backroompick.BackroomPickProductScanExtn">
+    <BundleEntries>
+        <BundleEntry bundleEntryId="scanProductIdTxt_TextField_hint"
+            bundleKey="extn_Enter_Item_ID_or_UPC_Code"
+            bundleValueFn="_scSimpleBundle" property="hint"
+            type="WIDGET" uId="scanProductIdTxt"/>
+    </BundleEntries>
+</ScreenBundle>

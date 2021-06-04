@@ -2,4 +2,11 @@
 <Controller
     className="com.sterlingcommerce.ui.web.platform.controller.SCUIXAPIMashupController"
     controllerId="extn.order.details.OrderSummaryExtnInitController"
-    requestMethodSupported="POST" screenId="extn.order.details.OrderSummaryExtn"/>
+    requestMethodSupported="POST" screenId="extn.order.details.OrderSummaryExtn">
+    <Group isAggregator="Y"/>
+    <MashupRefs>
+        <MashupRef extnType=""
+            mashupId="orderSummary_getCompleteOrderDetails"
+            mashupRefId="getCompleteOrderDetails" permissionId=""/>
+    </MashupRefs>
+</Controller>
