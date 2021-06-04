@@ -243,10 +243,12 @@ public class VSIBeforeChangeShipmentUE implements YDMBeforeChangeShipment,VSICon
 								VSIUtils.invokeService(env, "VSISOMJDAReverseAllocation_DB", docJDARequest);
 								printLogs("JDA Reverse Allocation Request is posted to DB successfully");
 								
-								invokeJDAWebservice(env, docJDARequest);								
+								invokeJDAWebservice(env, docJDARequest);
+																
 							}
 						}
 						eleShipmentLine.setAttribute(ATTR_ACTION, DELETE);
+						env.setTxnObject("IsCOMPartialCancellation", "Y"); 
 					}
 				}else if(ATTR_DEL_METHOD_PICK.equals(strDeliveryMethod)) {
 				//OMS-2827 Changes -- End
@@ -323,6 +325,7 @@ public class VSIBeforeChangeShipmentUE implements YDMBeforeChangeShipment,VSICon
 							}
 						}					
 						eleShipmentLine.setAttribute(ATTR_ACTION, DELETE);
+						env.setTxnObject("IsCOMPartialCancellation", "Y");
 					}
 					//OMS-3171 Changes -- Start
 					if(!YFCCommon.isVoid(docInboxIn)) {

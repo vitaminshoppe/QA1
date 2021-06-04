@@ -226,7 +226,7 @@ US Government Users Restricted Rights - Use, duplication or disclosure restricte
         </AdditionalAddress>
     </AdditionalAddresses>
     <PriceInfo Currency="" EnterpriseCurrency=""
-        ReportingConversionDate="" ReportingConversionRate="" TotalAmount=""/>
+        ReportingConversionDate="" ReportingConversionRate="" TotalAmount="" ChangeInTotalAmount=""/>
     <OverallTotals GrandCharges="" GrandDiscount="" GrandTax=""
         GrandTotal="" HdrCharges="" HdrDiscount="" HdrTax="" HdrTotal="" LineSubTotal=""/>
     <InvoicedTotals GrandCharges="" GrandDiscount="" GrandTax=""
