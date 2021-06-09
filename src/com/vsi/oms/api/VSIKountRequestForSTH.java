@@ -1005,21 +1005,29 @@ public class VSIKountRequestForSTH {
 						else{
 						 strCreditCardNumber = paymtMthdEle.getAttribute(VSIConstants.ATTR_PAYMENT_REFERENCE_2);
 						}
+					//Prod Riskify Issue Changes -- Start
+					String strContactLess=null;
+					//Prod Riskify Issue Changes -- End
 					//OMS-3331 Changes -- Start
 					//OMS-3187 Changes -- Start
 					if(!YFCCommon.isVoid(eleExtnPayment)) {
-						String strContactLess=eleExtnPayment.getAttribute("ExtnContactLess");
-						if(!YFCCommon.isVoid(strContactLess) && "Apple".equals(strContactLess)) {
-							order.setGateway("aurus_applepay");
-							bApplePay=true;
-						}
-						//OMS-3368 Changes -- Start
-						else if(!YFCCommon.isVoid(strContactLess) && "Google".equals(strContactLess)) {
-							order.setGateway("aurus_googlepay");
-							bGooglePay=true;
-						}
-						//OMS-3368 Changes -- End
-					}					
+						strContactLess=eleExtnPayment.getAttribute("ExtnContactLess");		//Prod Riskify Issue Change
+					//Prod Riskify Issue Changes -- Start
+					}
+					//Prod Riskify Issue Changes -- End
+					if(!YFCCommon.isVoid(strContactLess) && "Apple".equals(strContactLess)) {
+						order.setGateway("aurus_applepay");
+						bApplePay=true;
+					}
+					//OMS-3368 Changes -- Start
+					else if(!YFCCommon.isVoid(strContactLess) && "Google".equals(strContactLess)) {
+						order.setGateway("aurus_googlepay");
+						bGooglePay=true;
+					}
+					//OMS-3368 Changes -- End
+					//Prod Riskify Issue Changes -- Start
+					//}
+					//Prod Riskify Issue Changes -- End
 					else if(!YFCCommon.isVoid(strExtnAurusToken) && VSIConstants.FLAG_Y.equals(strExtnAurusToken)){
 					//OMS-3187 Changes -- End
 					order.setGateway("Aurus");
