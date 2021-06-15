@@ -18,9 +18,11 @@ import java.util.HashSet;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
@@ -427,23 +429,20 @@ public class VSISendJDACnclMsg implements VSIConstants {
 	}
 	//MixedCart Changes -- End
 	
-	public Document sendJDACnclMsgForPartialCancellation(YFSEnvironment env, Document docInput) throws YFSException, RemoteException, ParserConfigurationException, YIFClientCreationException{
+		public Document sendJDACnclMsgForPartialCancellation(YFSEnvironment env, Document docInput) throws YFSException, RemoteException, ParserConfigurationException, YIFClientCreationException, TransformerException{
 		log.beginTimer("VSISendJDACnclMsg.sendJDACnclMsgForPartialCancellation() : START");
-		//MixedCart Changes -- Start
 		printLogs("================Inside sendJDACnclMsgForPartialCancellation Class and sendJDACnclMsgForPartialCancellation Method================");
-		//MixedCart Changes -- End
 		if(log.isDebugEnabled()){
 			log.debug("Input document:\n" + SCXmlUtil.getString(docInput));
 		}
 		Document docJDACnclMsg = (Document) env.getTxnObject(JDA_CNCL_MSG);
 		log.debug("\nIncoming JDA Cancel Message: " + SCXmlUtil.getString(docJDACnclMsg));
-
+		Document docJDAPartialCnclMsg = (Document) env.getTxnObject("JDA_PARTIAL_CNCL");
+		log.debug("\nIncoming JDA Partial Cancel Message: " + SCXmlUtil.getString(docJDAPartialCnclMsg));
 		String isComCancellation =  (String) env.getTxnObject("IsCOMPartialCancellation");
 		log.debug("isComCancellation ::::" + isComCancellation);
-		if (!YFCObject.isVoid(docJDACnclMsg) && !YFCObject.isVoid(isComCancellation) && isComCancellation.equalsIgnoreCase("Y")) {
-			if(log.isDebugEnabled()){
-				log.debug("\nIncoming JDA Cancel Message: " + SCXmlUtil.getString(docJDACnclMsg));
-			}
+		if (!YFCObject.isVoid(docJDACnclMsg) && !YFCObject.isVoid(docJDAPartialCnclMsg) && !YFCObject.isVoid(isComCancellation) && isComCancellation.equalsIgnoreCase("Y")) {
+
 			
 			Element eleOrder = docInput.getDocumentElement();
 			Element elePriceInfo = SCXmlUtil.getChildElement(eleOrder, VSIConstants.ELE_PRICE_INFO);
@@ -456,6 +455,13 @@ public class VSISendJDACnclMsg implements VSIConstants {
 			SCXmlUtil.setAttribute(eleJDAPriceInfo, VSIConstants.ATTR_PREVIOUS_ORDER_TOTAL, dOriginalPrice);
 			SCXmlUtil.setAttribute(eleJDAPriceInfo, VSIConstants.ATTR_NEW_ORDER_TOTAL, dNewOrderTotal);
 			SCXmlUtil.setAttribute(eleJDAPriceInfo, VSIConstants.ATTR_CUSTOMER_CREDIT, dCustCredit);
+			Node orderLinesNode = docJDACnclMsg.getDocumentElement().getElementsByTagName("OrderLines").item(0);
+			Node orderNode = docJDACnclMsg.getDocumentElement().getElementsByTagName("Order").item(0);
+			orderNode.removeChild(orderLinesNode);
+		
+			Element partialCnclOlEle = XMLUtil.getElementByXPath(docJDAPartialCnclMsg, "/OrderList/Order/OrderLines");
+			Element eleOrderOut = (Element)docJDACnclMsg.getElementsByTagName("Order").item(0);
+			XMLUtil.importElement(eleOrderOut, partialCnclOlEle);
 			
 			try {
 				VSIUtils.invokeService(env, VSI_CNCL_PUBLISH_TO_JDA, docJDACnclMsg);

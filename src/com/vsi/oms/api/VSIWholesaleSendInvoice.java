@@ -68,15 +68,14 @@ public class VSIWholesaleSendInvoice implements VSIConstants {
 						"/InvoiceDetail/InvoiceHeader/Shipment/@ShipmentKey");
 				String strIsLastInvoiceForOrder = SCXmlUtil.getXpathAttribute(eleInDoc, "/InvoiceDetail/InvoiceHeader/Extn/@ExtnIsLastInvoiceForOrder");
 
-				if (strIsLastInvoiceForOrder.equalsIgnoreCase(FLAG_Y)) {
-					
+				//OMS-3533 Start
+				if (strIsLastInvoiceForOrder.equalsIgnoreCase(FLAG_Y) && (strInvoiceType.equalsIgnoreCase(ATTR_WH_INVOICE_LEVEL_ORDER))) {					
 					
 					docOutputOrderInvoiceList = getdocOutputOrderInvoiceListOrder(env, strOrderHeaderKey,
-							strShipmentKeyIn);
-					
+							strShipmentKeyIn,strInvoiceType);					
 				
 					
-			//Wholesale order level change - start
+			//OMS-3553- start
 					
 					
 					Document docShipment = SCXmlUtil.createDocument(VSIConstants.ELE_SHIPMENT);
@@ -103,10 +102,63 @@ public class VSIWholesaleSendInvoice implements VSIConstants {
 					SCXmlUtil.importElement(eleInShipment, eleOutShipmentLine);	
 						
 												
-				//Wholesale order level change - End
+				//OMS-3553 - End
 					
 				}
+				
+				else if (strInvoiceType.equalsIgnoreCase(ATTR_WH_INVOICE_LEVEL_SHIP) && strIsLastInvoiceForOrder.equalsIgnoreCase(FLAG_Y))
+						{
+					    
+					docOutputOrderInvoiceList = getdocOutputOrderInvoiceListOrder(env, strOrderHeaderKey,
+							strShipmentKeyIn,strInvoiceType);			
+					    
+						}
+				else if (strInvoiceType.equalsIgnoreCase(ATTR_WH_INVOICE_LEVEL_SHIP) && strIsLastInvoiceForOrder.equalsIgnoreCase(FLAG_N))
+				{
+			    
+					Document getShipmentListInXML = SCXmlUtil.createDocument(ELE_SHIPMENT);
+					Element eleShipment = getShipmentListInXML.getDocumentElement();
+					SCXmlUtil.setAttribute(eleShipment, ATTR_ORDER_HEADER_KEY, strOrderHeaderKey);
+					Element eleOrderBy = SCXmlUtil.createChild(eleShipment, ELE_ORDER_BY);
+					Element eleAttribute = SCXmlUtil.createChild(eleOrderBy, ELE_ATTRIBUTE);
+					SCXmlUtil.setAttribute(eleAttribute, ATTR_NAME, ATTR_SHIPMENT_KEY);
+					SCXmlUtil.setAttribute(eleAttribute, ATTR_DESC, FLAG_Y);
+					
+					Document getShipmentListOutXML = VSIUtils.invokeService(env, SERVICE_WHOLESALE_GET_SHIPMENT_LIST, getShipmentListInXML);
+					
+					Element eleShipments = getShipmentListOutXML.getDocumentElement();
+					if(eleShipments.hasChildNodes()){
+						
+						Boolean isInvoiceComplete = true;
+						eleShipment = SCXmlUtil.getChildElement(eleShipments, ELE_SHIPMENT);
+						NodeList nlOrderLine = eleShipment.getElementsByTagName(ELE_ORDER_LINE);
+						for(int i = 0; i < nlOrderLine.getLength(); i++){
+
+							Element eleOrderLine = (Element) nlOrderLine.item(i);
+							Double dblOrderedQty = SCXmlUtil.getDoubleAttribute(eleOrderLine, ATTR_ORD_QTY);
+							if(dblOrderedQty > 0){
+								String strLineInvoiceComplete = SCXmlUtil.getAttribute(eleOrderLine, ATTR_INVOICE_COMPLETE);
+								if(strLineInvoiceComplete.equalsIgnoreCase(FLAG_N)){
+									isInvoiceComplete = false;
+									break;
+								}
+							}
+						}
+						
+						if(log.isDebugEnabled())
+							log.debug("isInvoiceComplete: " + isInvoiceComplete);
+						
+						if(isInvoiceComplete){
+							
+			docOutputOrderInvoiceList = getdocOutputOrderInvoiceListOrder(env, strOrderHeaderKey,
+					strShipmentKeyIn,strInvoiceType);			
+						}
+				}
+				
 			}
+			}
+			
+			//OMS-3533 End
 
 			// If Trailer Level Mode for sending Invoice
 			if (!YFCCommon.isVoid(sendingInvoiceMode)
@@ -146,7 +198,21 @@ public class VSIWholesaleSendInvoice implements VSIConstants {
 
 				// Update customer Credit Details and Update Credit Availed
 				if(!strInvoiceType.equalsIgnoreCase(CREDIT_MEMO) && !strInvoiceType.equalsIgnoreCase(DEBIT_MEMO)){
+					
 					udpateCustCreditDtl(env, strEnterpriseCode, docOutputOrderInvoiceList, false);
+					
+					//OMS-3567 Start
+					NodeList nlInovoiceHeaderElement = docOutputOrderInvoiceList.getElementsByTagName(ELE_INVOICE_HEADER);
+					for (int i = 0; i < nlInovoiceHeaderElement.getLength(); i++) {
+					Element	eleInvoiceHeader = (Element) nlInovoiceHeaderElement.item(i);
+					if(strInvoiceType.equalsIgnoreCase(ATTR_WH_INVOICE_LEVEL_ORDER))
+					{
+					eleInvoiceHeader.setAttribute(ATTR_INVOICE_TYPE, ATTR_WH_INVOICE_LEVEL_SHIP);
+					}
+					}					
+					//OMS-3567 End
+					
+					
 				}else{
 					udpateCustCreditDtl(env, strEnterpriseCode, docOutputOrderInvoiceList, true);
 				}
@@ -229,7 +295,7 @@ public class VSIWholesaleSendInvoice implements VSIConstants {
 				
 				NodeList nlInovoiceHeaderElement = docOutputOrderInvoiceList.getElementsByTagName(ELE_INVOICE_HEADER);
 				for (int i = 0; i < nlInovoiceHeaderElement.getLength(); i++) {
-				Element	eleInvoiceHeader = (Element) nlInovoiceHeaderElement.item(i);					
+				Element	eleInvoiceHeader = (Element) nlInovoiceHeaderElement.item(i);				
 				Element eleShipment = SCXmlUtil.getChildElement(eleInvoiceHeader, ELE_SHIPMENT);				
 				if (!YFCCommon.isVoid(eleShipment) && (!YFCCommon.isVoid(strExtnDeliveryDate)))
 				{					
@@ -276,13 +342,13 @@ public class VSIWholesaleSendInvoice implements VSIConstants {
 
 	// Get OrderInvoiceListDtl For Order
 	private Document getdocOutputOrderInvoiceListOrder(YFSEnvironment env, String strOrderHeaderKey,
-			String strShipmentKeyIn) throws Exception {
+			String strShipmentKeyIn,String strInvoiceType) throws Exception {
 
 		Document docOrderInvoiveDtlOut = XMLUtil.createDocument(ELE_INVOICE_DETAIL_LIST);
 		Document getOrderInvoiceListInXML = SCXmlUtil.createDocument(ELE_ORDER_INVOICE);
 		Element eleOrderInvoice = getOrderInvoiceListInXML.getDocumentElement();
 		SCXmlUtil.setAttribute(eleOrderInvoice, ATTR_ORDER_HEADER_KEY, strOrderHeaderKey);
-		SCXmlUtil.setAttribute(eleOrderInvoice, ATTR_INVOICE_TYPE, "ORDER");
+		SCXmlUtil.setAttribute(eleOrderInvoice, ATTR_INVOICE_TYPE, strInvoiceType);
 
 		Document getOrderInvoiceListOutXML = VSIUtils.invokeService(env, SERVICE_GET_ORDER_INVOICE_LIST, getOrderInvoiceListInXML);
 

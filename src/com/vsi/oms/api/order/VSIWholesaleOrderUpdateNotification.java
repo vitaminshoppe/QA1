@@ -47,7 +47,7 @@ public class VSIWholesaleOrderUpdateNotification implements VSIConstants{
 						String strMdfycnLvl=eleOrdAudtLvl.getAttribute("ModificationLevel");
 						if("ORDER_LINE".equals(strMdfycnLvl)) {
 							Document docOrdAdtLvl=XMLUtil.getDocumentForElement(eleOrdAudtLvl);
-							Element eleOrdAdtLvl=XMLUtil.getElementByXPath(docOrdAdtLvl, "/OrderAuditLevel/OrderAuditDetails/OrderAuditDetail/Attributes/Attribute[@Name='OrderedQty' or @Name='ExtnShipNotBeforeDate' or @Name='ExtnReqCancelDate' "
+							Element eleOrdAdtLvl=XMLUtil.getElementByXPath(docOrdAdtLvl, "/OrderAuditLevel/OrderAuditDetails/OrderAuditDetail/Attributes/Attribute[@Name='OrderedQty' or @Name='ExtnShipNotBeforeDate' or @Name='ExtnReqCancelDate' or @Name='ExtnShipNotAfterDate' or @Name='ExtnReqShipDate' "
 									+ "or @Name='PrimeLineNo']");
 							if(!YFCCommon.isVoid(eleOrdAdtLvl)) {
 								String strOrdLnKey=eleOrdAudtLvl.getAttribute(ATTR_ORDER_LINE_KEY);
@@ -99,6 +99,22 @@ public class VSIWholesaleOrderUpdateNotification implements VSIConstants{
 										Element eleNtfcnLnChng=SCXmlUtil.createChild(eleNtfcnLnChngs, "LineChange");
 										eleNtfcnLnChng.setAttribute("ChangeType", "DateChange");
 										eleNtfcnLnChng.setAttribute("DateType", "ExtnReqCancelDate");
+										eleNtfcnLnChng.setAttribute("OldValue", strOldDate);
+										eleNtfcnLnChng.setAttribute("NewValue", strNewDate);
+									}else if("ExtnReqShipDate".equals(strAttrName)) {
+										String strOldDate=eleAttribute.getAttribute(ATTR_OLD_VALUE);
+										String strNewDate=eleAttribute.getAttribute(ATTR_NEW_VALUE);
+										Element eleNtfcnLnChng=SCXmlUtil.createChild(eleNtfcnLnChngs, "LineChange");
+										eleNtfcnLnChng.setAttribute("ChangeType", "DateChange");
+										eleNtfcnLnChng.setAttribute("DateType", "ExtnReqShipDate");
+										eleNtfcnLnChng.setAttribute("OldValue", strOldDate);
+										eleNtfcnLnChng.setAttribute("NewValue", strNewDate);
+									}else if("ExtnShipNotAfterDate".equals(strAttrName)) {
+										String strOldDate=eleAttribute.getAttribute(ATTR_OLD_VALUE);
+										String strNewDate=eleAttribute.getAttribute(ATTR_NEW_VALUE);
+										Element eleNtfcnLnChng=SCXmlUtil.createChild(eleNtfcnLnChngs, "LineChange");
+										eleNtfcnLnChng.setAttribute("ChangeType", "DateChange");
+										eleNtfcnLnChng.setAttribute("DateType", "ExtnShipNotAfterDate");
 										eleNtfcnLnChng.setAttribute("OldValue", strOldDate);
 										eleNtfcnLnChng.setAttribute("NewValue", strNewDate);
 									}else if("PrimeLineNo".equals(strAttrName)) {

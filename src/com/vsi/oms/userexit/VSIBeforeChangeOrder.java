@@ -559,7 +559,7 @@ public class VSIBeforeChangeOrder implements VSIConstants {
 				if(modReasonCode.equalsIgnoreCase(LOST_IN_TRANSIT)){
 					emailType = "LITM";
 				}
-				if(YFCObject.isVoid(emailType))
+				if(YFCObject.isVoid(emailType)){
 					emailType = "NOEMAIL";
 				}
 				if((null!=strActionOrder && strActionOrder.equalsIgnoreCase(ACTION_CAPS_CANCEL))|| (null!=strActionOrderElement && strActionOrderElement.equalsIgnoreCase(ACTION_CAPS_CANCEL))){

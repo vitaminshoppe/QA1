@@ -3449,6 +3449,15 @@
 		 </Parent>
 	</Entity>
 	<!-- OMS-3452 : End -->
+	<!-- OMS-3559 : Start -->
+	<Entity TableName="YFS_ORDER_HOLD_TYPE">
+			<Indices>
+				<Index Name="EXTN_YFS_ORD_HOLD_TYPE_001">
+					<Column Name="STATUS"/>
+					<Column Name="HOLD_TYPE"/>
+				</Index>
+			</Indices>
+	</Entity>
+	<!-- OMS-3559 : End -->
 	</Entities>
-	
 </DBSchema>

@@ -2,10 +2,14 @@ package com.vsi.oms.api.order;
 
 import java.rmi.RemoteException;
 import javax.xml.parsers.ParserConfigurationException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import com.yantra.yfc.core.YFCObject;
 import com.sterlingcommerce.baseutil.SCXmlUtil;
 import com.vsi.oms.utils.VSIConstants;
 import com.vsi.oms.utils.VSIUtils;
@@ -62,7 +66,7 @@ public class VSIDuplicateOrder {
 			}
 		}
 		eleOrderElement.setAttribute(VSIConstants.ATTR_ENTERPRISE_CODE, orderElement.getAttribute(VSIConstants.ATTR_ENTERPRISE_CODE));
-				
+		Map<String, String> itemIdStoreMap = new HashMap<String, String>();		
 		 outdoc = VSIUtils.invokeAPI(env, VSIConstants.TEMPLATE_GET_ORDER_LIST, VSIConstants.API_GET_ORDER_LIST, getOrderListInput);
 		 Element eleOrderList = outdoc.getDocumentElement();
 		 
@@ -80,7 +84,7 @@ public class VSIDuplicateOrder {
 		  orderElement.setAttribute(VSIConstants.ATTR_ORDER_HEADER_KEY, eleOrder.getAttribute(VSIConstants.ATTR_ORDER_HEADER_KEY));
 		  
 		  String strEntryType=orderElement.getAttribute(VSIConstants.ATTR_ENTRY_TYPE);
-			 
+		  String strEnterpriseCode = orderElement.getAttribute(VSIConstants.ATTR_ENTERPRISE_CODE);	 
 			 if(VSIConstants.WHOLESALE.equals(strEntryType))
 			 {
 				    boolean bIsLineReleased = false;
@@ -118,7 +122,7 @@ public class VSIDuplicateOrder {
 			            			 Element elePersonInfoOut= SCXmlUtil.getChildElement(eleOrderLine,VSIConstants.ELE_PERSON_INFO_SHIP_TO);
 			            			 Element elePersonInfoExtnOut= SCXmlUtil.getChildElement(elePersonInfoOut,VSIConstants.ELE_EXTN);
 			            			 String strExtnMarkForStoreNo=elePersonInfoExtnOut.getAttribute(VSIConstants.ATTR_EXTN_MARK_FOR_STORE_NO);	       				         				            				
-			                        			            				
+			                         itemIdStoreMap.put(strItemIdOut, strExtnMarkForStoreNo);			            				
 			            				NodeList nlOrderLineIn = orderElement.getElementsByTagName(VSIConstants.ELE_ORDER_LINE);
 					            		for(int j = 0; j < nlOrderLineIn.getLength(); j++){
 					            			Element eleOrderLineIn = (Element) nlOrderLineIn.item(j);
@@ -156,6 +160,14 @@ public class VSIDuplicateOrder {
 			            			VSIUtils.invokeService(env, "VSIWHOrderChangeNotificationEmail", inXML);
 			            		}
 			            		else {
+									
+			            			ArrayList<Element> eleGetCommonCodeListPrice = VSIUtils.getCommonCodeList(env, VSIConstants.VSI_WH_CHECK_PRICE,
+			            					inXML.getDocumentElement().getAttribute(VSIConstants.ATTR_ENTERPRISE_CODE), "");
+			            			if(!eleGetCommonCodeListPrice.isEmpty()) {
+			            				if ("Y".equalsIgnoreCase(eleGetCommonCodeListPrice.get(0).getAttribute(VSIConstants.ATTR_CODE_SHORT_DESCRIPTION))) {
+			            					validatePriceDiscrepancies(env,itemIdStoreMap,inXML,strEnterpriseCode);
+			            				}
+			            			}									
 			            			VSIUtils.invokeAPI(env, VSIConstants.API_CHANGE_ORDER, inXML);
 			            			//OMS-3512 OMS-3513 OMS-3514 OMS-3515 Changes -- Start
 									/*
@@ -190,5 +202,104 @@ public class VSIDuplicateOrder {
 		 	 
 		  return inXML;
 		}// end of method checkDuplicateOrder()
+
+	private void validatePriceDiscrepancies(YFSEnvironment env,Map itemIdStoreMap,Document inXML,String strEnterpriseCode) throws Exception {
+
+		Document getPricelistLineListForItemInput = null;
+		Document getPricelistLineListForItemOutput = null;
+		boolean flgApplyHoldForPrice =false;
+		Document priceHoldDescriptionXML = null;
+		StringBuffer strPriceHoldDescription = new StringBuffer();
+		
+		Element orderElement = inXML.getDocumentElement();
+		NodeList nlOrderLineIn = orderElement.getElementsByTagName(VSIConstants.ELE_ORDER_LINE);
+		for(int j = 0; j < nlOrderLineIn.getLength(); j++){
+			Element eleOrderLine = (Element) nlOrderLineIn.item(j);
+			Element eleItemIn = SCXmlUtil.getChildElement(eleOrderLine,VSIConstants.ELE_ITEM);
+			String strItemIdIn=eleItemIn.getAttribute(VSIConstants.ITEM_ID);
+			if(!itemIdStoreMap.containsKey(strItemIdIn)) {
+				Element eleLinePriceInfo = SCXmlUtil.getChildElement(eleOrderLine, VSIConstants.ELE_LINE_PRICE_INFO, true);
+				String strinUnitPrice = eleLinePriceInfo.getAttribute(VSIConstants.ATTR_UNIT_PRICE);
+				Element eleItem = SCXmlUtil.getChildElement(eleOrderLine, VSIConstants.ELE_ITEM, true);
+				
+				if (!YFCObject.isVoid(eleItem.getAttribute(VSIConstants.ATTR_ITEM_ID))) {
+					getPricelistLineListForItemInput = createInputForGetPricelistLineListForItem(
+							eleItem.getAttribute(VSIConstants.ATTR_ITEM_ID),strEnterpriseCode);
+					
+					getPricelistLineListForItemOutput = VSIUtils.invokeAPI(env, "",
+						VSIConstants.API_GET_PRICE_LIST_LINE_LIST_FOR_ITEM, getPricelistLineListForItemInput);
+					Element elePricelistLineList = getPricelistLineListForItemOutput.getDocumentElement();
+					if (elePricelistLineList.hasChildNodes()) {
+						Element ele_PricelistLine = SCXmlUtil.getChildElement(elePricelistLineList, VSIConstants.ELE_PRICELIST_LINE);
+						String unitPrice = ele_PricelistLine.getAttribute(VSIConstants.ATTR_UNIT_PRICE);
+				
+						if (Double.valueOf(unitPrice).compareTo(Double.valueOf(strinUnitPrice)) != 0) {
+
+							
+							if(strPriceHoldDescription.length() == 0){
+						
+								priceHoldDescriptionXML = SCXmlUtil.createDocument("PriceDiscrepancies");
+							}
+					
+							if(!strPriceHoldDescription.toString().contains(eleItem.getAttribute(VSIConstants.ATTR_ITEM_ID))){
+								strPriceHoldDescription.append("Line No: " + eleOrderLine.getAttribute(VSIConstants.ATTR_PRIME_LINE_NO)
+								+ " - SKU ID: " + eleItem.getAttribute(VSIConstants.ATTR_ITEM_ID) 
+								+ " - Unit Price: " + strinUnitPrice
+								+ "\n");
+						
+								Element elePriceDiscrepancy = SCXmlUtil.
+										createChild(priceHoldDescriptionXML.getDocumentElement(), "PriceDiscrepancy");
+								SCXmlUtil.setAttribute(elePriceDiscrepancy, VSIConstants.ATTR_PRIME_LINE_NO, eleOrderLine.getAttribute(VSIConstants.ATTR_PRIME_LINE_NO));
+								SCXmlUtil.setAttribute(elePriceDiscrepancy, VSIConstants.ATTR_ITEM_ID, eleItem.getAttribute(VSIConstants.ATTR_ITEM_ID));
+								SCXmlUtil.setAttribute(elePriceDiscrepancy, VSIConstants.ATTR_UNIT_PRICE, strinUnitPrice);
+							}
+							if (!flgApplyHoldForPrice) {
+								flgApplyHoldForPrice = true;
+							}
+						}
+					}
+				}
+			}
+		}
+		if (flgApplyHoldForPrice) {
+			env.setTxnObject("VSI_WH_PRICE_DISC_RAISE_ALERT_SB", strPriceHoldDescription);
+			env.setTxnObject("VSI_WH_PRICE_DISC_RAISE_ALERT_XML", priceHoldDescriptionXML);
+			inXML = applyPriceDiscHold(env, inXML);
+		}
+	}
 	
+	private Document createInputForGetPricelistLineListForItem(String itemID, String enterpriseCode) throws Exception {
+
+		Document getPriceListLine = SCXmlUtil.createDocument(VSIConstants.ELE_PRICELIST_LINE);
+		Element elePricelistLine = getPriceListLine.getDocumentElement();
+		SCXmlUtil.setAttribute(elePricelistLine, VSIConstants.ATTR_ORGANIZATION_CODE, enterpriseCode);
+		Element eleItem = SCXmlUtil.createChild(elePricelistLine, VSIConstants.ELE_ITEM);
+		eleItem.setAttribute(VSIConstants.ATTR_ITEM_ID, itemID);
+
+		Element elePricelistHeader = SCXmlUtil.createChild(elePricelistLine,VSIConstants.ELE_PRICE_LIST_HEADER);
+		elePricelistHeader.setAttribute(VSIConstants.ATTR_PRICING_STATUS, "ACTIVE");
+
+		return getPriceListLine;
+	}
+
+/**
+* This method is used to apply price discrepancy hold to an order
+* 
+* @param env
+* @param inXML
+* @return
+*/
+	private Document applyPriceDiscHold(YFSEnvironment env, Document inXML) {
+
+		Element eleHoldTypes;
+		eleHoldTypes = SCXmlUtil.getChildElement(inXML.getDocumentElement(), VSIConstants.ELE_ORDER_HOLD_TYPES);
+		if (YFCObject.isNull(eleHoldTypes)) {
+			eleHoldTypes = SCXmlUtil.createChild(inXML.getDocumentElement(), VSIConstants.ELE_ORDER_HOLD_TYPES);
+		}
+		Element eleHoldType = SCXmlUtil.createChild(eleHoldTypes, VSIConstants.ELE_ORDER_HOLD_TYPE);
+		eleHoldType.setAttribute(VSIConstants.ATTR_HOLD_TYPE, "VSI_WH_PRI_DISC_HOLD");
+		eleHoldType.setAttribute(VSIConstants.ATTR_STATUS, VSIConstants.STATUS_CREATE);
+
+		return inXML;
+	}	
 }// end of class

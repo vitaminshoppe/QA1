@@ -171,7 +171,7 @@ public class VSIBeforeChangeShipmentUE implements YDMBeforeChangeShipment,VSICon
 				Element eleShpmntOut=SCXmlUtil.getChildElement(eleShpmntsOut, ELE_SHIPMENT);
 				
 				String strDeliveryMethod=eleShpmntOut.getAttribute(ATTR_DELIVERY_METHOD);				
-								
+				setPartialCancellationEmailMsg(env,inXML);				
 				if(ATTR_DEL_METHOD_SHP.equals(strDeliveryMethod)) {
 					printLogs("BOSS Shipment");
 					
@@ -599,4 +599,53 @@ public class VSIBeforeChangeShipmentUE implements YDMBeforeChangeShipment,VSICon
 	 	return doc;
 	}
 	//OMS-2827 Changes -- End
+	
+	
+	private void setPartialCancellationEmailMsg(YFSEnvironment env,Document inputShipment) throws Exception {
+		log.info("In setPartialCancellationEmailMsg method");
+	    Document partialCnclEnvObj = (Document) env.getTxnObject("JDA_PARTIAL_CNCL");
+		
+		Element eleShipment = inputShipment.getDocumentElement();
+		Element eleShpmntLns=SCXmlUtil.getChildElement(eleShipment, ELE_SHIPMENT_LINES);
+		Element eleShpmntLn=SCXmlUtil.getChildElement(eleShpmntLns, ELE_SHIPMENT_LINE);
+		String ohk = eleShpmntLn.getAttribute("OrderHeaderKey");
+		String olk = eleShpmntLn.getAttribute("OrderLineKey");
+		Document getOrderListInput = XMLUtil.createDocument(ELE_ORDER);
+		Element eleOrderInput = getOrderListInput.getDocumentElement();
+		Boolean publishFlag=false;
+		if(!YFCCommon.isVoid(ohk)){
+			eleOrderInput.setAttribute(VSIConstants.ATTR_ORDER_HEADER_KEY, ohk);
+			Document getOrderListoutDoc = VSIUtils.invokeAPI(env, TEMPLATE_GET_ORD_LIST_VSI_CNCL_EMAIL, VSIConstants.API_GET_ORDER_LIST,getOrderListInput);			
+			Element eleOrderOut = (Element)getOrderListoutDoc.getElementsByTagName(ELE_ORDER).item(0);
+			Element eleOrderLines = (Element)getOrderListoutDoc.getElementsByTagName(VSIConstants.ELE_ORDER_LINES).item(0);
+			
+			NodeList orderLineList = getOrderListoutDoc.getElementsByTagName(VSIConstants.ELE_ORDER_LINE);
+			int linelength= orderLineList.getLength();
+			for(int i=0;i<linelength;i++){
+				Element orderLineElement = (Element)orderLineList.item(i);
+				String strOrderLinekey = orderLineElement.getAttribute(VSIConstants.ATTR_ORDER_LINE_KEY);				
+				if(!olk.equalsIgnoreCase(strOrderLinekey)){
+					eleOrderLines.removeChild(orderLineElement);
+					linelength--;
+					i--;
+				}else{
+					publishFlag=true;
+					orderLineElement.setAttribute("Publish", "Y"); 
+					if(!YFCCommon.isVoid(partialCnclEnvObj)) {
+						Element orderLineEle = (Element)partialCnclEnvObj.getElementsByTagName(VSIConstants.ELE_ORDER_LINES).item(0);
+						Document docOrderLines = XMLUtil.getDocumentForElement(orderLineEle);
+						XMLUtil.importElement(orderLineEle, orderLineElement);
+						env.setTxnObject("JDA_PARTIAL_CNCL",partialCnclEnvObj);
+						log.info("Setting partial cnl transaction obj::"+XMLUtil.getXMLString(partialCnclEnvObj));
+					}
+				}
+
+			}
+			if(YFCCommon.isVoid(partialCnclEnvObj)) {
+				env.setTxnObject("JDA_PARTIAL_CNCL",getOrderListoutDoc);
+				log.info("Setting partial cnl  obj::"+XMLUtil.getXMLString(getOrderListoutDoc));
+			}
+		}
+		
+	}
 }

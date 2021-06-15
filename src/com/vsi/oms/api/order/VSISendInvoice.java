@@ -1,8 +1,7 @@
 package com.vsi.oms.api.order;
 
 import java.rmi.RemoteException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -13,7 +12,6 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.NodeList;
 
 import com.sterlingcommerce.baseutil.SCXmlUtil;
-import com.vsi.oms.condition.VSIMixedCartCondition;
 import com.vsi.oms.utils.VSIConstants;
 import com.vsi.oms.utils.VSIDBUtil;
 import com.vsi.oms.utils.VSIUtils;
@@ -159,18 +157,51 @@ public class VSISendInvoice implements VSIConstants{
 		}
 
 		
-		//Wholesale Order Invoice Changes
-		if (sInvoiceType.equalsIgnoreCase("ORDER"))
-				{
-			sDateInvoiced=invoiceHeaderele.getAttribute("DateInvoiced");
-			Element createShipmentEle = XMLUtil.appendChild(inXML, invoiceHeaderele, "Shipment", "");
-			createShipmentEle.setAttribute("ShipDate", sDateInvoiced);
-			createShipmentEle.setAttribute(VSIConstants.ATTR_DELIVERY_METHOD,VSIConstants.ATTR_DEL_METHOD_SHP);
-			Element createShipmentExtnEle = XMLUtil.appendChild(inXML, createShipmentEle, "Extn", "");
-			createShipmentExtnEle.setAttribute("ShipmentSeqNo", "1");
+		//Wholesale Order Invoice Changes -OMS-3561 Start
+		Element eleInOrder=(Element)invoiceHeaderele.getElementsByTagName("Order").item(0);
+		String strOrderHeaderKey=eleInOrder.getAttribute(ATTR_ORDER_HEADER_KEY);
+		String strOrderTypeWH=eleInOrder.getAttribute(ATTR_ORDER_TYPE);
+		if (sInvoiceType.equalsIgnoreCase("ORDER") && strOrderTypeWH.equalsIgnoreCase(WHOLESALE))
+				{		
+			
+			Document docShipment = SCXmlUtil.createDocument(VSIConstants.ELE_SHIPMENT);
+			Element eleShip = docShipment.getDocumentElement();		
+			eleShip.setAttribute(VSIConstants.ATTR_ORDER_HEADER_KEY, strOrderHeaderKey);
+			
+			Document docOutputShipment = VSIUtils.invokeService(env,SERVICE_GET_SHIPMENT_LIST_FOR_ORDER_INV, docShipment);
+			
+			
+			Element eleOutShipments = docOutputShipment.getDocumentElement();
+			Element eleOutShipment=(Element) eleOutShipments.getElementsByTagName(ELE_SHIPMENT).item(0);				
+			
+								
+			SCXmlUtil.importElement(invoiceHeaderele, eleOutShipment);
+			
+			Document docShipmentLine = SCXmlUtil.createDocument(VSIConstants.ELE_SHIPMENT_LINE);
+			Element eleShipLine = docShipmentLine.getDocumentElement();		
+			eleShipLine.setAttribute(VSIConstants.ATTR_ORDER_HEADER_KEY, strOrderHeaderKey);
+			
+			Document docOutputShipmentLine = VSIUtils.invokeService(env,SERVICE_GET_SHIPMENT_LINE, docShipmentLine);
+			Element eleOutShipmentLine = docOutputShipmentLine.getDocumentElement();
+			
+			Element eleInShipment = (Element) inXML.getElementsByTagName(ELE_SHIPMENT).item(0);						
+			SCXmlUtil.importElement(eleInShipment, eleOutShipmentLine);	
+			
+			
+			//OMS-3567 Start
+			NodeList nlInovoiceHeaderElement = inXML.getElementsByTagName(ELE_INVOICE_HEADER);
+			for (int i = 0; i < nlInovoiceHeaderElement.getLength(); i++) {
+			Element	eleInvoiceHeader = (Element) nlInovoiceHeaderElement.item(i);
+			if(sInvoiceType.equalsIgnoreCase(ATTR_WH_INVOICE_LEVEL_ORDER))
+			{
+			eleInvoiceHeader.setAttribute(ATTR_INVOICE_TYPE, ATTR_WH_INVOICE_LEVEL_SHIP);
+			}
+			}					
+			//OMS-3567 End
+				
 				}
 		
-		//Wholesale Order Invoice Changes
+		//Wholesale Order Invoice Changes -OMS-3561 End
 		
 		//Element shipmentElem = (Element) inXML.getElementsByTagName("Shipment").item(0);
 		//Commemted for  for Omni 2.0 jira 769
