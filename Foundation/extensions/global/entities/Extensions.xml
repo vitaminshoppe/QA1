@@ -1130,6 +1130,7 @@
 					DefaultValue="" Description="extn style"
 					Nullable="true" Size="40" Type="VARCHAR2" XMLName="ExtnStyle"
 					XMLGroup="Extn" />
+				  
 		        <!-- OMS-1801 End-->			
 			</Attributes>
 		</Entity>
