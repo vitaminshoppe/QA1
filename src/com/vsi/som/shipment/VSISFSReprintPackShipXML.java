@@ -334,6 +334,8 @@ public class VSISFSReprintPackShipXML {
 				if(!YFCCommon.isVoid(strParcelType)){
 					if("Carton".equals(strParcelType)){
 						strContainerSize="30";
+					}else if("Fixed".equals(strParcelType)){
+						strContainerSize="24";
 					}else if("Envelope".equals(strParcelType)){
 						strContainerSize="ENV";
 					}

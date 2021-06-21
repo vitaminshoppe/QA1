@@ -40,8 +40,12 @@
                     <RadioBinding>
                         <Option label="$(_scSimpleBundle:extn_Envelope)"
                             scExtensibilityArrayItemId="extn_RadioBinding_0" value="Envelope"/>
-                        <Option label="$(_scSimpleBundle:extn_Carton)"
+                        <Option
+                            label="$(_scSimpleBundle:extn_30V_Carton)"
                             scExtensibilityArrayItemId="extn_RadioBinding_1" value="Carton"/>
+                        <Option
+                            label="$(_scSimpleBundle:extn_20V_Fixed)"
+                            scExtensibilityArrayItemId="extn_RadioBinding_2" value="Fixed"/>
                     </RadioBinding>
                     <SourceBinding namespace="container_Src" path="Container.Extn.ExtnParcelType"/>
                     <TargetBindings>

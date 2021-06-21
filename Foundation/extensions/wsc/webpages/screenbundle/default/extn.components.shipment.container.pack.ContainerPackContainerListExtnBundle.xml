@@ -25,8 +25,13 @@
             property="label" type="WIDGET" uId="extn_parcel"/>
         <BundleEntry
             bundleEntryId="extn_parcel_RadioButtonSet_BindingData_RadioBinding_Carton_Option_label"
-            bundleKey="extn_Carton" bundleValueFn="_scSimpleBundle"
+            bundleKey="extn_30V_Carton" bundleValueFn="_scSimpleBundle"
             childPath="RadioButtonSet_BindingData_RadioBinding_Carton_Option"
+            property="label" type="WIDGET" uId="extn_parcel"/>
+        <BundleEntry
+            bundleEntryId="extn_parcel_RadioButtonSet_BindingData_RadioBinding_Fixed_Option_label"
+            bundleKey="extn_20V_Fixed" bundleValueFn="_scSimpleBundle"
+            childPath="RadioButtonSet_BindingData_RadioBinding_Fixed_Option"
             property="label" type="WIDGET" uId="extn_parcel"/>
         <BundleEntry bundleEntryId="extn_seq_DataLabel_label"
             bundleKey="extn_Sequence_No" bundleValueFn="_scSimpleBundle"
