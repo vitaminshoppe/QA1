@@ -37,6 +37,7 @@ public class VSINonEDIWholesaleOrderOnCreate {
 
 		try {
 			
+			//check in git hub
 			String strFirstName=YFSSystem.getProperty("PERSON_INFO_FIRSTNAME");
 			String strAddressLine1=YFSSystem.getProperty("PERSON_INFO_ADDR_LINE_1");
 			String strAddressLine2=YFSSystem.getProperty("PERSON_INFO_ADDR_LINE_2");
