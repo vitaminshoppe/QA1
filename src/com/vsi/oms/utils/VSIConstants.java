@@ -2203,4 +2203,31 @@ public static final String ATTR_USER_KEY="UserKey";
 	//OMS 3420: Start
 	public static final String BLANK_PERSONSHIPTO_ALERT_DETAIL_DESCRIPTION = "Exception due to blank zipcode/state in PersonInfoShipTo";
 	//OMS 3420: End
+	
+	
+	//OMS-NON-EDI Start
+	public static final String ATTR_PERSON_INFO_FIRSTNAME="_PERSON_INFO_FIRSTNAME";
+	public static final String ATTR_PERSON_INFO_ADDR_LINE_1="_PERSON_INFO_ADDR_LINE_1";
+	public static final String ATTR_PERSON_INFO_ADDR_LINE_2="_PERSON_INFO_ADDR_LINE_2";
+	public static final String ATTR_PERSON_INFO_CITY="_PERSON_INFO_CITY";
+	public static final String ATTR_PERSON_INFO_STATE="_PERSON_INFO_STATE";
+	public static final String ATTR_PERSON_INFO_COUNTRY="_PERSON_INFO_COUNTRY";
+	public static final String ATTR_PERSON_INFO_ZIPCODE="_PERSON_INFO_ZIPCODE";
+	
+	 public static final String ATTR_PERSON_INFO_BILLTO_FIRSTNAME="_PERSON_INFO_BILLTO_FIRSTNAME";
+		public static final String ATTR_PERSON_INFO_BILLTO_ADDR_LINE_1="_PERSON_INFO_BILLTO_ADDR_LINE_1";
+		public static final String ATTR_PERSON_INFO_BILLTO_ADDR_LINE_2="_PERSON_INFO_BILLTO_ADDR_LINE_2";
+		public static final String ATTR_PERSON_INFO_BILLTO_CITY="_PERSON_INFO_BILLTO_CITY";
+		public static final String ATTR_PERSON_INFO_BILLTO_STATE="_PERSON_INFO_BILLTO_STATE";
+		public static final String ATTR_PERSON_INFO_BILLTO_COUNTRY="_PERSON_INFO_BILLTO_COUNTRY";
+		public static final String ATTR_PERSON_INFO_BILLTO_ZIPCODE="_PERSON_INFO_BILLTO_ZIPCODE";
+									   
+		public static final String ATTR_EXTN_DTCORDER="_EXTN_DTCORDER";
+		public static final String ATTR_EXTN_GUESTCHECKOUT="_EXTN_GUESTCHECKOUT";
+		public static final String ATTR_EXTN_TAXCALCULATED="_EXTN_TAXCALCULATED";
+		public static final String ATTR_EXTN_TYPE_WH="_EXTN_TYPE";
+		public static final String ATTR_EXTN_DEPARTMENTID="_EXTN_DEPARTMENTID";
+	
+	//OMS-NON-EDI End
+	
 }
