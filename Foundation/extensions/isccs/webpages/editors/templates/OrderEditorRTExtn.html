@@ -66,6 +66,22 @@
 		 	</div>  			
 		 	<div data-dojo-type="sc/plat/dojo/widgets/Link" 
 	 					data-dojo-props="data_dojo_props_diff: {
+	 								uId : 'extn_link_resolve_wholesale_hold' , 
+		_sc_extensibility_operation : 'insert' , 
+		_sc_extensibility_moveOrder : '3' , 
+		'class' : 'relatedTaskLink' , 
+		_sc_extensibility_position : 'after' , 
+		_sc_extensibility_referenceUId : 'extn_link_updateBol'  
+ 		,scExtensionDataFn :
+		 function() { 
+			return { 
+			 	value : 			this.getSimpleBundleString('extn_Resolve_Wholesale_Hold')
+			}
+		}
+	 					}">
+		 	</div>   			
+		 	<div data-dojo-type="sc/plat/dojo/widgets/Link" 
+	 					data-dojo-props="data_dojo_props_diff: {
 	 								_sc_extensibility_operation : 'change' , 
 		_sc_extensibility_referenceUId : 'rescheduleAppointment' , 
 		renderHidden : true  

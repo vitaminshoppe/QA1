@@ -1777,6 +1777,9 @@
             <Input>
                 <Order OrderHeaderKey="">
                     <Extn/>
+                    <OrderHoldTypes>
+                        <OrderHoldType HoldType="Required" Status=""/>
+                    </OrderHoldTypes>
                 </Order>
             </Input>
             <Template/>
@@ -1784,5 +1787,25 @@
         <classInformation name="com.ibm.isccs.common.mashups.SCCSBaseMashup"/>
         <APINamespace inputNS="extn_changeOrder_OrderEditorRT_input" outputNS="extn_changeOrder_OrderEditorRT_output"/>
         <AlternateResourceIds/>
-    </mashup>	
+    </mashup>
+    <mashup description="" endpoint="EP_ORDER"
+        id="extn_getOrderHoldTypeList" mashuptype="XAPI" resourceId="" transactional="true">
+        <API Name="getOrderHoldTypeList">
+            <Input>
+                <OrderHoldType OrderHeaderKey=""/>
+            </Input>
+            <Template>
+                <OrderHoldTypes TotalNumberOfRecords="">
+                    <OrderHoldType HoldType="" OrderAuditKey=""
+                        ReasonText="" ResolverUserId="" Status=""
+                        StatusDescription="" TransactionId="">
+                        <Order HoldFlag=""/>
+                    </OrderHoldType>
+                </OrderHoldTypes>
+            </Template>
+        </API>
+        <classInformation name="com.ibm.isccs.common.mashups.SCCSBaseMashup"/>
+        <APINamespace inputNS="extn_getOrderHoldTypeList_input" outputNS="extn_getOrderHoldTypeList_output"/>
+        <AlternateResourceIds/>
+    </mashup>    	
 </mashups>

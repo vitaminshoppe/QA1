@@ -23,6 +23,12 @@
                 _sc_extensibility_referenceUId="ordertasks"
                 class="relatedTaskLink" renderHidden="true"
                 uId="extn_link_updateBol" value="$(_scSimpleBundle:extn_Update_BOL)"/>
+            <Link _sc_extensibility_moveOrder="3"
+                _sc_extensibility_operation="insert"
+                _sc_extensibility_position="after"
+                _sc_extensibility_referenceUId="extn_link_updateBol"
+                class="relatedTaskLink"
+                uId="extn_link_resolve_wholesale_hold" value="$(_scSimpleBundle:extn_Resolve_Wholesale_Hold)"/>				
             <Link _sc_extensibility_operation="change"
                 _sc_extensibility_referenceUId="rescheduleAppointment" renderHidden="true"/>
             <Link _sc_extensibility_moveOrder="1"
@@ -56,12 +62,19 @@
                     isExtn="true" sequence="51">
                     <Handler methodName="onExtnMashupCompletion"/>
                 </Subscriber>
+                <Subscriber
+                    eventId="extn_link_resolve_wholesale_hold_onClick"
+                    isExtn="true" sequence="51">
+                    <Handler methodName="extn_OpenResolveWholesaleOrderPopup"/>
+                </Subscriber>
             </Local>
         </Subscribers>
         <MashupRefs>
             <Behavior>
                 <MashupRef extnType="ADD"
                     mashupId="extn_changeOrder_OrderEditorRT" mashupRefId="extn_changeOrder_OrderEditorRT"/>
+                <MashupRef extnType="ADD"
+                    mashupId="extn_getOrderHoldTypeList" mashupRefId="extn_getOrderHoldTypeList"/>
             </Behavior>
         </MashupRefs>
     </ScreenExtension>

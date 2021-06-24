@@ -15,6 +15,11 @@
         <BundleEntry bundleEntryId="extn_link_updateBol_Link_value"
             bundleKey="extn_Update_BOL" bundleValueFn="_scSimpleBundle"
             property="value" type="WIDGET" uId="extn_link_updateBol"/>
+        <BundleEntry
+            bundleEntryId="extn_link_resolve_wholesale_hold_Link_value"
+            bundleKey="extn_Resolve_Wholesale_Hold"
+            bundleValueFn="_scSimpleBundle" property="value"
+            type="WIDGET" uId="extn_link_resolve_wholesale_hold"/>
         <BundleEntry bundleEntryId="extn_giftCardFulfillment_Link_value"
             bundleKey="extn_Fulfill_Gift_Cards"
             bundleValueFn="_scSimpleBundle" property="value"

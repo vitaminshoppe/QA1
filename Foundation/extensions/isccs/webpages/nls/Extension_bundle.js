@@ -212,6 +212,7 @@ define({ root:
 	"extn_Update_BOL": "Update BOL/Delivery Date",
 	"extn_BOL_Number" : "BOL Number",
 	"extn_Delivery_Date":"Delivery Date" ,
-	"extn_Wholesale_Order": "Wholesale Order#"
+	"extn_Wholesale_Order": "Wholesale Order#",
+	"extn_Resolve_Wholesale_Hold" : "Resolve Wholesale Holds"  
 },
 });

@@ -7,5 +7,8 @@
         <MashupRef extnType="ADD"
             mashupId="extn_changeOrder_OrderEditorRT"
             mashupRefId="extn_changeOrder_OrderEditorRT" permissionId=""/>
+        <MashupRef extnType="ADD" mashupId="extn_getOrderHoldTypeList"
+            mashupRefId="extn_getOrderHoldTypeList" permissionId=""/>
+
     </MashupRefs>
 </Controller>

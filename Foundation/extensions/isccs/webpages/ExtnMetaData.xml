@@ -223,6 +223,9 @@
             <UIExtn
                 appScreen="isccs.order.create.additems.GetOrganizationList"
                 extnScreen="extn.order.create.additems.GetOrganizationListExtn" type="diffrential"/>
+            <UIExtn
+                appScreen="isccs.order.create.additems.ViewBundleComponentsPopup"
+                extnScreen="extn.order.create.additems.ViewBundleComponentsPopupExtn" type="diffrential"/>
         </UIExtns>
     </Identifier>
 </Extensions>

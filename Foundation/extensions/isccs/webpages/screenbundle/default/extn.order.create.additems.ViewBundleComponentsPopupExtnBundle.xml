@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ScreenBundle
+    screenBundleId="extn.order.create.additems.ViewBundleComponentsPopupExtnBundle" screenId="extn.order.create.additems.ViewBundleComponentsPopupExtn">
+    <BundleEntries>
+        <BundleEntry bundleEntryId="extn_button_apply_Button_label"
+            bundleKey="Apply" bundleValueFn="_scSimpleBundle"
+            property="label" type="WIDGET" uId="extn_button_apply"/>
+        <BundleEntry bundleEntryId="extn_view_44983_View_name"
+            bundleKey="Hold_Description" bundleValueFn="_scSimpleBundle"
+            property="name" type="WIDGET" uId="extn_view_44983"/>
+        <BundleEntry bundleEntryId="extn_tblCol_AppliedTo_View_name"
+            bundleKey="Applied_To" bundleValueFn="_scSimpleBundle"
+            property="name" type="WIDGET" uId="extn_tblCol_AppliedTo"/>
+        <BundleEntry bundleEntryId="extn_tblCol_reasonText_View_name"
+            bundleKey="Reason_Texts" bundleValueFn="_scSimpleBundle"
+            property="name" type="WIDGET" uId="extn_tblCol_reasonText"/>
+    </BundleEntries>
+</ScreenBundle>

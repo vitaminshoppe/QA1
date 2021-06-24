@@ -38,6 +38,13 @@ return _dojodeclare("extn.editors.OrderEditorRTExtnBehaviorController",
 		 extnType : 			'ADD'
 
 	}
+,
+	 		{
+		 mashupRefId : 			'extn_getOrderHoldTypeList'
+,
+		 mashupId : 			'extn_getOrderHoldTypeList'
+,
+		 extnType : 			'ADD'
 
 	]
 

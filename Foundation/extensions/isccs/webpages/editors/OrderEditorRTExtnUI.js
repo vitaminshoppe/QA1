@@ -115,7 +115,22 @@ methodName : "extn_UpdateBOLNoOnClickHandler"
 ,handler : {
 methodName : "onExtnMashupCompletion"
 
+ 
+}
+}
+,
+{
+	  eventId: 'extn_link_resolve_wholesale_hold_onClick'
 
+,	  sequence: '51'
+
+
+
+
+,handler : {
+methodName : "extn_OpenResolveWholesaleOrderPopup"
+
+ 
 }
 }
 

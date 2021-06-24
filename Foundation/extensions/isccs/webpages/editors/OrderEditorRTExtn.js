@@ -123,7 +123,6 @@ function(
 			
 			extn_updateBOLAndDeliveryDatecallBackHandler: function(event, bEvent, ctrl, args) {
 				
-
 				if(event!="CLOSE")
 				{
 					var currentEditor = _scEditorUtils.getCurrentEditor();
@@ -131,8 +130,7 @@ function(
 					var  input =_scModelUtils.createNewModelObjectWithRootKey("Order");
 					_scModelUtils.setStringValueAtModelPath("Order.OrderHeaderKey",_scModelUtils.getStringValueFromPath("Order.OrderHeaderKey",taskInput),input);
 					var extnModel= _scModelUtils.getModelObjectFromPath("Order.Extn",bEvent);
-					_scModelUtils.addModelToModelPath("Order.Extn",extnModel,input);					
-
+					_scModelUtils.addModelToModelPath("Order.Extn",extnModel,input);				
 					_isccsUIUtils.callApi(this, input, "extn_changeOrder_OrderEditorRT");
 				}
 
@@ -145,7 +143,27 @@ function(
 						var mashupObj = args.mashupArray[index];
 
 						if (mashupObj.mashupRefId == "extn_changeOrder_OrderEditorRT") {
+							
 							isccs.utils.OrderUtils.openOrderSummary(event, bEvent, ctrl, args);
+							
+						}else if(mashupObj.mashupRefId == "extn_getOrderHoldTypeList"){
+							
+							var modelOutput = null;
+							var popUpParams=null;
+							var dialogParams = null;
+							modelOutput = _scBaseUtils.getModelValueFromBean(
+								"mashupRefOutput", mashupObj);
+							var currentEditor = _scEditorUtils.getCurrentEditor();
+							var taskInput = _scScreenUtils.getInitialInputData(currentEditor);
+							dialogParams = _scBaseUtils.getNewBeanInstance();
+							_scBaseUtils.addStringValueToBean("closeCallBackHandler", "extn_resolveWholesaleHoldsCallbackHandler", dialogParams);										
+							popUpParams = _scBaseUtils.getNewBeanInstance();
+							_scModelUtils.addModelToModelPath("Order.Extn",modelOutput,taskInput);
+				            _scModelUtils.setStringValueAtModelPath("Order.Extn.ExtnWholesaleResolveHoldPopup", "Y", taskInput);
+							_scModelUtils.setStringValueAtModelPath("Order.Extn.ExtnBOLNumberPopup", "N", taskInput);				            
+							_scBaseUtils.addModelValueToBean("screenInput",taskInput,popUpParams);
+							_isccsUIUtils.openSimplePopup("isccs.order.create.additems.ViewBundleComponentsPopup", "Resolve Wholesale holds", this, popUpParams, dialogParams);
+
 						}
 					}
 				}
@@ -157,8 +175,39 @@ function(
 				var entryType= _scModelUtils.getStringValueFromPath("Order.EntryType",taskInput);
 				if(_scBaseUtils.equals(entryType,"WHOLESALE")){
 					_scWidgetUtils.showWidget(this,"extn_link_updateBol",false);
+					_scWidgetUtils.showWidget(this,"extn_link_resolve_wholesale_hold",false);
+					_scWidgetUtils.hideWidget(this,"ResolveHoldWizard",false);
 					
+				}else{				
+					_scWidgetUtils.hideWidget(this,"extn_link_resolve_wholesale_hold",false);
 				}
+			},
+			
+			extn_OpenResolveWholesaleOrderPopup: function(event, bEvent, ctrl, args) {
+				
+				var currentEditor = _scEditorUtils.getCurrentEditor();
+				var taskInput = _scScreenUtils.getInitialInputData(currentEditor);
+				var  input =_scModelUtils.createNewModelObjectWithRootKey("OrderHoldType");
+				_scModelUtils.setStringValueAtModelPath("OrderHoldType.OrderHeaderKey",_scModelUtils.getStringValueFromPath("Order.OrderHeaderKey",taskInput),input);
+			    _isccsUIUtils.callApi(this, input, "extn_getOrderHoldTypeList");	
+			},
+			
+			extn_resolveWholesaleHoldsCallbackHandler: function(event, bEvent, ctrl, args) {
+				if(event!="CLOSE"){
+				  var input = bEvent;
+				  var currentEditor = _scEditorUtils.getCurrentEditor();
+				  var taskInput = _scScreenUtils.getInitialInputData(currentEditor);
+				  _scModelUtils.setStringValueAtModelPath("Order.OrderHeaderKey",_scModelUtils.getStringValueFromPath("Order.OrderHeaderKey",taskInput),input);
+                  var holdTypes = _scModelUtils.getModelObjectFromPath("Order.OrderHoldTypes",input);
+				  var list = _scModelUtils.getModelObjectFromPath("Order.OrderHoldTypes.OrderHoldType",input);
+					for(var i=0; i< list.length;i++){
+						var holdType = list[i];
+						_scModelUtils.setStringValueAtModelPath("Status","1300",holdType);
+					}               
+					_isccsUIUtils.callApi(this, input, "extn_changeOrder_OrderEditorRT");    
+	
+				}
+								
 			}
         
 });

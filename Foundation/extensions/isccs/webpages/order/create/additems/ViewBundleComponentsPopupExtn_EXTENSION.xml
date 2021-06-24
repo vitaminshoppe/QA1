@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ExtensionMetaData>
+    <ScreenExtension extnClassName="ViewBundleComponentsPopupExtn"
+        extnPackage="extn.order.create.additems"
+        originalScreen="isccs.order.create.additems.ViewBundleComponentsPopup"
+        originalScreenPackage="isccs.order.create.additems" type="diffrential">
+        <Namespaces>
+            <TargetNamespaces>
+                <Target isExtn="true"
+                    scExtensibilityArrayItemId="extn_TargetNamespaces_1" value="extn_orderHoldTypeList"/>
+            </TargetNamespaces>
+            <SourceNamespaces>
+                <Source isExtn="true"
+                    scExtensibilityArrayItemId="extn_SourceNamespaces_6" value="extn_getOrderHoldTypeList"/>
+            </SourceNamespaces>
+        </Namespaces>
+        <Items>
+            <ContentPane _sc_extensibility_moveOrder="1"
+                _sc_extensibility_operation="insert"
+                _sc_extensibility_position="after"
+                _sc_extensibility_referenceUId="pnlComponents"
+                renderHidden="true" uId="extn_contentpane_resolvedHolds"/>
+            <Button _sc_extensibility_moveOrder="6"
+                _sc_extensibility_operation="insert"
+                _sc_extensibility_position="before"
+                _sc_extensibility_referenceUId="Popup_btnCancel"
+                class="idxSecondaryButton"
+                label="$(_scSimpleBundle:Apply)" renderHidden="true" uId="extn_button_apply"/>
+            <GridX _sc_extensibility_moveOrder="2"
+                _sc_extensibility_operation="insert"
+                _sc_extensibility_position="first"
+                _sc_extensibility_referenceUId="extn_contentpane_resolvedHolds"
+                cacheClass="gridx/core/model/cache/Async"
+                renderHidden="true" uId="extn_gridx_resolvedHolds">
+                <Modules>
+                    <Module isExtn="true" name="columnResizer">
+                        <Properties>
+                            <Property initialValue="0" name="minWidth"
+                                scExtensibilityArrayItemId="extn_ModuleProperty_1" type="Number"/>
+                        </Properties>
+                    </Module>
+                    <Module isExtn="true" name="columnWidth">
+                        <Properties>
+                            <Property initialValue="true"
+                                name="autoResize"
+                                scExtensibilityArrayItemId="extn_ModuleProperty_1" type="Boolean"/>
+                        </Properties>
+                    </Module>
+                    <Module isAddedInExtn="true" isExtn="true" name="edit"/>
+                    <Module isAddedInExtn="true" isExtn="true" name="indirectSelect"/>
+                    <Module isExtn="true" name="selectRow">
+                        <Properties>
+                            <Property initialValue="true"
+                                name="triggerOnCell"
+                                scExtensibilityArrayItemId="extn_ModuleProperty_1" type="Boolean"/>
+                        </Properties>
+                    </Module>
+                    <Module isAddedInExtn="true" isExtn="true" name="extendedSelect"/>
+                </Modules>
+                <Structure>
+                    <Layout>
+                        <View _sc_extensibility_moveOrder="3"
+                            _sc_extensibility_operation="insert"
+                            _sc_extensibility_position="first"
+                            _sc_extensibility_referenceUId="extn_gridx_resolvedHolds"
+                            field="extn_View44983"
+                            name="$(_scSimpleBundle:Hold_Description)" uId="extn_view_44983">
+                            <BindingData>
+                                <SourceBinding path="HoldType"/>
+                                <TargetBinding path="HoldType"/>
+                            </BindingData>
+                        </View>
+                        <View _sc_extensibility_moveOrder="4"
+                            _sc_extensibility_operation="insert"
+                            _sc_extensibility_position="last"
+                            _sc_extensibility_referenceUId="extn_gridx_resolvedHolds"
+                            field="extn_tblCol_AppliedTo"
+                            name="$(_scSimpleBundle:Applied_To)"
+                            uId="extn_tblCol_AppliedTo" width="20%">
+                            <BindingData>
+                                <SourceBinding
+                                    dynamicBindingFunc="getAppliedToDescription" path="AppliedTo"/>
+                            </BindingData>
+                        </View>
+                        <View _sc_extensibility_moveOrder="5"
+                            _sc_extensibility_operation="insert"
+                            _sc_extensibility_position="last"
+                            _sc_extensibility_referenceUId="extn_gridx_resolvedHolds"
+                            field="extn_tblCol_reasonText"
+                            name="$(_scSimpleBundle:Reason_Texts)" uId="extn_tblCol_reasonText">
+                            <BindingData>
+                                <SourceBinding path="ReasonText"/>
+                            </BindingData>
+                        </View>
+                    </Layout>
+                </Structure>
+                <BindingData>
+                    <SourceBinding namespace="extn_getOrderHoldTypeList" path="OrderHoldTypes.OrderHoldType"/>
+                    <TargetBindings>
+                        <TargetBinding
+                            namespace="extn_orderHoldTypeList"
+                            path="Order.OrderHoldTypes.OrderHoldType" scExtensibilityArrayItemId="extn_TargetBindings_0"/>
+                    </TargetBindings>
+                </BindingData>
+                <__scModuleInfo>
+                    <Modules>
+                        <Module isExtn="true" name="columnResizer">
+                            <Properties>
+                                <Property initialValue="0"
+                                    name="minWidth"
+                                    scExtensibilityArrayItemId="extn_ModuleProperty_1" type="Number"/>
+                            </Properties>
+                        </Module>
+                        <Module isExtn="true" name="columnWidth">
+                            <Properties>
+                                <Property initialValue="true"
+                                    name="autoResize"
+                                    scExtensibilityArrayItemId="extn_ModuleProperty_1" type="Boolean"/>
+                            </Properties>
+                        </Module>
+                        <Module isAddedInExtn="true" isExtn="true" name="edit"/>
+                        <Module isAddedInExtn="true" isExtn="true" name="indirectSelect"/>
+                        <Module isExtn="true" name="selectRow">
+                            <Properties>
+                                <Property initialValue="true"
+                                    name="triggerOnCell"
+                                    scExtensibilityArrayItemId="extn_ModuleProperty_1" type="Boolean"/>
+                            </Properties>
+                        </Module>
+                        <Module isAddedInExtn="true" isExtn="true" name="extendedSelect"/>
+                    </Modules>
+                </__scModuleInfo>
+            </GridX>
+        </Items>
+        <Subscribers>
+            <Local>
+                <Subscriber eventId="afterScreenInit" isExtn="true" sequence="51">
+                    <Handler methodName="extn_afterScreenInit"/>
+                </Subscriber>
+                <Subscriber eventId="extn_button_apply_onClick"
+                    isExtn="true" sequence="51">
+                    <Handler methodName="extn_resolveHoldOnApply"/>
+                </Subscriber>
+            </Local>
+        </Subscribers>
+    </ScreenExtension>
+</ExtensionMetaData>
