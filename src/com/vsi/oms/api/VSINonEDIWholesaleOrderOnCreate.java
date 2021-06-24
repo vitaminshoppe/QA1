@@ -36,30 +36,32 @@ public class VSINonEDIWholesaleOrderOnCreate {
 		printLogs("Printing Input XML :" + SCXmlUtil.getString(inXML));		
 
 		try {
-			
+			Element rootElement = inXML.getDocumentElement();			
+			String strEnterprise = rootElement.getAttribute(VSIConstants.ATTR_ENTERPRISE_CODE);
+		
 			//check in git hub
-			String strFirstName=YFSSystem.getProperty("PERSON_INFO_FIRSTNAME");
-			String strAddressLine1=YFSSystem.getProperty("PERSON_INFO_ADDR_LINE_1");
-			String strAddressLine2=YFSSystem.getProperty("PERSON_INFO_ADDR_LINE_2");
-			String strCity=YFSSystem.getProperty("PERSON_INFO_CITY");
-			String strState=YFSSystem.getProperty("PERSON_INFO_STATE");
-			String strCountry=YFSSystem.getProperty("PERSON_INFO_COUNTRY");
-			String strZipCode=YFSSystem.getProperty("PERSON_INFO_ZIPCODE");
-			
+			String strFirstName=YFSSystem.getProperty(strEnterprise.concat(VSIConstants.ATTR_PERSON_INFO_FIRSTNAME));
+			String strAddressLine1=YFSSystem.getProperty(strEnterprise.concat(VSIConstants.ATTR_PERSON_INFO_ADDR_LINE_1));
+			String strAddressLine2=YFSSystem.getProperty(strEnterprise.concat(VSIConstants.ATTR_PERSON_INFO_ADDR_LINE_2));
+			String strCity=YFSSystem.getProperty(strEnterprise.concat(VSIConstants.ATTR_PERSON_INFO_CITY));
+			String strState=YFSSystem.getProperty(strEnterprise.concat(VSIConstants.ATTR_PERSON_INFO_STATE));
+			String strCountry=YFSSystem.getProperty(strEnterprise.concat(VSIConstants.ATTR_PERSON_INFO_COUNTRY));
+			String strZipCode=YFSSystem.getProperty(strEnterprise.concat(VSIConstants.ATTR_PERSON_INFO_ZIPCODE));
+				
 			//OMS-3472 Changes -- Start
-			String strBillToFirstName=YFSSystem.getProperty("PERSON_INFO_BILLTO_FIRSTNAME");
-			String strBillToAddressLine1=YFSSystem.getProperty("PERSON_INFO_BILLTO_ADDR_LINE_1");
-			String strBillToAddressLine2=YFSSystem.getProperty("PERSON_INFO_BILLTO_ADDR_LINE_2");
-			String strBillToCity=YFSSystem.getProperty("PERSON_INFO_BILLTO_CITY");
-			String strBillToState=YFSSystem.getProperty("PERSON_INFO_BILLTO_STATE");
-			String strBillToCountry=YFSSystem.getProperty("PERSON_INFO_BILLTO_COUNTRY");
-			String strBillToZipCode=YFSSystem.getProperty("PERSON_INFO_BILLTO_ZIPCODE");
+			String strBillToFirstName=YFSSystem.getProperty(strEnterprise.concat(VSIConstants.ATTR_PERSON_INFO_BILLTO_FIRSTNAME));
+			String strBillToAddressLine1=YFSSystem.getProperty(strEnterprise.concat(VSIConstants.ATTR_PERSON_INFO_BILLTO_ADDR_LINE_1));
+			String strBillToAddressLine2=YFSSystem.getProperty(strEnterprise.concat(VSIConstants.ATTR_PERSON_INFO_BILLTO_ADDR_LINE_2));
+			String strBillToCity=YFSSystem.getProperty(strEnterprise.concat(VSIConstants.ATTR_PERSON_INFO_BILLTO_CITY));
+			String strBillToState=YFSSystem.getProperty(strEnterprise.concat(VSIConstants.ATTR_PERSON_INFO_BILLTO_STATE));
+			String strBillToCountry=YFSSystem.getProperty(strEnterprise.concat(VSIConstants.ATTR_PERSON_INFO_BILLTO_COUNTRY));
+			String strBillToZipCode=YFSSystem.getProperty(strEnterprise.concat(VSIConstants.ATTR_PERSON_INFO_BILLTO_ZIPCODE));
 			
-			String strDTCOrder=YFSSystem.getProperty("WW_EXTN_DTCORDER");
-			String strGuestCheckout=YFSSystem.getProperty("WW_EXTN_GUESTCHECKOUT");
-			String strTaxCalculated=YFSSystem.getProperty("WW_EXTN_TAXCALCULATED");
-			String strType=YFSSystem.getProperty("WW_EXTN_TYPE");
-			String strDepartmentID=YFSSystem.getProperty("WW_EXTN_DEPARTMENTID");
+			String strDTCOrder=YFSSystem.getProperty(strEnterprise.concat(VSIConstants.ATTR_EXTN_DTCORDER));
+			String strGuestCheckout=YFSSystem.getProperty(strEnterprise.concat(VSIConstants.ATTR_EXTN_GUESTCHECKOUT));
+			String strTaxCalculated=YFSSystem.getProperty(strEnterprise.concat(VSIConstants.ATTR_EXTN_TAXCALCULATED));
+			String strType=YFSSystem.getProperty(strEnterprise.concat(VSIConstants.ATTR_EXTN_TYPE_WH));
+			String strDepartmentID=YFSSystem.getProperty(strEnterprise.concat(VSIConstants.ATTR_EXTN_DEPARTMENTID));
 			//OMS-3472 Changes -- End
 
 			Element orderElement = inXML.getDocumentElement();
