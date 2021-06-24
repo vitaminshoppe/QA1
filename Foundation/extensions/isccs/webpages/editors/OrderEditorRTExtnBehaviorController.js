@@ -46,6 +46,7 @@ return _dojodeclare("extn.editors.OrderEditorRTExtnBehaviorController",
 ,
 		 extnType : 			'ADD'
 
+}
 	]
 
 }
