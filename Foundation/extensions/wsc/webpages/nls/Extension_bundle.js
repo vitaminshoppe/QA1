@@ -15,7 +15,7 @@ define({ root:
 	"extn_item_style":"Stren",
 	"extn_Store_Order_number":"Store Order number",
 	"extn_Pack_Date":"Pack Date",
-	"extn_20V_Fixed":"24V Fixed",
+	"extn_20V_Fixed":"24V Carton",
 	"extn_Customer_Name":"Customer Name",
 	"extn_Enter_products_to_be_packed_into_current_package_":"Enter products to be packed into current package.",
 	"extn_ItemID":"ItemID",
