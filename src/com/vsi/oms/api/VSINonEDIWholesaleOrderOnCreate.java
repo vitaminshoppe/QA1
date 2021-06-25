@@ -106,17 +106,9 @@ public class VSINonEDIWholesaleOrderOnCreate {
 
 			for (Element eleOrderLine : alOrderLines) {
 				//OMS-3472 Changes -- Start
-				String strMarkForStore=null;
-				Element elePersonInfoShip = SCXmlUtil.getChildElement(eleOrderLine, "PersonInfoShip");
-				if(!YFCCommon.isVoid(elePersonInfoShip)) {
-					Element eleOrdLnShpExtn=SCXmlUtil.getChildElement(elePersonInfoShip, VSIConstants.ELE_EXTN);
-					if(!YFCCommon.isVoid(eleOrdLnShpExtn)) {
-						strMarkForStore=eleOrdLnShpExtn.getAttribute(VSIConstants.ATTR_EXTN_MARK_FOR_STORE_NO);						
-					}
-					eleOrderLine.removeChild(elePersonInfoShip);
-				}
 				
-				Element eleOrdLnShipTo=SCXmlUtil.createChild(eleOrderLine, VSIConstants.ELE_PERSON_INFO_SHIP_TO);
+				Element eleOrdLnShipTo=SCXmlUtil.getChildElement(eleOrderLine, VSIConstants.ELE_PERSON_INFO_SHIP_TO);		
+			
 				eleOrdLnShipTo.setAttribute(VSIConstants.ATTR_FIRST_NAME, strFirstName);
 				eleOrdLnShipTo.setAttribute(VSIConstants.ATTR_ADDR_LINE_1, strAddressLine1);
 				eleOrdLnShipTo.setAttribute(VSIConstants.ATTR_ADDR_LINE_2, strAddressLine2);
@@ -124,11 +116,6 @@ public class VSINonEDIWholesaleOrderOnCreate {
 				eleOrdLnShipTo.setAttribute(VSIConstants.ATTR_STATE, strState);
 				eleOrdLnShipTo.setAttribute(VSIConstants.ATTR_COUNTRY, strCountry);
 				eleOrdLnShipTo.setAttribute(VSIConstants.ATTR_ZIPCODE, strZipCode);
-				
-				if(!YFCCommon.isVoid(strMarkForStore)) {
-					Element eleOrdLnShipToExtn=SCXmlUtil.createChild(eleOrdLnShipTo, VSIConstants.ELE_EXTN);
-					eleOrdLnShipToExtn.setAttribute(VSIConstants.ATTR_EXTN_MARK_FOR_STORE_NO, strMarkForStore);
-				}
 				
 				Element eleItemIn=SCXmlUtil.getChildElement(eleOrderLine, VSIConstants.ELE_ITEM);
 				String strItemId=eleItemIn.getAttribute(VSIConstants.ATTR_ITEM_ID);
