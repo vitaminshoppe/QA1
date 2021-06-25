@@ -49,7 +49,7 @@
 							<xsl:value-of select="OrderRelease/@ShipNode" />
 						</xsl:when>
 						<!-- When STH then use Entered by as Store -->
-						<xsl:when test="OrderRelease/@SfsAllocation='Y'">
+						<xsl:when test="OrderRelease/@SfsAllocation='Y' and OrderRelease/Order/@OrderType!='Marketplace'">		<!-- OMS-3729 Change -->
 							<xsl:value-of select="'6102'" />
 						</xsl:when>						
 						<xsl:otherwise>
