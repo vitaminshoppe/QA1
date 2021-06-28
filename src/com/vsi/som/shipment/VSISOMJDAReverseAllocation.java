@@ -8,7 +8,6 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;		//OMS-3729 Change
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -19,10 +18,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.vsi.oms.utils.XMLUtil;
 import com.sterlingcommerce.baseutil.SCXmlUtil;
 import com.vsi.oms.utils.VSIConstants;
 import com.vsi.oms.utils.VSIUtils;
-import com.vsi.oms.utils.XMLUtil;
 import com.yantra.interop.japi.YIFApi;
 import com.yantra.yfc.log.YFCLogCategory;
 import com.yantra.yfs.core.YFSSystem;
@@ -63,25 +62,14 @@ public class VSISOMJDAReverseAllocation implements VSIConstants {
 			String strOrdNo=eleOrder.getAttribute(VSIConstants.ATTR_ORDER_NO);
 			String strOrderDate=eleOrder.getAttribute(VSIConstants.ATTR_ORDER_DATE);
 			String strCustNo=eleOrder.getAttribute(VSIConstants.ATTR_BILL_TO_ID);
-			//OMS-3729 Changes -- Start
-			String strOrderType=eleOrder.getAttribute(VSIConstants.ATTR_ORDER_TYPE);
-			String strEnteredBy=eleOrder.getAttribute(VSIConstants.ATTR_ENTERED_BY);
-			String strStore=null;
-			//OMS-3729 Changes -- End
+			
 			String strOrderNo=strOrdNo+"*"+strReleaseNo;
 			
 			putElementValue(eleMessage,"DateTimeStamp", strCreatets);
 			putElementValue(eleMessage,"OrderNo", strOrderNo);
 			putElementValue(eleMessage,"OrderType", "Ship_to_Home");
-			putElementValue(eleMessage,"IntOrderDate", strOrderDate);
-			//OMS-3729 Changes -- Start
-			if(MARKETPLACE.equals(strOrderType)) {
-				strStore=strEnteredBy;
-			}else {
-				strStore=SHIP_NODE_6102_VALUE;
-			}
-			putElementValue(eleMessage,"Store", strStore);			//OMS-3011 Change
-			//OMS-3729 Changes -- End
+			putElementValue(eleMessage,"IntOrderDate", strOrderDate);			
+			putElementValue(eleMessage,"Store", SHIP_NODE_6102_VALUE);			//OMS-3011 Change
 			putElementValue(eleMessage,"WhseNo", strShipNode);
 			putElementValue(eleMessage,"CustNo", strCustNo);
 			
@@ -111,7 +99,7 @@ public class VSISOMJDAReverseAllocation implements VSIConstants {
 			String reqString=XMLUtil.getXMLString(docJDARequest);
 			printLogs("JDA Request in String format: "+reqString);
 			
-			String[] strSplit=strJDAURL.split("\\?");		//OMS-3729 Change
+			String strSplit[]=strJDAURL.split("\\?");
 			String endPointURL=strSplit[0].concat("?");
 			String strArg1=strSplit[1];
 			printLogs("endPointURL is: "+endPointURL);
@@ -161,11 +149,11 @@ public class VSISOMJDAReverseAllocation implements VSIConstants {
 				printLogs("JDA Reverse Allocation Response is posted to DB successfully");
 			}
 			
-		}catch (Exception e){
-			//OMS-3729 Changes -- Start
-			printLogs("Exception in VSISOMJDAReverseAllocation Class and processJDAReverseAllocation Method");
-			printLogs("The exception is [ "+ e.getMessage() +" ]");
-			//OMS-3729 Changes -- End
+		}catch (YFSException e) {
+			e.printStackTrace();
+			throw new YFSException();
+		} catch (Exception e){
+			e.printStackTrace();
 			throw new YFSException();
 		}
 		
@@ -176,16 +164,16 @@ public class VSISOMJDAReverseAllocation implements VSIConstants {
 	private Document parseDoc(InputStream instream) throws ParserConfigurationException, SAXException, IOException{
 		
 		printLogs("================Inside parseDoc Method================");
-		DocumentBuilderFactory factory =DocumentBuilderFactory.newInstance();		
+		DocumentBuilderFactory factory =DocumentBuilderFactory.newInstance();
 		factory.isIgnoringElementContentWhitespace();
 		DocumentBuilder builder = factory.newDocumentBuilder();
 		Document doc=null;
 	 	if(instream.markSupported()){
 	 		instream.mark(Integer.MAX_VALUE);
-	 		BufferedReader buffread = new BufferedReader(new InputStreamReader(instream,StandardCharsets.UTF_8));		//OMS-3729 Change
+	 		BufferedReader buff_read = new BufferedReader(new InputStreamReader(instream,"UTF-8"));
 		    String  inputLine = null;
 	
-		 while((inputLine = buffread.readLine())!= null){		//OMS-3729 Change
+		 while((inputLine = buff_read.readLine())!= null){
 			 printLogs(inputLine);			 
 		    }  
 		    instream.reset();
