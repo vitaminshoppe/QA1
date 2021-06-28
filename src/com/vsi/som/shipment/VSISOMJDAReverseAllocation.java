@@ -10,7 +10,6 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;		//OMS-3729 Change
 
-import javax.xml.XMLConstants;		//OMS-3729 Change
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -20,10 +19,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import com.vsi.oms.utils.XMLUtil;
 import com.sterlingcommerce.baseutil.SCXmlUtil;
 import com.vsi.oms.utils.VSIConstants;
 import com.vsi.oms.utils.VSIUtils;
+import com.vsi.oms.utils.XMLUtil;
 import com.yantra.interop.japi.YIFApi;
 import com.yantra.yfc.log.YFCLogCategory;
 import com.yantra.yfs.core.YFSSystem;
@@ -177,11 +176,7 @@ public class VSISOMJDAReverseAllocation implements VSIConstants {
 	private Document parseDoc(InputStream instream) throws ParserConfigurationException, SAXException, IOException{
 		
 		printLogs("================Inside parseDoc Method================");
-		DocumentBuilderFactory factory =DocumentBuilderFactory.newInstance();
-		//OMS-3729 Changes -- Start
-		factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, ""); 
-		factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
-		//OMS-3729 Changes -- End
+		DocumentBuilderFactory factory =DocumentBuilderFactory.newInstance();		
 		factory.isIgnoringElementContentWhitespace();
 		DocumentBuilder builder = factory.newDocumentBuilder();
 		Document doc=null;
