@@ -379,6 +379,12 @@
 					<Column Name="ORDER_HEADER_KEY" />
 				</Index>
 				<!-- OMS-3407 : End -->
+				<!-- OMS-3631 : Start -->
+                <Index Name="EXTN_YFS_ORDER_HEADER_003">
+                    <Column Name="ENTERPRISE_KEY" />
+                    <Column Name="CUSTOMER_PO_NO" />
+                </Index>   
+                <!-- OMS-3631 : End -->
 			</Indices>
 		</Entity>
 	<Entity TableName="YFS_PAYMENT">
