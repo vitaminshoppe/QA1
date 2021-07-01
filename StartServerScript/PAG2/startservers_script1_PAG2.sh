@@ -29,3 +29,5 @@ nohup /opt/sterling/build/agentserver_mod.sh VSIScheduleOrder "-Xms512m -Xmx1024
 nohup /opt/sterling/build/startIntegrationServer.sh VSIScheduleBOPUSOrder "-Xms512m -Xmx1024m -XX:PermSize=128m -XX:MaxPermSize=256m" > /dev/null 2>&1 &
 
 nohup /opt/sterling/build/startIntegrationServer.sh VSIMixedOrderFraudCheck "-Xms512m -Xmx1024m -XX:PermSize=128m -XX:MaxPermSize=256m" > /dev/null 2>&1 &
+
+nohup /opt/sterling/build/startIntegrationServer.sh VSIWholesaleNonEDIOrderCreate "-Xms256m -Xmx512m -XX:PermSize=128m -XX:MaxPermSize=256m" > /dev/null 2>&1 &

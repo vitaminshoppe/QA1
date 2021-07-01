@@ -48,4 +48,6 @@ nohup /opt/sterling/build/startIntegrationServer.sh VSIMixedOrderFraudCheck "-Xm
 
 nohup /opt/sterling/build/startIntegrationServer.sh VSIMixedCartJDAAllocation "-Xms512m -Xmx1024m -XX:PermSize=128m -XX:MaxPermSize=256m" > /dev/null 2>&1 &
 
+nohup /opt/sterling/build/startIntegrationServer.sh VSIWholesaleNonEDIOrderCreate "-Xms256m -Xmx512m -XX:PermSize=128m -XX:MaxPermSize=256m" > /dev/null 2>&1 &
+
 

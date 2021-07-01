@@ -223,3 +223,5 @@ nohup /opt/sterling/build/startIntegrationServer.sh VSIWholesaleOrderCreate "-Xm
 #nohup /opt/sterling/build/startIntegrationServer.sh VSIShipCnWholesaleFromWMSIntegServer "-Xms256m -Xmx512m -XX:PermSize=128m -XX:MaxPermSize=256m" > /dev/null 2>&1 &
 
 #nohup /opt/sterling/build/startIntegrationServer.sh VSIResolveInvHold "-Xms256m -Xmx512m -XX:PermSize=128m -XX:MaxPermSize=256m" > /dev/null 2>&1 &
+
+nohup /opt/sterling/build/startIntegrationServer.sh VSIWholesaleNonEDIOrderCreate "-Xms256m -Xmx512m -XX:PermSize=128m -XX:MaxPermSize=256m" > /dev/null 2>&1 &
