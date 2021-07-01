@@ -219,14 +219,25 @@ public class VSIBeforeChangeShipmentUE implements YDMBeforeChangeShipment,VSICon
 								String strOrdNo=eleOrder.getAttribute(ATTR_ORDER_NO);
 								String strOrderDate=eleOrder.getAttribute(ATTR_ORDER_DATE);
 								String strCustNo=eleOrder.getAttribute(ATTR_BILL_TO_ID);
-								
+								//OMS-3729 Changes -- Start
+								String strOrderType=eleOrder.getAttribute(ATTR_ORDER_TYPE);
+								String strEnteredBy=eleOrder.getAttribute(ATTR_ENTERED_BY);
+								String strStore=null;
+								//OMS-3729 Changes -- End
 								String strOrderNo=strOrdNo+"*"+strReleaseNo;
 								
 								putElementValue(eleMessage,"DateTimeStamp", strCreatets);
 								putElementValue(eleMessage,"OrderNo", strOrderNo);
 								putElementValue(eleMessage,"OrderType", "Ship_to_Home");
-								putElementValue(eleMessage,"IntOrderDate", strOrderDate);			
-								putElementValue(eleMessage,"Store", SHIP_NODE_6102_VALUE);			//OMS-3011 Change
+								putElementValue(eleMessage,"IntOrderDate", strOrderDate);								
+								//OMS-3729 Changes -- Start
+								if(MARKETPLACE.equals(strOrderType)) {
+									strStore=strEnteredBy;
+								}else {
+									strStore=SHIP_NODE_6102_VALUE;
+								}
+								putElementValue(eleMessage,"Store", strStore);			//OMS-3011 Change
+								//OMS-3729 Changes -- End
 								putElementValue(eleMessage,"WhseNo", strShipNode);
 								putElementValue(eleMessage,"CustNo", strCustNo);
 								
@@ -399,14 +410,25 @@ public class VSIBeforeChangeShipmentUE implements YDMBeforeChangeShipment,VSICon
 		String strOrdNo=eleOrder.getAttribute(ATTR_ORDER_NO);
 		String strOrderDate=eleOrder.getAttribute(ATTR_ORDER_DATE);
 		String strCustNo=eleOrder.getAttribute(ATTR_BILL_TO_ID);
-		
+		//OMS-3729 Changes -- Start
+		String strOrderType=eleOrder.getAttribute(ATTR_ORDER_TYPE);
+		String strEnteredBy=eleOrder.getAttribute(ATTR_ENTERED_BY);
+		String strStore=null;
+		//OMS-3729 Changes -- End
 		String strOrderNo=strOrdNo+"*"+strReleaseNo;
 		
 		putElementValue(eleMessage,"DateTimeStamp", strCreatets);
 		putElementValue(eleMessage,"OrderNo", strOrderNo);
 		putElementValue(eleMessage,"OrderType", "Ship_to_Home");
-		putElementValue(eleMessage,"IntOrderDate", strOrderDate);			
-		putElementValue(eleMessage,"Store", SHIP_NODE_6102_VALUE);			//OMS-3011 Change
+		putElementValue(eleMessage,"IntOrderDate", strOrderDate);		
+		//OMS-3729 Changes -- Start
+		if(MARKETPLACE.equals(strOrderType)) {
+			strStore=strEnteredBy;
+		}else {
+			strStore=SHIP_NODE_6102_VALUE;
+		}
+		putElementValue(eleMessage,"Store", strStore);			//OMS-3011 Change
+		//OMS-3729 Changes -- End
 		putElementValue(eleMessage,"WhseNo", strShipNode);
 		putElementValue(eleMessage,"CustNo", strCustNo);
 		
