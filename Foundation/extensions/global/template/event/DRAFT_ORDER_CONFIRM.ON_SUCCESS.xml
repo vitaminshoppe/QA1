@@ -36,6 +36,7 @@
   </HeaderTaxes>
   <PaymentMethods>
    <PaymentMethod CreditCardExpDate="" CreditCardName="" CreditCardNo="" CreditCardType="" CustomerAccountNo="" DisplayCreditCardNo="" FirstName="" LastName="" MaxChargeLimit="" MiddleName="" PaymentType="" UnlimitedCharges="" ProcessedAmount="" PaymentReference1="">
+	<Extn ExtnContactLess=""/>
    <PaymentDetails AuthCode="" AuthorizationExpirationDate="" AuthorizationID="" ChargeType="" ProcessedAmount=""/>
    </PaymentMethod>
   </PaymentMethods>

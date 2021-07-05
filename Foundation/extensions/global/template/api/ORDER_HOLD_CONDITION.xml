@@ -26,6 +26,7 @@ US Government Users Restricted Rights - Use, duplication or disclosure restricte
 	<Extn ExtnSubscriptionOrder="" />
 	<PaymentMethods>
    <PaymentMethod PaymentType="" MaxChargeLimit="">
+		<Extn ExtnContactLess=""/>
    </PaymentMethod>
   </PaymentMethods>
 </Order>

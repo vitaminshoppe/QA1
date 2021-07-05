@@ -32,6 +32,9 @@ public class VSIApplyFraudVerificationHoldSTH implements YCPDynamicConditionEx {
 		//OMS-2924 Changes -- Start
 		boolean bPaypalOrder = false;
 		//OMS-2924 Changes -- End
+		//OMS-3691 Changes -- Start
+		boolean bKlarnaOrder=false;
+		//OMS-3691 Changes -- End
 		double dAmount=0;
 		String strDTCOFlag=null;
 		Element eleOrder = inXML.getDocumentElement();
@@ -53,6 +56,16 @@ public class VSIApplyFraudVerificationHoldSTH implements YCPDynamicConditionEx {
 						if(VSIConstants.PAYMENT_MODE_CC.equals(strPaymentType)){
 							bCreditCardOrder=true;
 							log.info("Credit Card is used in this Order");
+							//OMS-3691 Changes -- Start
+							Element elePmntMthdExtn=SCXmlUtil.getChildElement(elePaymentMethod, VSIConstants.ELE_EXTN);
+							if(!YFCCommon.isVoid(elePmntMthdExtn)) {
+								String strContactLess=elePmntMthdExtn.getAttribute("ExtnContactLess");
+								if(!YFCCommon.isVoid(strContactLess) && "klarna".equals(strContactLess)) {
+									bKlarnaOrder=true;
+									log.info("It's a Klarna Order");
+								}
+							}
+							//OMS-3691 Changes -- End
 						}else if(VSIConstants.PAYMENT_MODE_PAYPAL.equals(strPaymentType)){
 							bPaypalOrder=true;
 							log.info("Paypal is used in this Order");
@@ -75,8 +88,8 @@ public class VSIApplyFraudVerificationHoldSTH implements YCPDynamicConditionEx {
 						}						
 					}
 				}
-				if(!bCreditCardOrder && !bPaypalOrder){
-					log.info("Non Credit Card/Paypal Order, hold will not be applied");
+				if((!bCreditCardOrder && !bPaypalOrder) || bKlarnaOrder){		//OMS-3691 Change
+					log.info("Non Credit Card/Paypal Order or its a Klarna order, hold will not be applied");		//OMS-3691 Change
 					bApplyFraudVerHold=false;
 					log.verbose("VSIApplyFraudVerificationHoldSTH.evaluateCondition output: " +bApplyFraudVerHold);
 					return bApplyFraudVerHold;
