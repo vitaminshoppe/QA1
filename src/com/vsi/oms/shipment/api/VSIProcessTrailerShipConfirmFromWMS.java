@@ -122,10 +122,12 @@ public class VSIProcessTrailerShipConfirmFromWMS extends VSIBaseCustomAPI implem
         if (orderList.length() > 1) {// if the order list string is not empty
             try {
                 orderList = orderList.substring(0, orderList.length() - 1);//removing extra "_" at the end
-                throw new Exception("Exception due to blank trailer number. DO list -" + orderList);//throwing the exception
+                String exception="Exception due to blank trailer number. DO list -" + orderList;
+                throw new YFSException(exception,exception,exception);//throwing the exception
 
             } catch (Exception e) {
-                throw new Exception("Exception due to blank trailer number. DO list -" + orderList);//throwing the exception
+                String exception="Exception due to blank trailer number. DO list -" + orderList;
+                throw new YFSException(exception,exception,exception);//throwing the exception
             }
         }
 
