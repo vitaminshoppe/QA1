@@ -1778,7 +1778,7 @@
                 <Order OrderHeaderKey="">
                     <Extn/>
                     <OrderHoldTypes>
-                        <OrderHoldType HoldType="Required" Status=""/>
+                        <OrderHoldType HoldType="" Status=""/>
                     </OrderHoldTypes>
                 </Order>
             </Input>
