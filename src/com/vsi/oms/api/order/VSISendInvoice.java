@@ -283,7 +283,27 @@ public class VSISendInvoice implements VSIConstants{
 		Element orderElement = (Element) inXML.getElementsByTagName(VSIConstants.ELE_ORDER).item(0);
 		enteredBy=orderElement.getAttribute(VSIConstants.ATTR_ENTERED_BY);
 		
-		if(!isMixcartOrder  && isBossShipment && ATTR_DEL_METHOD_SHP.equals(attrDelMeth) && !"RETURN".equals(sInvoiceType) && SHIP_NODE_6101_VALUE.equals(enteredBy)){		//OMS-3076 Changes		//OMS-3082 Changes
+		//OMS-3729 Changes -- Start
+		boolean bIsBOSSStore=false;
+		if(!YFCCommon.isVoid(enteredBy)) {
+			
+			Document docGetCommonCodeList = XMLUtil.createDocument(ELEMENT_COMMON_CODE);
+			Element eleCommonCode = docGetCommonCodeList.getDocumentElement();
+			eleCommonCode.setAttribute(ATTR_ORG_CODE, ATTR_DEFAULT);
+			eleCommonCode.setAttribute(ATTR_CODE_TYPE, "VSI_SA_BOSS_STORES");
+			eleCommonCode.setAttribute(ATTR_CODE_VALUE, enteredBy);
+
+			Document docGetCommonCodeListOut = VSIUtils.invokeAPI(env, API_COMMON_CODE_LIST, docGetCommonCodeList);
+
+			Element eleCommonCodeOut = docGetCommonCodeListOut.getDocumentElement();
+			
+			if(eleCommonCodeOut.hasChildNodes()) {
+				bIsBOSSStore=true;
+			}			
+		}
+		//OMS-3729 Changes -- End
+		
+		if(!isMixcartOrder  && isBossShipment && ATTR_DEL_METHOD_SHP.equals(attrDelMeth) && !"RETURN".equals(sInvoiceType) && bIsBOSSStore){		//OMS-3076 Changes		//OMS-3082 Changes		//OMS-3729 Change
 			if(log.isDebugEnabled()){
 				log.debug("BOSS order and hence EnteredBy attribute is stamped as 6102 on the invoice");
 			}
