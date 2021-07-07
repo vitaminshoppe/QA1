@@ -194,7 +194,7 @@
 					RequestedAuthAmount="" RequestedChargeAmount=""
 					SuspendAnyMoreCharges="" SvcNo="" TotalAuthorized=""
 					TotalCharged="" TotalRefundedAmount="" UnlimitedCharges="" FirstName="" LastName="" DisplaySvcNo="" >
-						<Extn ExtnContactLess="" />
+						<Extn ExtnContactLess="" ExtnAurusReferralNUM=""/>
 				</PaymentMethod>
 			</CollectionDetail>
 		</CollectionDetails>
