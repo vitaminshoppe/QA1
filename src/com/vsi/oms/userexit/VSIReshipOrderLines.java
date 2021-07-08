@@ -1,11 +1,13 @@
 package com.vsi.oms.userexit;
 
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Properties;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import com.ibm.icu.text.DateFormat;
 import com.ibm.icu.text.SimpleDateFormat;
@@ -14,6 +16,7 @@ import com.sterlingcommerce.tools.datavalidator.XmlUtils;
 import com.vsi.oms.utils.VSIConstants;
 import com.vsi.oms.utils.VSIUtils;
 import com.vsi.oms.utils.XMLUtil;
+import com.yantra.interop.japi.YIFClientCreationException;
 import com.yantra.yfc.core.YFCObject;
 import com.yantra.yfc.log.YFCLogCategory;
 import com.yantra.yfc.util.YFCCommon;
@@ -241,4 +244,32 @@ public class VSIReshipOrderLines implements YFSReshipOrderLinesUE, VSIConstants{
 		}
 	}
 	//OMS-3459 Changes -- End
+	
+	
+	public Document updateParentOrderLines(YFSEnvironment env, Document inXML) throws YFSException, RemoteException, YIFClientCreationException{
+		Element eleOrder = inXML.getDocumentElement();
+		String ohKey = eleOrder.getAttribute(ATTR_ORDER_HEADER_KEY);
+		Element nOrderLines = (Element)eleOrder.getElementsByTagName(ELE_ORDER_LINES).item(0);
+		NodeList nOrderLine = nOrderLines.getElementsByTagName(ELE_ORDER_LINE);
+		Document changeOrderDoc = SCXmlUtil.createDocument(ELE_ORDER);
+		Element eleChangeOrder = changeOrderDoc.getDocumentElement();
+		eleChangeOrder.setAttribute(ATTR_OVERRIDE, FLAG_Y);
+		eleChangeOrder.setAttribute(ATTR_ORDER_HEADER_KEY, ohKey);
+		eleChangeOrder.setAttribute(ATTR_SELECT_METHOD, SELECT_METHOD_WAIT);
+		Element eleOrderLines = SCXmlUtil.createChild(eleChangeOrder, ELE_ORDER_LINES);
+		for (int i = 0; i < nOrderLine.getLength(); i++) 
+		{
+			Element eleOrderLine = (Element) nOrderLine.item(i);
+			Element elemOrderLine = SCXmlUtil.createChild(eleOrderLines, ELE_ORDER_LINE);
+			elemOrderLine.setAttribute(ATTR_ACTION, ACTION_CAPS_MODIFY);
+			elemOrderLine.setAttribute(ATTR_ORDER_LINE_KEY, eleOrderLine.getAttribute(ATTR_ORDER_LINE_KEY));
+			Element eleExtn = SCXmlUtil.createChild(elemOrderLine, "Extn");
+			eleExtn.setAttribute("ExtnReshippedLineFlag", "Y");
+			eleExtn.setAttribute("ExtnReshippedQty",eleOrderLine.getAttribute("QuantityToReship"));
+			eleExtn.setAttribute("ExtnReturnedLineFlag", "N");
+		}
+		 VSIUtils.invokeAPI(env, API_CHANGE_ORDER, changeOrderDoc);
+	    
+		return inXML;
+   }
 }

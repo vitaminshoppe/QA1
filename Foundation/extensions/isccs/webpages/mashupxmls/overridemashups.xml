@@ -793,6 +793,8 @@
                         <StopDeliveryRequestDetails TotalNumberOfRecords=""/>
                         <LinePriceInfo IsLinePriceForInformationOnly="" IsPriceLocked=""/>
                         <BundleParentLine OrderLineKey=""/>
+                        <Extn ExtnReshippedLineFlag=""
+                            ExtnReshippedQty="" ExtnReturnedLineFlag=""/>			
                     </OrderLine>
                     <Order EnterpriseCode="" OrderHeaderKey="" SellerOrganizationCode="">
                         <PriceInfo Currency=""/>

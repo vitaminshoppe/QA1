@@ -31,6 +31,15 @@ return _dojodeclare("extn.return.create.lines.ReturnOrderLinesExtnBehaviorContro
 			
 			 mashupRefs : 	[
 	 		{
+		 mashupRefId : 			'getCompleteOrderLineList'
+,
+		 mashupId : 			'ReturnOrderLines_getCompleteOrderLineList'
+,
+		 extnType : 			'MODIFY'
+
+	}
+,
+	 		{
 		 mashupRefId : 			'extn_getCommonCode_referenceid'
 ,
 		 mashupId : 			'extn_getCommonCode'

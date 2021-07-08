@@ -10,10 +10,16 @@
                     isExtn="true" sequence="51">
                     <Handler methodName="extn_listGrid_afterPagingload"/>
                 </Subscriber>
+                <Subscriber eventId="beforeBehaviorSetModel"
+                    isExtn="true" sequence="51">
+                    <Handler methodName="setRetunableQtyForReshippedLines"/>
+                </Subscriber>
             </Local>
         </Subscribers>
         <MashupRefs>
             <Behavior>
+                <MashupRef extnType="MODIFY"
+                    mashupId="ReturnOrderLines_getCompleteOrderLineList" mashupRefId="getCompleteOrderLineList"/>
                 <MashupRef extnType="ADD" mashupId="extn_getCommonCode" mashupRefId="extn_getCommonCode_referenceid"/>
                 <MashupRef extnType="ADD"
                     mashupId="processReturnOrder_massageOutput" mashupRefId="extn_massageOutput_ProcessReturnOrder"/>

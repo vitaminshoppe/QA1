@@ -4,6 +4,9 @@
     controllerId="extn.return.create.lines.ReturnOrderLinesExtnBehaviorController"
     requestMethodSupported="POST" screenId="extn.return.create.lines.ReturnOrderLinesExtn">
     <MashupRefs>
+        <MashupRef extnType="MODIFY"
+            mashupId="ReturnOrderLines_getCompleteOrderLineList"
+            mashupRefId="getCompleteOrderLineList" permissionId=""/>
         <MashupRef extnType="ADD" mashupId="extn_getCommonCode"
             mashupRefId="extn_getCommonCode_referenceid" permissionId=""/>
         <MashupRef extnType="ADD"

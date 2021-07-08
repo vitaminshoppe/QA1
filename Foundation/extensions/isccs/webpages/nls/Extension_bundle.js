@@ -213,6 +213,7 @@ define({ root:
 	"extn_BOL_Number" : "BOL Number",
 	"extn_Delivery_Date":"Delivery Date" ,
 	"extn_Wholesale_Order": "Wholesale Order#",
-	"extn_Resolve_Wholesale_Hold" : "Resolve Wholesale Holds"  
+	"extn_Resolve_Wholesale_Hold" : "Resolve Wholesale Holds" ,
+	"extn_Restrict_Return_Reship" : "There is no quantity available for return as this line is Reshipped."
 },
 });

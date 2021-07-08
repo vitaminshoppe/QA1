@@ -51,6 +51,21 @@ methodName : "extn_listGrid_afterPagingload"
  
 }
 }
+,
+{
+	  eventId: 'beforeBehaviorSetModel'
+
+,	  sequence: '51'
+
+
+
+
+,handler : {
+methodName : "setRetunableQtyForReshippedLines"
+
+ 
+}
+}
 
 ]
 }
