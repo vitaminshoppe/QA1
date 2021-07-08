@@ -10,5 +10,11 @@
             <Link _sc_extensibility_operation="change"
                 _sc_extensibility_referenceUId="addProductButton" renderHidden="true"/>
         </Items>
+        <MashupRefs>
+            <Behavior>
+                <MashupRef extnType="MODIFY"
+                    mashupId="backroomPick_updateShipmentQuantity" mashupRefId="updateShipmentQuantityForPickAllLine"/>
+            </Behavior>
+        </MashupRefs>
     </ScreenExtension>
 </ExtensionMetaData>

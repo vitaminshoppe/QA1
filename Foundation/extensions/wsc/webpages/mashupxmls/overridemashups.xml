@@ -363,4 +363,41 @@
             <AlternateResourceId altResourceId="WSCSYS00001"/>
         </AlternateResourceIds>
     </mashup>
+    <mashup
+        description="Update the backroom picked qty for the Shipment"
+        endpoint="EP_CONFIG" id="backroomPick_updateShipmentQuantity"
+        mashuptype="XAPI" resourceId="" transactional="true">
+        <API Name="changeShipment">
+            <Input>
+                <Shipment
+                    Action="xml:scControllerInput:/Shipment/@Action"
+                    AssignedToUserId="xml:CurrentUser:/User/@Loginid"
+                    BackOrderRemovedQuantity=""
+                    DisplayLocalizedFieldInLocale="xml:CurrentUser:/User/@Localecode"
+                    HoldLocation="" IncludedInBatch=""
+                    ShipmentKey="xml:scControllerInput:/Shipment/@ShipmentKey" ShortageReasonCode="">
+                    <StoreBatchList>
+                        <StoreBatch StoreBatchKey=""/>
+                    </StoreBatchList>
+                    <ShipmentLines>
+                        <ShipmentLine BackroomPickComplete=""
+                            BackroomPickedQuantity=""
+                            BatchPickPriority="" Quantity=""
+                            ShipmentLineKey="" ShortageQty=""
+                            StagedQuantity="" StoreBatchKey=""/>
+                    </ShipmentLines>
+                </Shipment>
+            </Input>
+            <Template>
+                <Shipment ShipmentKey="" ShipmentNo="" Status=""/>
+            </Template>
+        </API>
+        <classInformation name="com.vsi.wsc.mashups.UpdateShipmentPickQuantity"/>
+        <APINamespace
+            inputNS="backroomPick_updateShipmentQuantity_input" outputNS="backroomPick_updateShipmentQuantity_output"/>
+        <AlternateResourceIds>
+            <AlternateResourceId altResourceId="WSCSYS00001"/>
+            <AlternateResourceId altResourceId="WSC000006"/>
+        </AlternateResourceIds>
+    </mashup>	
 </mashups>

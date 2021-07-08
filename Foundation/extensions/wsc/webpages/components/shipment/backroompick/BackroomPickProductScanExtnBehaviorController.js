@@ -23,6 +23,24 @@ return _dojodeclare("extn.components.shipment.backroompick.BackroomPickProductSc
 			
 			
 			
+			
+			
+						,
+
+			
+			
+			 mashupRefs : 	[
+	 		{
+		 mashupRefId : 			'updateShipmentQuantityForPickAllLine'
+,
+		 mashupId : 			'backroomPick_updateShipmentQuantity'
+,
+		 extnType : 			'MODIFY'
+
+	}
+
+	]
+
 }
 );
 });
