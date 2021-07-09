@@ -2231,5 +2231,10 @@ public static final String ATTR_USER_KEY="UserKey";
 		public static final String ATTR_EXTN_IS_SINGLE_CARTON="ExtnSingleCarton";
 	
 	//OMS-NON-EDI End
+		
+	//SonarCube Changes -- Start
+	public static final String ATTR_REFERENCE1="Reference1";
+	public static final String ATTR_EXTN_STORE_NO="ExtnStoreNo";
+	//SonarCube Changes -- End
 	
 }
