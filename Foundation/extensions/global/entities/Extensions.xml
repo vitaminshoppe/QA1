@@ -663,6 +663,18 @@
 					Nullable="true" Size="1" DataType="Flag" XMLName="ExtnPickupEmailFlag"
 					XMLGroup="Extn" SqlServerDataType="" />
 				<!-- Customer order line pickup changes: end-->
+				<Attribute ColumnName="EXTN_RESHIPPED_FLAG" DecimalDigits=""
+					DefaultValue="" Description="Used to validate if line is reshipped"
+					Nullable="true" Size="1" DataType="Flag" XMLName="ExtnReshippedLineFlag"
+					XMLGroup="Extn" SqlServerDataType="" />
+				<Attribute ColumnName="EXTN_RETURNED_FLAG" DecimalDigits=""
+					DefaultValue="" Description="Used to validate if line is returned"
+					Nullable="true" Size="1" DataType="Flag" XMLName="ExtnReturnedLineFlag"
+					XMLGroup="Extn" SqlServerDataType="" />	
+				<Attribute ColumnName="EXTN_RESHIPPED_QTY"
+					DecimalDigits="" DefaultValue="" Description="" Nullable="true"
+					Size="20" Type="CHAR" XMLName="ExtnReshippedQty" XMLGroup="Extn"
+					SqlServerDataType="" />					
 			</Attributes>
 			<!-- Added indexes for customer po no and (shipnode_key and order_header_key) -->	
 			<Indices>
