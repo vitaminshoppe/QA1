@@ -38,10 +38,10 @@ public class VSISendInvoice implements VSIConstants{
 		String strCustomerOrderNo=null;
 		String sDateInvoiced=null;
 		String strLineType = null;
-		Element invoiceHeaderele = (Element) inXML.getElementsByTagName("InvoiceHeader").item(0);
+		Element invoiceHeaderele = (Element) inXML.getElementsByTagName(ELE_INVOICE_HEADER).item(0);		//SonarCube Change
 		Element eleLineDetails=(Element)invoiceHeaderele.getElementsByTagName("LineDetails").item(0);
 		String sInvoiceType=invoiceHeaderele.getAttribute("InvoiceType");
-		Element orderLineElement = (Element) inXML.getElementsByTagName("OrderLine").item(0);
+		Element orderLineElement = (Element) inXML.getElementsByTagName(ELE_ORDER_LINE).item(0);		//SonarCube Change
 		//OMS-2510: Start
 		String strShipNodeKey=null;
 		//OMS-3065/3066: Start
@@ -49,7 +49,7 @@ public class VSISendInvoice implements VSIConstants{
 		boolean isShippingAppeasement = false;
 		boolean isMixcartOrder = false;
 		//OMS-3065/3066: End
-		Element eleInvHeaderShipment = (Element) inXML.getElementsByTagName(ELE_SHIPMENT).item(0);
+		
 		Element eleShipNode = (Element) inXML.getElementsByTagName(ELE_SHIP_NODE).item(0);
 		//OMS-3037 : Start
 		if(!YFCObject.isVoid(eleShipNode))
@@ -66,32 +66,44 @@ public class VSISendInvoice implements VSIConstants{
 		}
 		//OMS-3037 : End
 		//OMS-2510: End
-		if (sInvoiceType.equalsIgnoreCase("CREDIT_MEMO") ||sInvoiceType.equalsIgnoreCase("INFO") || sInvoiceType.equalsIgnoreCase("DEBIT_MEMO")){
+		
+		//OMS-3752 Changes -- Start
+		boolean bWhslNonLnInvc=false;
+		Element eleOrderIn=SCXmlUtil.getChildElement(invoiceHeaderele, ELE_ORDER);
+		String strOrdType=eleOrderIn.getAttribute(ATTR_ORDER_TYPE);
+		//OMS-3752 Changes -- End
+		if (sInvoiceType.equalsIgnoreCase(CREDIT_MEMO) ||sInvoiceType.equalsIgnoreCase("INFO") || sInvoiceType.equalsIgnoreCase("DEBIT_MEMO")){		//SonarCube Change
 			if(!YFCObject.isVoid(orderLineElement)){
-				strLineType = orderLineElement.getAttribute("LineType");
-				strShipNode=orderLineElement.getAttribute("ShipNode");
-				strCustomerOrderNo=orderLineElement.getAttribute("CustomerPONo");
+				strLineType = orderLineElement.getAttribute(ATTR_LINE_TYPE);		//SonarCube Change
+				strShipNode=orderLineElement.getAttribute(ATTR_SHIP_NODE);		//SonarCube Change
+				strCustomerOrderNo=orderLineElement.getAttribute(ATTR_CUST_PO_NO);		//SonarCube Change
 				isMixcartOrder = isMixCartOrderCondition(inXML);
-			}else {
+			}
+			//OMS-3752 Changes -- Start
+			else if(YFCCommon.isVoid(orderLineElement) && WHOLESALE.equals(strOrdType)) {
+				bWhslNonLnInvc=true;
+			}
+			//OMS-3752 Changes -- End
+			else {
 				isShippingAppeasement = true;
 			}
 
 				sDateInvoiced=invoiceHeaderele.getAttribute("DateInvoiced");
-				Element createShipmentEle = XMLUtil.appendChild(inXML, invoiceHeaderele, "Shipment", "");
+				Element createShipmentEle = XMLUtil.appendChild(inXML, invoiceHeaderele, ELE_SHIPMENT, "");		//SonarCube Change
 				
 				if(!isMixcartOrder && !YFCCommon.isVoid(strShipNode))
 				{
-					createShipmentEle.setAttribute("ShipNode", strShipNode);
+					createShipmentEle.setAttribute(ATTR_SHIP_NODE, strShipNode);		//SonarCube Change
 				}
 				createShipmentEle.setAttribute("ShipDate", sDateInvoiced);
 				Element elePersonInfoBillTo = (Element) inXML.getElementsByTagName("PersonInfoBillTo").item(0);
 				Element eleToAddress = XMLUtil.appendChild(inXML, createShipmentEle, "ToAddress", "");
 				
-				String reference1 = invoiceHeaderele.getAttribute("Reference1");
+				String reference1 = invoiceHeaderele.getAttribute(ATTR_REFERENCE1);		//SonarCube Change
 				if(!YFCCommon.isVoid(reference1) && reference1.contains("_"))
 				{
 					String[] reference1Array = reference1.split("_");
-					invoiceHeaderele.setAttribute("Reference1",reference1Array[0]);
+					invoiceHeaderele.setAttribute(ATTR_REFERENCE1,reference1Array[0]);		//SonarCube Change		
 				}
 
 				NamedNodeMap personInfoElemAttrs = elePersonInfoBillTo.getAttributes();
@@ -101,37 +113,37 @@ public class VSISendInvoice implements VSIConstants{
 					eleToAddress.setAttribute(a1.getName(), a1.getValue());
 				}
 				Element extn = (Element) invoiceHeaderele.getElementsByTagName(VSIConstants.ELE_EXTN).item(0);
-				double TotalRefundedAmount= 0.0;
+				double totalRefundedAmount= 0.0;		//SonarCube Change
 				double totalRefundamt = 0.0;
 				if (sInvoiceType.equalsIgnoreCase("INFO") ){
 					Element eleCollectionDetails = (Element)inXML.getElementsByTagName("CollectionDetails").item(0);
 					if(YFCObject.isVoid(eleCollectionDetails))
 						eleCollectionDetails = XMLUtil.appendChild(inXML, invoiceHeaderele, "CollectionDetails", "");
 					Element eleCollectionDetail = XMLUtil.appendChild(inXML, eleCollectionDetails, "CollectionDetail", "");
-					eleCollectionDetail.setAttribute("AmountCollected",invoiceHeaderele.getAttribute("AmountCollected"));
+					eleCollectionDetail.setAttribute(ATTR_AMOUNT_COLLECTED,invoiceHeaderele.getAttribute(ATTR_AMOUNT_COLLECTED));		//SonarCube Change
 					// sending only GC # to SA. 
 					String appeaseAmount = extn.getAttribute("ExtnAppeaseAmount");
 					if(!YFCCommon.isVoid(appeaseAmount))
 					{
 						double appeaseDoubleAmount = 0.00;
 						appeaseDoubleAmount = -Double.parseDouble(appeaseAmount);
-						eleCollectionDetail.setAttribute("AmountCollected",String.valueOf(appeaseDoubleAmount));
-						invoiceHeaderele.setAttribute("AmountCollected",String.valueOf(appeaseDoubleAmount));
+						eleCollectionDetail.setAttribute(ATTR_AMOUNT_COLLECTED,String.valueOf(appeaseDoubleAmount));		//SonarCube Change
+						invoiceHeaderele.setAttribute(ATTR_AMOUNT_COLLECTED,String.valueOf(appeaseDoubleAmount));		//SonarCube Change
 					}
 					
 					Element elePaymentMethod = XMLUtil.appendChild(inXML, eleCollectionDetail, "PaymentMethod", "");
 					elePaymentMethod.setAttribute("PaymentType","ONLINE_GIFT_CARD");
-					elePaymentMethod.setAttribute("SvcNo",invoiceHeaderele.getAttribute("Reference1"));
+					elePaymentMethod.setAttribute("SvcNo",invoiceHeaderele.getAttribute(ATTR_REFERENCE1));		//SonarCube Change
 					
-					TotalRefundedAmount = Double.parseDouble(invoiceHeaderele.getAttribute("AmountCollected")); 
-					 totalRefundamt=-TotalRefundedAmount;
+					totalRefundedAmount = Double.parseDouble(invoiceHeaderele.getAttribute("AmountCollected")); 
+					 totalRefundamt=-totalRefundedAmount;
 
 					elePaymentMethod.setAttribute("TotalRefundedAmount",Double.toString(totalRefundamt));
-					elePaymentMethod.setAttribute("TotalCharged",Double.toString(TotalRefundedAmount));
+					elePaymentMethod.setAttribute("TotalCharged",Double.toString(totalRefundedAmount));
 
 
 
-				}else if (sInvoiceType.equalsIgnoreCase("CREDIT_MEMO") ){
+				}else if (sInvoiceType.equalsIgnoreCase(CREDIT_MEMO) ){		//SonarCube Change
 					NodeList ndlCollectionDetail = inXML.getElementsByTagName("CollectionDetail");
 					for(int iCDetail = 0; iCDetail < ndlCollectionDetail.getLength(); iCDetail++){
 						Element eleCollectionDetail = (Element)ndlCollectionDetail.item(iCDetail);
@@ -140,8 +152,8 @@ public class VSISendInvoice implements VSIConstants{
 							if(!YFCObject.isVoid(elePaymentMethod)){
 								String strTotalRefundedAmount = elePaymentMethod.getAttribute("TotalRefundedAmount");
 								if(!YFCObject.isVoid(strTotalRefundedAmount)){
-									TotalRefundedAmount = Double.parseDouble(strTotalRefundedAmount); 
-									 totalRefundamt = -TotalRefundedAmount;	
+									totalRefundedAmount = Double.parseDouble(strTotalRefundedAmount); 
+									 totalRefundamt = -totalRefundedAmount;	
 								}
 
 								elePaymentMethod.setAttribute("TotalCharged",Double.toString(totalRefundamt));
@@ -203,7 +215,6 @@ public class VSISendInvoice implements VSIConstants{
 		
 		//Wholesale Order Invoice Changes -OMS-3561 End
 		
-		//Element shipmentElem = (Element) inXML.getElementsByTagName("Shipment").item(0);
 		//Commemted for  for Omni 2.0 jira 769
 		/**
 		String shipDate=shipmentElem.getAttribute("ShipDate");
@@ -214,15 +225,12 @@ public class VSISendInvoice implements VSIConstants{
 		shipmentElem.setAttribute("ShipDate", newShipDate);**/
 
 		String tranNumber = "";
-		Element invoiceHeader = (Element) inXML.getElementsByTagName("InvoiceHeader").item(0);
+		Element invoiceHeader = (Element) inXML.getElementsByTagName(ELE_INVOICE_HEADER).item(0);		//SonarCube Change
 		
 		Element orderEle = (Element) inXML.getElementsByTagName(VSIConstants.ELE_ORDER).item(0);
 		Element orderExtnEle = (Element) orderEle.getElementsByTagName(VSIConstants.ELE_EXTN).item(0);
 		Element extn = (Element) invoiceHeader.getElementsByTagName(VSIConstants.ELE_EXTN).item(0);
-		/*NodeList orderLineList = inXML.getElementsByTagName(VSIConstants.ELE_ORDER_LINE);
-		int len = orderLineList.getLength();
-		 */
-		
+				
 		String isSubscriptionOrder = orderExtnEle.getAttribute("ExtnSubscriptionOrder");
 		String isOrigADPOrder = orderExtnEle.getAttribute("ExtnOriginalADPOrder");
 		/* OMS-1220 changes : start*/
@@ -230,15 +238,8 @@ public class VSISendInvoice implements VSIConstants{
 		/*OMS-1220 changes : end */
 		/*OMS-1351/1352 changes -start */
 		String isDTCOrder = null;
-		//OMS-3034 Changes -- Start
-		//isDTCOrder=orderExtnEle.getAttribute("ExtnDTCOrder");
-		//OMS-3034 Changes -- End
 		/*OMS-1351/1352 changes -end */
-		//Mixed Cart Changes -- Start
-		//OMS-3034 Changes -- Start
-		//if(YFCCommon.isVoid(isDTCOrder)){
-		//OMS-3034 Changes -- End
-		
+		//Mixed Cart Changes -- Start		
 		String strOrderType=orderEle.getAttribute(ATTR_ORDER_TYPE);
 		String strEntryType=orderEle.getAttribute(ATTR_ENTRY_TYPE);
 		//OMS-3082 Changes -- Start
@@ -246,9 +247,7 @@ public class VSISendInvoice implements VSIConstants{
 		if(!YFCCommon.isVoid(orderLineElement) && !isMixcartOrder)
 		{
 			attrDelMeth = orderLineElement.getAttribute(VSIConstants.ATTR_DELIVERY_METHOD);
-		}
-		/*Element eleShipment=SCXmlUtil.getChildElement(invoiceHeader, ELE_SHIPMENT);
-		String strDlvryMthd=eleShipment.getAttribute(ATTR_DELIVERY_METHOD);*/
+		}		
 		//OMS-3082 Changes -- End
 		if(isShippingAppeasement || isMixcartOrder) {
 			if(log.isDebugEnabled()){
@@ -275,7 +274,6 @@ public class VSISendInvoice implements VSIConstants{
 			log.debug("ExtnDTCOrder attribute is stamped on the invoice");
 		}
 			
-		//}
 		//OMS-3034 Changes -- End
 		//Mixed Cart Changes -- End
 		//OMS-3011 Changes -- Start
@@ -311,37 +309,33 @@ public class VSISendInvoice implements VSIConstants{
 			//OMS-3173 Changes -- Start
 			enteredBy=SHIP_NODE_6102_VALUE;
 			//OMS-3173 Changes -- End
-		}else if(!(MARKETPLACE.equals(strOrderType) || strOrderType.equalsIgnoreCase(VSIConstants.ATTR_ORDER_TYPE_POS)) && (isMixcartOrder || isShippingAppeasement)) {
+		}else if(!(MARKETPLACE.equals(strOrderType) || strOrderType.equalsIgnoreCase(VSIConstants.ATTR_ORDER_TYPE_POS)) && (isMixcartOrder || isShippingAppeasement)) {		
 			orderEle.setAttribute(ATTR_ENTERED_BY, SHIP_NODE_6101_VALUE);
 			//OMS-3173 Changes -- Start
 			enteredBy=SHIP_NODE_6101_VALUE;
 		}
 		//OMS-3011 Changes -- End
 		String invoiceKey = invoiceHeader.getAttribute("OrderInvoiceKey");
-		String OHK = orderEle.getAttribute(VSIConstants.ATTR_ORDER_HEADER_KEY);
+		String ohk = orderEle.getAttribute(VSIConstants.ATTR_ORDER_HEADER_KEY);		//SonarCube Change
 		String returnSeqId = invoiceHeader.getAttribute("ReturnSeqIdentifier");
-		String extnStoreNo = orderExtnEle.getAttribute("ExtnStoreNo");
+		String extnStoreNo = orderExtnEle.getAttribute(ATTR_EXTN_STORE_NO);		//SonarCube Change
 		
 		//Start: Added during Payment Changes added  04-27-2017 
 		// Setting shipnode for SHP virtual store orders
 		
-		//String attrOrderType = inXML.getDocumentElement().getAttribute(VSIConstants.ATTR_ORDER_TYPE);
-		
-		
-		if(YFCCommon.isVoid(attrDelMeth) && "Y".equals(isDTCOrder))
+		if((YFCCommon.isVoid(attrDelMeth) && "Y".equals(isDTCOrder)) || bWhslNonLnInvc)		//OMS-3729 Change
 		{
 			attrDelMeth = VSIConstants.ATTR_DEL_METHOD_SHP;
 		}
 		
-		if(!YFCObject.isVoid(attrDelMeth)){
-			if(attrDelMeth.equalsIgnoreCase(VSIConstants.ATTR_DEL_METHOD_SHP)){
+		if(!YFCObject.isVoid(attrDelMeth) && attrDelMeth.equalsIgnoreCase(VSIConstants.ATTR_DEL_METHOD_SHP)){
+			//SonarCube Change			
 			NodeList shipmenteleList = inXML.getElementsByTagName(VSIConstants.ELE_SHIPMENT);
-				for (int i = 0; i < shipmenteleList.getLength(); i++) 
-				{	
-					Element shipmentEle = (Element) shipmenteleList.item(i);
-						shipmentEle.setAttribute(VSIConstants.ATTR_SHIP_NODE, enteredBy);
-				}//End of loop setting Shipnode=EnteredBy
-			}//end of SHP check
+			for (int i = 0; i < shipmenteleList.getLength(); i++) 
+			{	
+				Element shipmentEle = (Element) shipmenteleList.item(i);
+				shipmentEle.setAttribute(VSIConstants.ATTR_SHIP_NODE, enteredBy);
+			}//End of loop setting Shipnode=EnteredBy			
 		}//end of nullcheck for Del Meth
 			//END: Added during Payment Changes added  04-27-2017 
 	
@@ -350,12 +344,11 @@ public class VSISendInvoice implements VSIConstants{
 		//Modifications done for OMS -413 on 20-11-2014
 		String ordType = orderEle.getAttribute(VSIConstants.ATTR_ORDER_TYPE);
 		String ordNo = orderEle.getAttribute(VSIConstants.ATTR_ORDER_NO);
-		//String entryType = orderEle.getAttribute(VSIConstants.ATTR_ENTRY_TYPE);
 		
 		if(!YFCCommon.isVoid(isSubscriptionOrder) && "Y".equals(isSubscriptionOrder) && 
-				orderExtnEle.hasAttribute("ExtnStoreNo") && "6101".equals(extnStoreNo))
+				orderExtnEle.hasAttribute(ATTR_EXTN_STORE_NO) && "6101".equals(extnStoreNo))		//SonarCube Change
 		{
-			orderExtnEle.removeAttribute("ExtnStoreNo");
+			orderExtnEle.removeAttribute(ATTR_EXTN_STORE_NO);		//SonarCube Change
 		}
 		//Start: Modified during Payment Changes added  04-27-2017 
 		//SHP Sequence Payment Changes added  04-27-2017
@@ -539,117 +532,19 @@ public class VSISendInvoice implements VSIConstants{
 
 
 		try {
-			//OMS-1353 : Start
-			//Commenting the changeShipment call for ShipmentSeqNo
 			
-			/*if(!YFCCommon.isVoid(orderLineElement))
-			{
-				String lineType = orderLineElement.getAttribute(VSIConstants.ATTR_LINE_TYPE);
-				//Changes done for OMS-909
-				
-				if(lineType.equalsIgnoreCase("SHIP_TO_HOME") && !sInvoiceType.equalsIgnoreCase("RETURN")){
-					api = YIFClientFactory.getInstance().getApi();
-
-					String sHK= shipmentEle.getAttribute("ShipmentKey");
-
-					
-					*Added this condition as ShipmentKey would be missing for Invoice Type as "Credit Memo" and the below code was throwing an error.
-					*Due to this Transaction # was not getting generated.
-					
-					if (null != sHK && "" != sHK) {
-
-						Element extnShipmentEle = (Element) shipmentEle.getElementsByTagName("Extn").item(0);
-						String shipmentSeqNo= extnShipmentEle.getAttribute("ShipmentSeqNo");
-						int iRSeq =0;
-
-						if(null==shipmentSeqNo || ""==shipmentSeqNo){
-
-							Document getShipmentListInput = XMLUtil.createDocument("Shipment");
-							Element shipmentElement = getShipmentListInput.getDocumentElement();
-							shipmentElement.setAttribute(VSIConstants.ATTR_ORDER_HEADER_KEY, OHK);
-							shipmentElement.setAttribute(VSIConstants.ATTR_STATUS, "1600.002");
-
-
-							env.setApiTemplate(VSIConstants.API_GET_SHIPMENT_LIST, "global/template/api/getShipmentForInvoice.xml");// to be set if reqd
-							YIFApi callApi = YIFClientFactory.getInstance().getLocalApi();
-							Document outputDoc = callApi.invoke(env, VSIConstants.API_GET_SHIPMENT_LIST,getShipmentListInput);	
-							env.clearApiTemplates();
-
-							NodeList shipmentList = outputDoc.getElementsByTagName(VSIConstants.ELE_SHIPMENT);
-							int shipmentLength = shipmentList.getLength();
-							if(shipmentLength == 1){
-
-								shipmentSeqNo="1";
-								extnShipmentEle.setAttribute("ShipmentSeqNo",shipmentSeqNo);
-
-								Document changeShipmentDoc = XMLUtil.createDocument("Shipment");
-								Element changeShipmentEle = changeShipmentDoc.getDocumentElement();
-								//shipmentEle.setAttribute("ShipmentKey", sHK);
-								changeShipmentEle.setAttribute("ShipmentKey", sHK);
-								Element extnElement = changeShipmentDoc.createElement(VSIConstants.ELE_EXTN);
-								extnElement.setAttribute("ShipmentSeqNo", shipmentSeqNo);
-								changeShipmentEle.appendChild(extnElement);
-
-								api.invoke(env, "changeShipment", changeShipmentDoc);
-
-							}else{
-
-								//navigate through shipmentlist to get highest seqnum
-								String sHighestNum = "0";
-								for(int j=0;j<shipmentLength;j++){
-									//Fixed for STH - Extn Transaction No not stamped on Invoice
-
-									Element shipElement = (Element)shipmentList.item(j);
-									if(!YFCObject.isNull(shipElement)){
-										Element ExtnEle = (Element) shipElement.getElementsByTagName("Extn").item(0);
-										if(!YFCObject.isNull(ExtnEle)){
-											if (!YFCObject.isNull(ExtnEle.getAttribute("ShipmentSeqNo"))) {
-												String sProcessNum = ExtnEle.getAttribute("ShipmentSeqNo");
-												if(!YFCObject.isNull(sProcessNum)){
-													if(Integer.parseInt(sProcessNum) > Integer.parseInt(sHighestNum)){
-														sHighestNum = sProcessNum;
-													}
-												}
-											}
-										}
-									}
-								}
-
-								int iShipSeq = Integer.valueOf(sHighestNum);
-								String sSeqToSet = String.valueOf(iShipSeq + 1);
-								extnShipmentEle.setAttribute("ShipmentSeqNo",sSeqToSet);
-
-								Document changeShipmentDoc = XMLUtil.createDocument("Shipment");
-								Element changeShipmentEle = changeShipmentDoc.getDocumentElement();
-								//shipmentEle.setAttribute("ShipmentKey", sHK);
-								changeShipmentEle.setAttribute("ShipmentKey", sHK);
-								Element extnElement = changeShipmentDoc.createElement(VSIConstants.ELE_EXTN);
-								extnElement.setAttribute("ShipmentSeqNo", sSeqToSet);
-								changeShipmentEle.appendChild(extnElement);
-
-								api.invoke(env, "changeShipment", changeShipmentDoc);
-
-							}
-
-						}
-					}//Change Ended
-
-				}
-			}*/
-	
-	//OMS-1353 : End
 			api = YIFClientFactory.getInstance().getApi();
 			String sShipNode =  null;
-			//api.executeFlow(env, "VSISendInvoice", inXML);
+			
 			if(!YFCCommon.isVoid(returnSeqId))
 			{
 				sShipNode = returnSeqId;
 			}
 			else
 			{
-				sShipNode =  shipmentEle.getAttribute("ShipNode");
+				sShipNode =  shipmentEle.getAttribute(ATTR_SHIP_NODE);		//SonarCube Change
 				// All ship to home gets entered by as ship node
-				//String sDelMethod =  shipmentEle.getAttribute("DeliveryMethod");
+				
 				if("SHP".equalsIgnoreCase(attrDelMeth)){
 					sShipNode=enteredBy;
 				}
@@ -672,8 +567,8 @@ public class VSISendInvoice implements VSIConstants{
 			}
 			if(sInvoiceType.equalsIgnoreCase("SHIPMENT") ){
 				Element eleShipmentExtn=SCXmlUtil.getChildElement(shipmentEle, VSIConstants.ELE_EXTN);
-				tranNumber=eleShipmentExtn.getAttribute("ExtnTransactionNo");
-				strExtnSeqNo=eleShipmentExtn.getAttribute("ShipmentSeqNo");
+				tranNumber=eleShipmentExtn.getAttribute(ATTR_EXTN_TRANS_NO);		//SonarCube Change
+				strExtnSeqNo=eleShipmentExtn.getAttribute(ATTR_EXTN_SHIPMENT_SEQ_NO);			//SonarCube Change
 				if(YFCCommon.isStringVoid(tranNumber))
 					isChangeShipmentReqForTran=true;
 				if(YFCCommon.isStringVoid(strExtnSeqNo))
@@ -687,24 +582,20 @@ public class VSISendInvoice implements VSIConstants{
 				if(log.isDebugEnabled()){
 					log.debug("generating the next ExtnTransactionNo : "+tranNumber);
 				}
-			}
-			/*else{
-				tranNumber = VSIDBUtil.getNextSequence(env, seqNum);
-				log.debug("InvoiceType is not Shipment, generating the next ExtnTransactionNo");
-			}*/
+			}			
 			//OMS-1353 :End
 			if(log.isDebugEnabled()){
 				log.debug("Transaction Number:"+ tranNumber);
 			}
-			extn.setAttribute("ExtnTransactionNo", tranNumber);
+			extn.setAttribute(ATTR_EXTN_TRANS_NO, tranNumber);		//SonarCube Change
 			Document changeOrderInvoiceDocument = XMLUtil.createDocument("OrderInvoice");
 			Element orderInvoice = changeOrderInvoiceDocument.getDocumentElement();
 			orderInvoice.setAttribute("OrderInvoiceKey", invoiceKey);
 			Element extnElement = changeOrderInvoiceDocument.createElement(VSIConstants.ELE_EXTN);
-			extnElement.setAttribute("ExtnTransactionNo", tranNumber);
+			extnElement.setAttribute(ATTR_EXTN_TRANS_NO, tranNumber);		//SonarCube Change
 			//SA Changes -- Start
 			extnElement.setAttribute("ExtnRegisterNo", strRegisterNo);
-			extnElement.setAttribute("ExtnStoreNo", strStoreNo);
+			extnElement.setAttribute(ATTR_EXTN_STORE_NO, strStoreNo);		//SonarCube Change
 			//SA Changes -- End
 			orderInvoice.appendChild(extnElement);
 			//SA Changes -- Start
@@ -723,11 +614,11 @@ public class VSISendInvoice implements VSIConstants{
 				changeShipmentEle.setAttribute("ShipmentKey", sHK);
 				Element eleShipmentExtn = changeShipmentDoc.createElement(VSIConstants.ELE_EXTN);
 				if(isChangeShipmentReqForSeq) {
-					strExtnSeqNo=findShipmentSeqNo(env,OHK);
-					eleShipmentExtn.setAttribute("ShipmentSeqNo", strExtnSeqNo);
+					strExtnSeqNo=findShipmentSeqNo(env,ohk);
+					eleShipmentExtn.setAttribute(ATTR_EXTN_SHIPMENT_SEQ_NO, strExtnSeqNo);		//SonarCube Change
 				}
 				if(isChangeShipmentReqForTran)
-					eleShipmentExtn.setAttribute("ExtnTransactionNo", tranNumber);
+					eleShipmentExtn.setAttribute(ATTR_EXTN_TRANS_NO, tranNumber);			//SonarCube Change
 				changeShipmentEle.appendChild(eleShipmentExtn);
 				api.invoke(env, "changeShipment", changeShipmentDoc);
 			}
@@ -744,21 +635,21 @@ public class VSISendInvoice implements VSIConstants{
 			}
 			Element elLineDetails = XMLUtil.appendChild(inXML, invoiceHeaderele, "LineDetails", "");
 			Element elLineDetail = XMLUtil.appendChild(inXML, elLineDetails, "LineDetail", "");
-			Element eleOrderLine = XMLUtil.appendChild(inXML, elLineDetail, "OrderLine", "");
-			//eleOrderLine.setAttribute("CustomerPONo", strCustomerOrderNo);
+			Element eleOrderLine = XMLUtil.appendChild(inXML, elLineDetail, ELE_ORDER_LINE, "");		//SonarCube Change
+			
 			if("POS".equals(ordType))
-				eleOrderLine.setAttribute("CustomerPONo", ordNo);	
+				eleOrderLine.setAttribute(ATTR_CUST_PO_NO, ordNo);		//SonarCube Change	
 			if(!YFCObject.isVoid(strCustomerOrderNo))
-				eleOrderLine.setAttribute("CustomerPONo", strCustomerOrderNo);
+				eleOrderLine.setAttribute(ATTR_CUST_PO_NO, strCustomerOrderNo);		//SonarCube Change
 			if(!YFCObject.isVoid(strLineType))
 			{
-				eleOrderLine.setAttribute("LineType", strLineType);
+				eleOrderLine.setAttribute(ATTR_LINE_TYPE, strLineType);		//SonarCube Change
 			}
 			else
 			{
 				if("SHP".equalsIgnoreCase(attrDelMeth))
 				{
-					eleOrderLine.setAttribute("LineType", "SHIP_TO_HOME");
+					eleOrderLine.setAttribute(ATTR_LINE_TYPE, "SHIP_TO_HOME");		//SonarCube Change
 				}
 			}
 			if (!YFCObject.isVoid(attrDelMeth)) {
@@ -766,25 +657,25 @@ public class VSISendInvoice implements VSIConstants{
 			}
 			Element eleOrderElement = (Element) inXML.getElementsByTagName(VSIConstants.ELE_ORDER).item(0);
 			if(!YFCObject.isVoid(eleOrderElement)){
-				eleOrderElement.setAttribute("DocumentType", "0003");
+				eleOrderElement.setAttribute(ATTR_DOCUMENT_TYPE, "0003");		//SonarCube Change
 			}
 			
 
 		}
 		
-		if(sInvoiceType.equalsIgnoreCase("CREDIT_MEMO"))
+		if(sInvoiceType.equalsIgnoreCase(CREDIT_MEMO))		//SonarCube Change
 		{
 			Element eleOrderElement = (Element) inXML.getElementsByTagName(VSIConstants.ELE_ORDER).item(0);
 			if(!YFCObject.isVoid(eleOrderElement)){
-				eleOrderElement.setAttribute("DocumentType", "0003");
+				eleOrderElement.setAttribute(ATTR_DOCUMENT_TYPE, "0003");		//SonarCube Change
 			}
 		}
        //OMS-1343 start
 		Element orderele = (Element) inXML.getElementsByTagName(VSIConstants.ELE_ORDER).item(0);
-		String strDocumentType=orderele.getAttribute("DocumentType");
+		String strDocumentType=orderele.getAttribute(ATTR_DOCUMENT_TYPE);		//SonarCube Change
 		if(strDocumentType.equalsIgnoreCase("0003"))
 		{
-			Element invoiceHeaderelement = (Element) inXML.getElementsByTagName("InvoiceHeader").item(0);
+			Element invoiceHeaderelement = (Element) inXML.getElementsByTagName(ELE_INVOICE_HEADER).item(0);		//SonarCube Change
 			String derivedFromOrderHeaderKey=invoiceHeaderelement.getAttribute("DerivedFromOrderHeaderKey");
 			Document getOrderListInput = XMLUtil.createDocument("Order");
 			Element eleOrder = getOrderListInput.getDocumentElement();
@@ -932,16 +823,12 @@ public class VSISendInvoice implements VSIConstants{
 
 					Element shipElement = (Element)nlShipment.item(j);
 					if(!YFCObject.isNull(shipElement)){
-						Element ExtnEle = (Element) shipElement.getElementsByTagName("Extn").item(0);
-						if(!YFCObject.isNull(ExtnEle)){
-							if (!YFCObject.isNull(ExtnEle.getAttribute("ShipmentSeqNo"))) {
-								String sProcessNum = ExtnEle.getAttribute("ShipmentSeqNo");
-								if(!YFCObject.isNull(sProcessNum)){
-									if(Integer.parseInt(sProcessNum) > Integer.parseInt(sHighestNum)){
-										sHighestNum = sProcessNum;
-									}
-								}
-							}
+						Element extnEle = (Element) shipElement.getElementsByTagName("Extn").item(0);		//SonarCube Change
+						if(!YFCObject.isNull(extnEle) && !YFCObject.isNull(extnEle.getAttribute(ATTR_EXTN_SHIPMENT_SEQ_NO))){		//SonarCube Change
+							String sProcessNum = extnEle.getAttribute(ATTR_EXTN_SHIPMENT_SEQ_NO);			//SonarCube Change
+							if(!YFCObject.isNull(sProcessNum) && Integer.parseInt(sProcessNum) > Integer.parseInt(sHighestNum)){		//SonarCube Change									
+									sHighestNum = sProcessNum;									
+							}							
 						}
 					}
 				}
@@ -988,7 +875,7 @@ public class VSISendInvoice implements VSIConstants{
 				}
 				for (int j = 0; j < nlLineDetail.getLength(); j++) {
 					Element eleLineDetail = (Element) nlLineDetail.item(j);
-					Element eleOrderLine =(Element) eleLineDetail.getElementsByTagName("OrderLine").item(0);
+					Element eleOrderLine =(Element) eleLineDetail.getElementsByTagName(ELE_ORDER_LINE).item(0);		//SonarCube Change
 					String strPrimeLineNo=eleOrderLine.getAttribute(VSIConstants.ATTR_PRIME_LINE_NO);
 					String strLineType=eleOrderLine.getAttribute(VSIConstants.ATTR_LINE_TYPE);
 					if(VSIConstants.LINETYPE_STH.equals(strLineType)){
