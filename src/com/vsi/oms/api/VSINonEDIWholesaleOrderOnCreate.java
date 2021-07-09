@@ -131,7 +131,7 @@ public class VSINonEDIWholesaleOrderOnCreate {
 				Document docGetItemListOut=VSIUtils.invokeAPI(env, "global/template/api/getItemList_NonEDIOrderCreate.xml",VSIConstants.API_GET_ITEM_LIST, docGetItemListIn);				
 				printLogs("Output from getItemList API: "+SCXmlUtil.getString(docGetItemListOut));				
 				
-				updateItemAttributes(eleOrderLine, eleItemIn, docGetItemListOut);				
+				updateItemAttributes(env,eleOrderLine, eleItemIn, docGetItemListOut,strEnterprise);				
 			}
 			//OMS-3472 Changes -- End
 			
@@ -151,7 +151,7 @@ public class VSINonEDIWholesaleOrderOnCreate {
 		return inXML;
 	}
 
-	private void updateItemAttributes(Element eleOrderLine, Element eleItemIn, Document docGetItemListOut)
+	private void updateItemAttributes(YFSEnvironment env,Element eleOrderLine, Element eleItemIn, Document docGetItemListOut,String strEnterprise)
 			throws Exception {
 		String strExtndDesc=null;
 		String strUPCCode=null;
@@ -175,11 +175,23 @@ public class VSINonEDIWholesaleOrderOnCreate {
 		
 		if(!YFCCommon.isVoid(strExtndDesc)) {					
 			eleOrdLnExtn.setAttribute("ExtendedDescription", strExtndDesc);
-		}
-		
+		}		
+				
 		if(!YFCCommon.isVoid(strUPCCode)) {					
 			eleItemIn.setAttribute(VSIConstants.ATTR_UPCCODE, strUPCCode);
 		}
+		Element eleCommonCode = (Element) (VSIUtils
+				.getCommonCodeList(env, VSIConstants.VSI_WH_IS_SINGLE_CARTON, strEnterprise, VSIConstants.ATTR_DEFAULT).get(0));
+
+		if (!YFCCommon.isVoid(eleCommonCode)) {
+
+			String strCodeShortDesc = eleCommonCode.getAttribute(VSIConstants.ATTR_CODE_SHORT_DESCRIPTION);
+			if (strCodeShortDesc.equalsIgnoreCase(VSIConstants.FLAG_Y)) {
+				eleOrdLnExtn.setAttribute(VSIConstants.ATTR_EXTN_IS_SINGLE_CARTON, VSIConstants.FLAG_Y);
+			}
+			
+		}
+
 	}
 
 	private void validateLinePrice(YFSEnvironment env, String strEntCode, Element eleOrderLine, String strItemId,

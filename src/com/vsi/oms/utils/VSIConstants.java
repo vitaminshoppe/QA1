@@ -2227,6 +2227,8 @@ public static final String ATTR_USER_KEY="UserKey";
 		public static final String ATTR_EXTN_TAXCALCULATED="_EXTN_TAXCALCULATED";
 		public static final String ATTR_EXTN_TYPE_WH="_EXTN_TYPE";
 		public static final String ATTR_EXTN_DEPARTMENTID="_EXTN_DEPARTMENTID";
+		public static final String VSI_WH_IS_SINGLE_CARTON="VSI_WH_IS_SINGLE_CARTON";
+		public static final String ATTR_EXTN_IS_SINGLE_CARTON="ExtnSingleCarton";
 	
 	//OMS-NON-EDI End
 	
