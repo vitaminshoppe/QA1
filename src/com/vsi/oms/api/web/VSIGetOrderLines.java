@@ -661,6 +661,13 @@ public class VSIGetOrderLines implements YIFCustomApi {
     templateOrderLineele.setAttribute(VSIConstants.ATTR_PRIME_LINE_NO, "");
     templateOrderLineele.setAttribute(VSIConstants.ATTR_SUB_LINE_NO, "");
     templateOrderLineele.setAttribute(VSIConstants.ATTR_SHIP_NODE, "");
+    templateOrderLineele.setAttribute("ReshippedQty", "");
+    // Create Order Line Item Details Child element
+    Element templateOrderLineExtnele = SCXmlUtil.createChild(templateOrderLineele,
+        "Extn");
+    templateOrderLineExtnele.setAttribute("ExtnReshippedLineFlag", "");
+    templateOrderLineExtnele.setAttribute("ExtnReshippedQty", "");
+    templateOrderLineExtnele.setAttribute("ExtnReturnedLineFlag", "");	
 
     // Create Order Line Item Details Child element
     Element templateOrderLineItemele = SCXmlUtil.createChild(templateOrderLineele,
