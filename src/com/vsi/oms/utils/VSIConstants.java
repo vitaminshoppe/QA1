@@ -2236,5 +2236,9 @@ public static final String ATTR_USER_KEY="UserKey";
 	public static final String ATTR_REFERENCE1="Reference1";
 	public static final String ATTR_EXTN_STORE_NO="ExtnStoreNo";
 	//SonarCube Changes -- End
+
+	//OMS-3787 Changes -- Start
+	public static final String PAYMENT_STATUS_PAID="PAID";
+	//OMS-3787 Changes -- End
 	
 }
