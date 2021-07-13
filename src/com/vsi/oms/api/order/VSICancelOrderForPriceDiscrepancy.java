@@ -1,7 +1,5 @@
 package com.vsi.oms.api.order;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import com.sterlingcommerce.baseutil.SCXmlUtil;
 import com.vsi.oms.utils.VSIConstants;
 import com.vsi.oms.utils.VSIUtils;
@@ -10,6 +8,9 @@ import com.yantra.yfc.core.YFCObject;
 import com.yantra.yfc.log.YFCLogCategory;
 import com.yantra.yfs.japi.YFSEnvironment;
 import com.yantra.yfs.japi.YFSException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 
 public class VSICancelOrderForPriceDiscrepancy {
 	
@@ -49,6 +50,9 @@ public class VSICancelOrderForPriceDiscrepancy {
 				eleChangeOrder.setAttribute(VSIConstants.ATTR_MODIFICATION_REASON_CODE, VSIConstants.AUTH_CANCEL_ORDER);
 				eleChangeOrder.setAttribute(VSIConstants.ATTR_SELECT_METHOD, VSIConstants.SELECT_METHOD_WAIT);
 				eleChangeOrder.setAttribute(VSIConstants.ATTR_OVERRIDE, VSIConstants.FLAG_Y);
+				//Changes for OMS 3787--Start
+				eleChangeOrder.setAttribute(VSIConstants.ATTR_PAYMENT_STATUS,VSIConstants.PAYMENT_STATUS_PAID);
+				//Changes for OMS 3787--End
 				eleChangeOrder.setAttribute(VSIConstants.ATTR_ACTION, VSIConstants.ACTION_CAPS_CANCEL);
 				Element eleNotes = SCXmlUtil.createChild(eleChangeOrder, VSIConstants.ELE_NOTES);
 				Element eleNote = SCXmlUtil.createChild(eleNotes, VSIConstants.ELE_NOTE);
