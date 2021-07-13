@@ -119,6 +119,19 @@ templateText, _dojodeclare, _dojokernel, _dojolang, _dojotext, _gridxGrid, _idxC
 					var orderLineList = _scModelUtils.createNewModelObjectWithRootKey("OrderLines");
 					var tempOrderLines = modelOutput.Order.OrderLines;
 					orderLineList.OrderLines = tempOrderLines;
+					//Restricting the return of reshippedLine, so setting the ReturnableQty
+					for(var i=0; i< orderLineList.OrderLines.OrderLine.length;i++){
+				        var orderLine = orderLineList.OrderLines.OrderLine[i];
+				        var extnReshippedLineFlag = _scModelUtils.getStringValueFromPath("Extn.ExtnReshippedLineFlag",orderLine);
+				        var reshipQty = _scModelUtils.getNumberValueFromPath("ReshippedQty",orderLine);
+			            var returnableQty =  _scModelUtils.getNumberValueFromPath("ReturnableQty",orderLine);
+			            if(extnReshippedLineFlag == 'Y'){
+								if(returnableQty >= reshipQty){
+								var calRetQty = returnableQty - reshipQty;
+								_scModelUtils.setStringValueAtModelPath("ReturnableQty",_scBaseUtils.toString(calRetQty),orderLine);
+			                }  
+						}
+			        }					
 					
 					console.log("This is in HandleMashup of tempOrderLines",tempOrderLines);
 					console.log("This is in HandleMashup of orderLineList",orderLineList);
@@ -216,6 +229,15 @@ templateText, _dojodeclare, _dojokernel, _dojolang, _dojotext, _gridxGrid, _idxC
                     this.onSingleRowSelectCustom(rowIndex);
                     _scScreenUtils.setModel(this, "selectedOrderLine", model, null);
 					var scrChild = this._allChildScreens[0];
+					var extnReshippedLineFlag = _scModelUtils.getStringValueFromPath("Extn.ExtnReshippedLineFlag",selectedRecordList);
+					var returnableQty = _scModelUtils.getNumberValueFromPath("ReturnableQty",selectedRecordList);
+					if(_scBaseUtils.stringEquals(extnReshippedLineFlag,'Y') && returnableQty <= 0){
+					    _scWidgetUtils.showWidget(scrChild,"pnlNoReturnableQuantity",true,null);
+					     var message = _scScreenUtils.getString(this, "extn_Restrict_Return_Reship");
+					    _scWidgetUtils.setValue(scrChild,"lblNoReturnableQuantity",message,false);                    	
+					}else{
+						_scWidgetUtils.hideWidget(scrChild,"pnlNoReturnableQuantity",false);
+					}					
 					
 					_scWidgetUtils.setWidgetMandatory(scrChild, "quantity");
 					_scWidgetUtils.showWidget(scrChild, "addItemPanelMainContainer", true, null);
