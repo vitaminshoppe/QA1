@@ -400,7 +400,8 @@ public class VSIGetOrderLines implements YIFCustomApi {
 
                 if (notRemovedChild) {
 
-                  Element eleReturnOrderLines = (Element) orderLineEle.getFirstChild();
+                 // Element eleReturnOrderLines = (Element) orderLineEle.getFirstChild();
+                  Element eleReturnOrderLines = SCXmlUtil.getChildElement(orderLineEle, VSIConstants.ELE_RETURN_ORDER_LINES);
 
                   if (!SCUtil.isVoid(eleReturnOrderLines)) {
 
