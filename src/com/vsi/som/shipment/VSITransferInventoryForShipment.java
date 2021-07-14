@@ -17,7 +17,7 @@ public class VSITransferInventoryForShipment implements VSIConstants
 	private YFCLogCategory log = YFCLogCategory.instance(VSITransferInventoryForShipment.class);
 	public void transferInventoryOwnership(YFSEnvironment env, Document docShipment)
 	{
-		log.info("Input for VSITransferInventoryForShipment.transferInventoryOwnership => "+XMLUtil.getXMLString(docShipment));
+		//log.info("Input for VSITransferInventoryForShipment.transferInventoryOwnership => "+XMLUtil.getXMLString(docShipment));
 		if(log.isDebugEnabled())
 			log.debug("Input for VSITransferInventoryForShipment.transferInventoryOwnership => "+XMLUtil.getXMLString(docShipment));
 		try
@@ -26,12 +26,14 @@ public class VSITransferInventoryForShipment implements VSIConstants
 			String strEnterprise = eleShipment.getAttribute(ATTR_ENTERPRISE_CODE);
 			String shipNode = eleShipment.getAttribute(ATTR_SHIP_NODE);
 			String shipmentKey = eleShipment.getAttribute(ATTR_SHIPMENT_KEY);
-			log.info("strEnterprise => "+strEnterprise+"shipNode => "+shipNode+"shipmentKey => "+shipmentKey);
+			if(log.isDebugEnabled())
+			log.debug("strEnterprise => "+strEnterprise+"shipNode => "+shipNode+"shipmentKey => "+shipmentKey);
 			Document getContainerListInXml=XMLUtil.createDocument(ELE_CONTAINER);
 			Element containerEle = getContainerListInXml.getDocumentElement();
 			containerEle.setAttribute(ATTR_SHIPMENT_KEY,shipmentKey);
 			Document getContainerListOutXML = VSIUtils.invokeAPI(env, TEMPLATE_GET_SHIPMENT_CONTAINER_LIST, API_GET_SHIPMENT_CONTAINER_LIST, getContainerListInXml);
-			log.info("getContainerListOutXML => "+XMLUtil.getXMLString(getContainerListOutXML));
+			if(log.isDebugEnabled())
+			log.debug("getContainerListOutXML => "+XMLUtil.getXMLString(getContainerListOutXML));
 			NodeList containerNode = getContainerListOutXML.getElementsByTagName(ELE_CONTAINER);
 			for (int i = 0; i < containerNode.getLength(); i++)
 			{
@@ -42,7 +44,8 @@ public class VSITransferInventoryForShipment implements VSIConstants
 				Element containerDtlElem = (Element) containerDtlNode.item(j);
 				String strItemId = containerDtlElem.getAttribute(ATTR_ITEM_ID);
 				Double dblRequiredQty = SCXmlUtil.getDoubleAttribute(containerDtlElem, ATTR_QUANTITY);
-				log.info("strItemId => "+strItemId+"dblRequiredQty" + dblRequiredQty);
+				if(log.isDebugEnabled())
+				log.debug("strItemId => "+strItemId+"dblRequiredQty" + dblRequiredQty);
 				String strFromOrganizationCode = VSI_INV;
 				
 			Document docGetInventorySupply = SCXmlUtil.createDocument(ELE_INVENTORY_SUPPLY);
@@ -119,11 +122,13 @@ public class VSITransferInventoryForShipment implements VSIConstants
 				dblRequiredQty = 0.0;
 			}
 		// invoke transferInventoryOwnership API
-			log.info("docTransferInventory Before API call => "+XMLUtil.getXMLString(docTransferInventory));
+			if(log.isDebugEnabled())
+			log.debug("docTransferInventory Before API call => "+XMLUtil.getXMLString(docTransferInventory));
 		VSIUtils.invokeAPI(env, API_TRANSFER_INV_OWNERSHIP, docTransferInventory);
 			}
 			}
-		log.info("docShipment Final return => "+XMLUtil.getXMLString(docShipment));
+		if(log.isDebugEnabled())
+			log.debug("docShipment Final return => "+XMLUtil.getXMLString(docShipment));
 		VSIUtils.invokeAPI(env, API_CONFIRM_SHIPMENT, docShipment);
 		}
 		catch(Exception e)

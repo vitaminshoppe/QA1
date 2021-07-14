@@ -13,10 +13,10 @@ import com.yantra.yfs.japi.YFSEnvironment;
 public class VSIShipmentHasContainers implements YCPDynamicConditionEx,VSIConstants
 {
 	private YFCLogCategory log = YFCLogCategory.instance(VSIShipmentHasContainers.class);			
+	private static final String TAG = VSICurbsideCustomerIDCheck.class.getSimpleName();
 	public boolean evaluateCondition(YFSEnvironment env, String condName, @SuppressWarnings("rawtypes") Map mapData, Document inXml)
 	{
-		if(log.isDebugEnabled())
-			log.debug("VSIShipmentHasContainers.evaluateCondition => " + SCXmlUtil.getString(inXml));
+		printLogs("VSIShipmentHasContainers.evaluateCondition => " + SCXmlUtil.getString(inXml));
 		boolean hasContainers = false;
 		try
 		{
@@ -35,5 +35,10 @@ public class VSIShipmentHasContainers implements YCPDynamicConditionEx,VSIConsta
 	@Override
 	public void setProperties(Map arg0) {
 	// TODO Auto-generated method stub	
+	}
+	private void printLogs(String mesg) {
+		if(log.isDebugEnabled()){
+			log.debug(TAG +" : "+mesg);
+		}
 	}
 }

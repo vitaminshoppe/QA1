@@ -282,8 +282,8 @@ public class VSISFSReprintPackShipXML {
 
 	    	}
 
-			log.info("PICK PACK Order Date  is "+strOrderDateOnly);		
-			log.info("PICK PACK Pick Date  is "+strStatusDateOnly);
+			printLogs("PICK PACK Order Date  is "+strOrderDateOnly);		
+			printLogs("PICK PACK Pick Date  is "+strStatusDateOnly);
 			
 			putElementValue(eleShipmentPackedXML,"OrderDate", strOrderDateOnly);
 			putElementValue(eleShipmentPackedXML,"ShipDate", strStatusDateOnly);

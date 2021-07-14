@@ -15,11 +15,11 @@ import com.yantra.yfs.japi.YFSEnvironment;
 public class VSISFSShipConfirmJDAAllocation implements VSIConstants
 {
 	private YFCLogCategory log = YFCLogCategory.instance(VSISFSShipConfirmJDAAllocation.class);
+	private static final String TAG = VSISFSShipConfirmJDAAllocation.class.getSimpleName();
 	public void shipConfirmJDAAllocation(YFSEnvironment env, Document inXml)
 	{
-		log.info("Input for VSISFSShipConfirmJDAAllocation.shipConfirmJDAAllocation => "+XMLUtil.getXMLString(inXml));
-		if(log.isDebugEnabled())
-			log.debug("Input for VSISFSShipConfirmJDAAllocation.shipConfirmJDAAllocation => "+XMLUtil.getXMLString(inXml));
+		//log.info("Input for VSISFSShipConfirmJDAAllocation.shipConfirmJDAAllocation => "+XMLUtil.getXMLString(inXml));
+		printLogs("Input for VSISFSShipConfirmJDAAllocation.shipConfirmJDAAllocation => "+XMLUtil.getXMLString(inXml));
 		try
 		{
 			//Mixed Cart Changes -- Start
@@ -43,7 +43,7 @@ public class VSISFSShipConfirmJDAAllocation implements VSIConstants
 				Element orderRelease = (Element) docOrderReleaseList.getElementsByTagName(ELE_ORDER_RELEASE).item(0);
 				Element extn = (Element) orderRelease.getElementsByTagName(ELE_EXTN).item(0);
 				transferNo = extn.getAttribute(ATTR_EXTN_TRANSFER_NO);
-				log.info("transferNo => "+transferNo);
+				printLogs("transferNo => "+transferNo);
 				obj.putElementValue(orderEle,ATTR_TRANSFER_NO, transferNo);
 				obj.putElementValue(orderEle,ATTR_ORDER_TYPE, ORDER_TYPE_VALUE);
 				obj.putElementValue(orderEle,ATTR_STATUS, SHIP_STATUS_VALUE);
@@ -56,7 +56,7 @@ public class VSISFSShipConfirmJDAAllocation implements VSIConstants
 					Element item = SCXmlUtil.createChild(orderLine, ELE_ITEM);
 					obj.putElementValue(item,ATTR_ITEM_ID, shipmentLineElem.getAttribute(ATTR_ITEM_ID));
 				}
-				log.info("jdaAllocationInXml => "+XMLUtil.getXMLString(jdaAllocationInXml));
+				printLogs("jdaAllocationInXml => "+XMLUtil.getXMLString(jdaAllocationInXml));
 				VSIUtils.invokeService(env, SERVICE_SFS_SHIP_JDA_ALLOCATION_REQUEST_DB, jdaAllocationInXml);
 				//Mixed Cart Changes -- Start
 				postJDARequest(env, jdaAllocationInXml);
@@ -116,7 +116,7 @@ public class VSISFSShipConfirmJDAAllocation implements VSIConstants
 		}
 		catch(Exception e)
 		{
-			log.info("VSISFSShipConfirmJDAAllocation.shipConfirmJDAAllocation() exception as below => ");
+			printLogs("VSISFSShipConfirmJDAAllocation.shipConfirmJDAAllocation() exception as below => ");
 			e.printStackTrace();
 		}
 	}
@@ -129,7 +129,7 @@ public class VSISFSShipConfirmJDAAllocation implements VSIConstants
 		}
 		catch(Exception e)
 		{
-			log.info("Posting to SFS - Ship Confirm JDA Request to MQ - Error as below");
+			printLogs("Posting to SFS - Ship Confirm JDA Request to MQ - Error as below");
 			e.printStackTrace();
 			String orderNo=jdaAllocationInXml.getElementsByTagName(ATTR_ORDER_NO).item(0).getTextContent().toString();
 			NodeList orderLineList = jdaAllocationInXml.getElementsByTagName(ELE_ORDER_LINE);
@@ -146,10 +146,10 @@ public class VSISFSShipConfirmJDAAllocation implements VSIConstants
 				else
 					itemId=itemEle.getElementsByTagName(ATTR_ITEM_ID).item(0).getTextContent().toString()+" "+itemId;
 			}
-			log.info("Entire itemId - SFS JDA Request =>  "+ itemId);
+			printLogs("Entire itemId - SFS JDA Request =>  "+ itemId);
 			if(itemId.length() >= 31)
 				itemId = itemId.substring(0,31).concat("...");
-			log.info("Truncated/Entire itemId - SFS JDA Request =>  "+ itemId);
+			printLogs("Truncated/Entire itemId - SFS JDA Request =>  "+ itemId);
 			VSIInvokeJDAWebservice object = new VSIInvokeJDAWebservice();
 			object.alertForJDASendReleaseFailure(env, itemId, orderNo, "", ALERT_SFS_SHIP_JDA_REQ_POST_Q_FAILURE_EXCEPTION_TYPE, ALERT_SFS_SHIP_JDA_REQ_POST_Q_FAILURE_DETAIL_DESCRIPTION, ALERT_SFS_SHIP_JDA_REQ_POST_Q_FAILURE_QUEUE);
 		}
@@ -164,4 +164,9 @@ public class VSISFSShipConfirmJDAAllocation implements VSIConstants
 		}
 	}
 	//Mixed Cart Changes -- End
+private void printLogs(String mesg) {
+		if(log.isDebugEnabled()){
+			log.debug(TAG +" : "+mesg);
+		}
+	}
 }

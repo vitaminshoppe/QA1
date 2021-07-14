@@ -21,11 +21,11 @@ import com.yantra.yfc.util.YFCConfigurator;
 
 public class SCCSImageIDProvider1 implements ISCUIAdditionalDataProvider,VSIConstants
 {
-  private static YFCLogCategory logger = YFCLogCategory.instance(SCCSImageIDProvider1.class);
-
+  private static YFCLogCategory log= YFCLogCategory.instance(SCCSImageIDProvider1.class);
+  private static final String TAG = SCCSImageIDProvider1.class.getSimpleName();
   public void addAdditionalData(SCUIContext arg0, Element arg1, Element arg2, Element interestedInElement) {
               try {
-              logger.info("SCCSImageIDProvider1.addAdditionalData:interestedInElement is (incoming): "+GcoXmlUtil.getElementString(interestedInElement));
+             printLogs("SCCSImageIDProvider1.addAdditionalData:interestedInElement is (incoming): "+GcoXmlUtil.getElementString(interestedInElement));
                   
                              String strImageIDSuffix= null;
                              String strImageLocation= null;
@@ -36,20 +36,15 @@ public class SCCSImageIDProvider1 implements ISCUIAdditionalDataProvider,VSICons
                              
                              String strImageID = interestedInElement.getAttribute(VSIConstants.ATTR_ITEM_ID).concat(strImageIDSuffix);
                              String strNodeName = interestedInElement.getNodeName();
-                             logger.info("strImageIDSuffix"+strImageIDSuffix);
-                             logger.info("strImageLocation"+strImageLocation);
-                             if(logger.isDebugEnabled()){
-                                           logger.debug("strImageIDSuffix"+strImageIDSuffix);
-                                           logger.debug("strImageLocation"+strImageLocation);
-                             }
+                            printLogs("strImageIDSuffix"+strImageIDSuffix);
+                            
                              //Set image id and image location if interestedInElement is not null
                              if(!YFCCommon.isVoid(interestedInElement) && (strNodeName.equals(ELE_ITEM) || strNodeName.equals(VSIConstants.ELE_ITEM_DETAILS))){
                                            Element elePrimaryInformation = GcoXmlUtil.getFirstElementByName(interestedInElement, VSIConstants.ELE_PRIMARY_INFORMATION);     
                              if(!YFCCommon.isVoid(elePrimaryInformation)&&!YFCCommon.isVoid(strImageID)&&!YFCCommon.isVoid(strImageLocation)){
-                                                         logger.info("Inside if node is Item or ItemDetails and has PrimaryInformation. URL: "+strImageLocation+strImageID);
-                                                          if(logger.isDebugEnabled()){
-                                                                        logger.debug("Inside if node is Item or ItemDetails and has PrimaryInformation. URL: "+strImageLocation+strImageID);
-                                                          }
+                                                        printLogs("Inside if node is Item or ItemDetails and has PrimaryInformation. URL: "+strImageLocation+strImageID);
+                                                        
+                                                          
                                            elePrimaryInformation.setAttribute(VSIConstants.ATTR_IMAGE_ID,strImageID);
                                            elePrimaryInformation.setAttribute(VSIConstants.ATTR_IMAGE_LOCATION, strImageLocation);
                                                           
@@ -68,24 +63,27 @@ public class SCCSImageIDProvider1 implements ISCUIAdditionalDataProvider,VSICons
                                            Element elePrimaryInformation = SCXmlUtil.getChildElement(eleItemDetails, ELE_PRIMARY_INFORMATION);
                                            strImageID = eleItemDetails.getAttribute(VSIConstants.ATTR_ITEM_ID).concat(strImageIDSuffix);
                              if(!YFCCommon.isVoid(elePrimaryInformation)&&!YFCCommon.isVoid(strImageID)&&!YFCCommon.isVoid(strImageLocation)){
-                                                          logger.info("InterestedInElement root node is OrderLine. URL: "+strImageLocation+strImageID);
-                                                          if(logger.isDebugEnabled()){
-                                                                        logger.debug("InterestedInElement root node is OrderLine. URL: "+strImageLocation+strImageID);
-                                                          }
+                                                         printLogs("InterestedInElement root node is OrderLine. URL: "+strImageLocation+strImageID);
+                                                        
+                                                          
                                            elePrimaryInformation.setAttribute(VSIConstants.ATTR_IMAGE_ID,strImageID);
                                            elePrimaryInformation.setAttribute(VSIConstants.ATTR_IMAGE_LOCATION, strImageLocation);
                                            }
                              }
                              // SUH-18 : Added to display items when going from fulfillment summary screen to add items screen : END
                              
-              logger.info("SCCSImageIDProvider1.addAdditionalData:interestedInElement is (outgoing): "+GcoXmlUtil.getElementString(interestedInElement));
+             printLogs("SCCSImageIDProvider1.addAdditionalData:interestedInElement is (outgoing): "+GcoXmlUtil.getElementString(interestedInElement));
     } catch (IllegalArgumentException e) {
-                             logger.info(e.getMessage());
+                            printLogs(e.getMessage());
                              throw e;
                              
               } catch (ParserConfigurationException e) {
-                             logger.info(e.getMessage());
+                            printLogs(e.getMessage());
               }
     }
-    
+  private void printLogs(String mesg) {
+		if(log.isDebugEnabled()){
+			log.debug(TAG +" : "+mesg);
+		}
+	}
 }

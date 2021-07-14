@@ -13,10 +13,11 @@ import com.yantra.yfs.japi.YFSEnvironment;
 
 public class VSICreateShipmentOnRelease extends VSIBaseCustomAPI implements VSIConstants
 {
-	private YFCLogCategory log = YFCLogCategory.instance(VSICreateShipmentOnRelease.class);
+	private YFCLogCategory log = YFCLogCategory.instance(VSICreateShipmentOnRelease.class);			
+	private static final String TAG = VSICreateShipmentOnRelease.class.getSimpleName();
 	public void createShipmentOnRelease(YFSEnvironment env, Document inXml)
 	{
-		log.info("VSICreateShipmentOnReleaseUpdated.createShipmentOnRelease() => "+SCXmlUtil.getString(inXml));
+		printLogs("VSICreateShipmentOnReleaseUpdated.createShipmentOnRelease() => "+SCXmlUtil.getString(inXml));
 		try
 		{
 		Element orderElement = inXml.getDocumentElement();
@@ -66,14 +67,18 @@ public class VSICreateShipmentOnRelease extends VSIBaseCustomAPI implements VSIC
 			eleShipmentLines.appendChild(eleShipmentLine);
 		}
 		eleShipment.appendChild(eleShipmentLines);
-		log.info("VSICreateShipmentOnReleaseUpdated createShipmentInput => "+SCXmlUtil.getString(createShipmentInput));
+		printLogs("VSICreateShipmentOnReleaseUpdated createShipmentInput => "+SCXmlUtil.getString(createShipmentInput));
 		VSIUtils.invokeAPI(env, API_CREATE_SHIPMENT,createShipmentInput);
 		}
 		catch(Exception e)
 		{
-			log.info("Exception in VSICreateShipmentOnRelease.createShipmentOnRelease() as below => ");
+			printLogs("Exception in VSICreateShipmentOnRelease.createShipmentOnRelease() as below => ");
 			e.printStackTrace();
 		}
 	}
-	
+	private void printLogs(String mesg) {
+		if(log.isDebugEnabled()){
+			log.debug(TAG +" : "+mesg);
+		}
+	}
 }

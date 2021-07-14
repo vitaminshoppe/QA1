@@ -33,7 +33,8 @@ public class VSIShipmentContainerWeight implements VSIConstants
 			Element containerElement = (Element) getContainerDtlsOutXML.getElementsByTagName(ELE_CONTAINER).item(0);
 			Element eleExtn = (Element) containerElement.getElementsByTagName(ELE_EXTN).item(0);
 			String extnParcelType = eleExtn.getAttribute(ATTR_EXTN_PARCEL_TYPE);
-			log.info("extnParcelType => " +extnParcelType);
+			if(log.isDebugEnabled())
+			log.debug("extnParcelType => " +extnParcelType);
 			if(!extnParcelType.equalsIgnoreCase(""))
 			{
 				ArrayList<Element> parcelWeight = VSIUtils.getCommonCodeList(env, PARCEL_WEIGHT_COMMON_CODE_TYPE , extnParcelType, ATTR_DEFAULT);
@@ -69,7 +70,8 @@ public class VSIShipmentContainerWeight implements VSIConstants
 				Element elemExtn = SCXmlUtil.createChild(containerElem,ELE_EXTN);
 				elemExtn.setAttribute(ATTR_EXTN_CONTAINER_VOLUME, parcelVolumeValue);
 				containerElem.setAttribute(ATTR_ACTUAL_WEIGHT, Double.toString(grossWeight));
-				log.info("Net => " +containerElem.getAttribute(ATTR_CONTAINER_NET_WEIGHT) +"Gross => "+containerElem.getAttribute(ATTR_CONTAINER_GROSS_WEIGHT)+"Volume => "+eleExtn.getAttribute(ATTR_EXTN_CONTAINER_VOLUME)+"Actual => "+containerElem.getAttribute(ATTR_ACTUAL_WEIGHT));
+				if(log.isDebugEnabled())
+				log.debug("Net => " +containerElem.getAttribute(ATTR_CONTAINER_NET_WEIGHT) +"Gross => "+containerElem.getAttribute(ATTR_CONTAINER_GROSS_WEIGHT)+"Volume => "+eleExtn.getAttribute(ATTR_EXTN_CONTAINER_VOLUME)+"Actual => "+containerElem.getAttribute(ATTR_ACTUAL_WEIGHT));
 				if(!parcelLength.isEmpty())
 				{
 					Element parcelLengthEle=parcelLength.get(0);

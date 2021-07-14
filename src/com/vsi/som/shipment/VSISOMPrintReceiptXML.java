@@ -46,7 +46,7 @@ public class VSISOMPrintReceiptXML {
 		
 		printLogs("================Inside VSISOMPrintReceiptXML Class and printPickPackReceipt Method================");
 		printLogs("Printing Input XML :"+SCXmlUtil.getString(inXML));
-		log.info("Printing Input XML :"+SCXmlUtil.getString(inXML));
+		//printLogs("Printing Input XML :"+SCXmlUtil.getString(inXML));
 		try{
 			
 			Element eleShipment=inXML.getDocumentElement();			
@@ -55,9 +55,9 @@ public class VSISOMPrintReceiptXML {
 			Document docGetShipmentListIn=XMLUtil.createDocument(VSIConstants.ELE_SHIPMENT);
 			Element eleGetShipmentList = docGetShipmentListIn.getDocumentElement();
 			eleGetShipmentList.setAttribute(VSIConstants.ATTR_SHIPMENT_KEY, strShipmentKey);	
-			log.info("Calling API:"+VSIConstants.API_GET_SHIPMENT_LIST);
+			printLogs("Calling API:"+VSIConstants.API_GET_SHIPMENT_LIST);
 			Document docGetShipmentListOut = VSIUtils.invokeAPI(env,VSIConstants.SHIPMENT_LIST_PICK_PACK_TEMPLATE,VSIConstants.API_GET_SHIPMENT_LIST, docGetShipmentListIn);
-			log.info("Output from Get Shipment List"+SCXmlUtil.getString(docGetShipmentListOut));
+			printLogs("Output from Get Shipment List"+SCXmlUtil.getString(docGetShipmentListOut));
 			Element eleGetShipmentListOut = (Element) docGetShipmentListOut.getElementsByTagName(VSIConstants.ELE_SHIPMENTS).item(0);			
 			
 			int intTotalNoOfShipment= Integer.parseInt(eleGetShipmentListOut.getAttribute(VSIConstants.ATTR_TOTAL_NUMBER_OF_RECORDS));
@@ -132,10 +132,10 @@ public class VSISOMPrintReceiptXML {
 				eleSortedShpmntIn.setAttribute(VSIConstants.ATTR_SHIPMENT_KEY, strShipmentKey);
 				
 				printLogs("Input to getSortedShipmentDetails API: "+SCXmlUtil.getString(docSortedShpmntIn));
-				log.info("Input to getSortedShipmentDetails API: "+SCXmlUtil.getString(docSortedShpmntIn));
+				printLogs("Input to getSortedShipmentDetails API: "+SCXmlUtil.getString(docSortedShpmntIn));
 				Document docSortedShpmntOut = VSIUtils.invokeAPI(env,"global/template/api/VSISOMCustomerShipmentSorted.xml","getSortedShipmentDetails", docSortedShpmntIn);
 				printLogs("Output from getSortedShipmentDetails API: "+SCXmlUtil.getString(docSortedShpmntOut));
-				log.info("Output from getSortedShipmentDetails API: "+SCXmlUtil.getString(docSortedShpmntOut));
+				printLogs("Output from getSortedShipmentDetails API: "+SCXmlUtil.getString(docSortedShpmntOut));
 				
 				Element eleSortedShpmntOut=docSortedShpmntOut.getDocumentElement();
 				String strStoreNo=eleSortedShpmntOut.getAttribute(VSIConstants.ATTR_SHIP_NODE);
@@ -335,10 +335,10 @@ public class VSISOMPrintReceiptXML {
 		        strStatusTimeOnly = statusTimeOnly.format(formattedStatusDate);
 		    	}
 
-				log.info("PICK PACK Order Date  is "+strOrderDateOnly);
-				log.info("PICK PACK Order Time is "+strOrderTimeOnly);				
-				log.info("PICK PACK Pick Date  is "+strStatusDateOnly);
-				log.info("PICK PACK Pick Time is "+strStatusTimeOnly);
+				printLogs("PICK PACK Order Date  is "+strOrderDateOnly);
+				printLogs("PICK PACK Order Time is "+strOrderTimeOnly);				
+				printLogs("PICK PACK Pick Date  is "+strStatusDateOnly);
+				printLogs("PICK PACK Pick Time is "+strStatusTimeOnly);
 				
 			    //Changes for Order Date and Pick Date- 17th Aug 2020- END
 		        
@@ -550,7 +550,7 @@ public class VSISOMPrintReceiptXML {
 				
 				
 				printLogs("Printing PickPack XML :"+SCXmlUtil.getString(docPickPackXML));		
-				log.info("Printing PickPack XML :"+SCXmlUtil.getString(docPickPackXML));
+				//log.info("Printing PickPack XML :"+SCXmlUtil.getString(docPickPackXML));
 							
 				invokeMiniSoftWebService(env,docPickPackXML,strStoreNo);  //OMS-2988 Changes
 				
@@ -722,7 +722,7 @@ public class VSISOMPrintReceiptXML {
 		
 		printLogs("================Inside VSISOMPrintReceiptXML Class and printCustomerReceipt Method================");
 		printLogs("Printing Input XML :"+SCXmlUtil.getString(inXML));
-		log.info("Printing Input XML :"+SCXmlUtil.getString(inXML));
+		//log.info("Printing Input XML :"+SCXmlUtil.getString(inXML));
 		
 		try{
 			
@@ -734,10 +734,10 @@ public class VSISOMPrintReceiptXML {
 			Element eleGetShipmentList = docGetShipmentListIn.getDocumentElement();
 			eleGetShipmentList.setAttribute(VSIConstants.ATTR_SHIPMENT_KEY, strShipmentKey);
 			
-			log.info("Printing Input XML to API_GET_SHIPMENT_LIST CUSTOMER RECEIPT:"+SCXmlUtil.getString(docGetShipmentListIn));
+			printLogs("Printing Input XML to API_GET_SHIPMENT_LIST CUSTOMER RECEIPT:"+SCXmlUtil.getString(docGetShipmentListIn));
 			
 			Document docGetShipmentListOut = VSIUtils.invokeAPI(env,VSIConstants.SHIPMENT_LIST_PICK_PACK_TEMPLATE,VSIConstants.API_GET_SHIPMENT_LIST, docGetShipmentListIn);
-			log.info("Printing Output XML to API_GET_SHIPMENT_LIST CUSTOMER RECEIPT:"+SCXmlUtil.getString(docGetShipmentListOut));
+			printLogs("Printing Output XML to API_GET_SHIPMENT_LIST CUSTOMER RECEIPT:"+SCXmlUtil.getString(docGetShipmentListOut));
 			
 			Element eleGetShipmentListOut = (Element) docGetShipmentListOut.getElementsByTagName(VSIConstants.ELE_SHIPMENTS).item(0);			
 			int intTotalNoOfShipment= Integer.parseInt(eleGetShipmentListOut.getAttribute(VSIConstants.ATTR_TOTAL_NUMBER_OF_RECORDS));
@@ -773,8 +773,8 @@ public class VSISOMPrintReceiptXML {
 				 strShipmentStatus= eleShipmentOut.getAttribute(VSIConstants.ATTR_STATUS);
 			}
 			
-			log.info("Printing Customer Receipt Flag"+strCustRcptFlag);
-			log.info("Shipment Status for Customer Receipt "+strShipmentStatus);
+			printLogs("Printing Customer Receipt Flag"+strCustRcptFlag);
+			printLogs("Shipment Status for Customer Receipt "+strShipmentStatus);
 			
 			if(VSIConstants.FLAG_Y.equals(strCustRcptFlag)){
 				printLogs("CustomerReceipt Process has already been completed for this Shipment");
@@ -792,10 +792,10 @@ public class VSISOMPrintReceiptXML {
 				eleSortedShpmntIn.setAttribute(VSIConstants.ATTR_SHIPMENT_KEY, strShipmentKey);
 				
 				printLogs("Input to getSortedShipmentDetails API: "+SCXmlUtil.getString(docSortedShpmntIn));
-				log.info("Input to getSortedShipmentDetails API: "+SCXmlUtil.getString(docSortedShpmntIn));
+				printLogs("Input to getSortedShipmentDetails API: "+SCXmlUtil.getString(docSortedShpmntIn));
 				Document docSortedShpmntOut = VSIUtils.invokeAPI(env,"global/template/api/VSISOMCustomerShipmentSorted.xml","getSortedShipmentDetails", docSortedShpmntIn);
 				printLogs("Output from getSortedShipmentDetails API: "+SCXmlUtil.getString(docSortedShpmntOut));
-				log.info("Output from getSortedShipmentDetails API: "+SCXmlUtil.getString(docSortedShpmntOut));
+				printLogs("Output from getSortedShipmentDetails API: "+SCXmlUtil.getString(docSortedShpmntOut));
 			
 				Element eleSortedShpmntOut=docSortedShpmntOut.getDocumentElement();
 				String strStoreNo=eleSortedShpmntOut.getAttribute(VSIConstants.ATTR_SHIP_NODE);
@@ -985,10 +985,10 @@ public class VSISOMPrintReceiptXML {
 		        statusTimeOnly.setTimeZone(TimeZone.getTimeZone(strTimeZone));
 		        strStatusTimeOnly = statusTimeOnly.format(formattedStatusDate);
 		    	}
-				log.info("Order Date  is "+strOrderDateOnly);
-				log.info("Order Time is "+strOrderTimeOnly);			
-				log.info("Pick Date  is "+strStatusDateOnly);
-				log.info("Pick Time is "+strStatusTimeOnly);
+				printLogs("Order Date  is "+strOrderDateOnly);
+				printLogs("Order Time is "+strOrderTimeOnly);			
+				printLogs("Pick Date  is "+strStatusDateOnly);
+				printLogs("Pick Time is "+strStatusTimeOnly);
 				
 			    //Changes for Order Date and Pick Date- 17th Aug 2020- END
 		        
@@ -1197,7 +1197,7 @@ public class VSISOMPrintReceiptXML {
 				//NewChanges-14Aug2020- END
 				
 				printLogs("Printing CustomerReceipt XML :"+SCXmlUtil.getString(docCustomerReceiptXML));
-				log.info("Printing CustomerReceipt XML :"+SCXmlUtil.getString(docCustomerReceiptXML));
+				printLogs("Printing CustomerReceipt XML :"+SCXmlUtil.getString(docCustomerReceiptXML));
 				
 				invokeMiniSoftWebService(env,docCustomerReceiptXML,strStoreNo);   //OMS-2988 Changes
 				

@@ -17,8 +17,8 @@ import com.yantra.yfs.japi.YFSException;
 public class VSISFSChangeReturnNode extends VSIBaseCustomAPI implements VSIConstants {
 
 	
-	private YFCLogCategory log = YFCLogCategory.instance(VSICreateShipmentOnRelease.class);
-	private static final String TAG = VSISOMPrintReceiptXML.class.getSimpleName();
+	private YFCLogCategory log = YFCLogCategory.instance(VSISFSChangeReturnNode.class);
+	private static final String TAG = VSISFSChangeReturnNode.class.getSimpleName();
 	YIFApi api;
 	
 	public Document changeReturnNode(YFSEnvironment env, Document inXml)
@@ -26,7 +26,7 @@ public class VSISFSChangeReturnNode extends VSIBaseCustomAPI implements VSIConst
 
 		printLogs("================Inside VSISFSChangeReturnNode Class and changeReturnNode Method================");
 		printLogs("VSISFSChangeReturnNode: Printing Input XML to changeReturnNode from  :"+SCXmlUtil.getString(inXml));		
-		log.info("VSISFSChangeReturnNode: Printing Input XML to changeReturnNode from  :"+SCXmlUtil.getString(inXml));
+		
 		
 		Document docChangeOrderIn= SCXmlUtil.createDocument(ELE_ORDER);
 		try {
@@ -68,13 +68,13 @@ public class VSISFSChangeReturnNode extends VSIBaseCustomAPI implements VSIConst
 								else {
 									strReturnToShipNode ="9004";
 									printLogs("VSISFSChangeReturnNode: No Transfer node found. Defaulting to 9004 ");		
-									log.info("VSISFSChangeReturnNode: No Transfer node found. Defaulting to 9004 ");	
+									//log.info("VSISFSChangeReturnNode: No Transfer node found. Defaulting to 9004 ");	
 									
 								}
 							}
 							else{
 								printLogs("VSISFSChangeReturnNode: No Ship Node found for the order Line. Defaulting to 9004 ");		
-								log.info("VSISFSChangeReturnNode: No Ship Node found for the order Line. Defaulting to 9004 ");
+								//log.info("VSISFSChangeReturnNode: No Ship Node found for the order Line. Defaulting to 9004 ");
 								
 								strReturnToShipNode="9004";
 							}
@@ -89,7 +89,7 @@ public class VSISFSChangeReturnNode extends VSIBaseCustomAPI implements VSIConst
 						}
 
 						printLogs("VSISFSChangeReturnNode: Printing Input XML to changeReturnNode   :"+SCXmlUtil.getString(docChangeOrderIn));		
-						log.info("VSISFSChangeReturnNode: Printing Input XML to changeReturnNode   :"+SCXmlUtil.getString(docChangeOrderIn));
+						//log.info("VSISFSChangeReturnNode: Printing Input XML to changeReturnNode   :"+SCXmlUtil.getString(docChangeOrderIn));
 						
 						NodeList nlOrderLinesIn= docChangeOrderIn.getElementsByTagName(ELE_ORDER_LINE);						
 						int totalOrderLineIn= nlOrderLinesIn.getLength();
@@ -97,7 +97,7 @@ public class VSISFSChangeReturnNode extends VSIBaseCustomAPI implements VSIConst
 						if (totalOrderLineIn>0) {
 							Document docChangeOrderOut = VSIUtils.invokeAPI(env,VSIConstants.API_CHANGE_ORDER, docChangeOrderIn);
 							printLogs("VSISFSChangeReturnNode: Output from Change order: "+SCXmlUtil.getString(docChangeOrderOut));		
-							log.info("VSISFSChangeReturnNode: Output from Change order: "+SCXmlUtil.getString(docChangeOrderOut));
+							//log.info("VSISFSChangeReturnNode: Output from Change order: "+SCXmlUtil.getString(docChangeOrderOut));
 						}
 							
 						

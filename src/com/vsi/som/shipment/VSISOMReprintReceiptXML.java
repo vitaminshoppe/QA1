@@ -245,10 +245,10 @@ public class VSISOMReprintReceiptXML {
 		        strStatusTimeOnly = statusTimeOnly.format(formattedStatusDate);
 		    	}
 
-				log.info("PICK PACK Order Date  is "+strOrderDateOnly);
-				log.info("PICK PACK Order Time is "+strOrderTimeOnly);				
-				log.info("PICK PACK Pick Date  is "+strStatusDateOnly);
-				log.info("PICK PACK Pick Time is "+strStatusTimeOnly);
+				printLogs("PICK PACK Order Date  is "+strOrderDateOnly);
+				printLogs("PICK PACK Order Time is "+strOrderTimeOnly);				
+				printLogs("PICK PACK Pick Date  is "+strStatusDateOnly);
+				printLogs("PICK PACK Pick Time is "+strStatusTimeOnly);
 				
 			    //Changes for Order Date and Pick Date- 17th Aug 2020- END
 		        
@@ -452,12 +452,12 @@ public class VSISOMReprintReceiptXML {
 				putElementValue(elePickPackXML,"Total", strTotal);
 					//NewChanges-14Aug2020- START
 				String strAssociate= env.getUserId();
-				log.info("env.getUserId()"+env.getUserId()+" env.getProgId() "+env.getProgId()+" env.getTokenID() "+env.getTokenID());
+				printLogs("env.getUserId()"+env.getUserId()+" env.getProgId() "+env.getProgId()+" env.getTokenID() "+env.getTokenID());
 				putElementValue(elePickPackXML,"Associate", strAssociate);
 				//NewChanges-14Aug2020- END
 				
 				printLogs("Printing PickPack XML :"+SCXmlUtil.getString(docPickPackXML));	
-				log.info("Printing PickPack XML :"+SCXmlUtil.getString(docPickPackXML));
+				printLogs("Printing PickPack XML :"+SCXmlUtil.getString(docPickPackXML));
 							
 				invokeMiniSoftWebService(env,docPickPackXML);				
 				
@@ -602,10 +602,10 @@ public class VSISOMReprintReceiptXML {
 				eleSortedShpmntIn.setAttribute(VSIConstants.ATTR_SHIPMENT_KEY, strShipmentKey);
 				
 				printLogs("Input to getSortedShipmentDetails API: "+SCXmlUtil.getString(docSortedShpmntIn));
-				log.info("Input to getSortedShipmentDetails API: "+SCXmlUtil.getString(docSortedShpmntIn));
+				printLogs("Input to getSortedShipmentDetails API: "+SCXmlUtil.getString(docSortedShpmntIn));
 				Document docSortedShpmntOut = VSIUtils.invokeAPI(env,"global/template/api/VSISOMCustomerShipmentSorted.xml","getSortedShipmentDetails", docSortedShpmntIn);
 				printLogs("Output from getSortedShipmentDetails API: "+SCXmlUtil.getString(docSortedShpmntOut));
-				log.info("Output from getSortedShipmentDetails API: "+SCXmlUtil.getString(docSortedShpmntOut));
+				printLogs("Output from getSortedShipmentDetails API: "+SCXmlUtil.getString(docSortedShpmntOut));
 			
 				Element eleSortedShpmntOut=docSortedShpmntOut.getDocumentElement();
 				String strStoreNo=eleSortedShpmntOut.getAttribute(VSIConstants.ATTR_SHIP_NODE);
@@ -790,10 +790,10 @@ public class VSISOMReprintReceiptXML {
 		        statusTimeOnly.setTimeZone(TimeZone.getTimeZone(strTimeZone));
 		        strStatusTimeOnly = statusTimeOnly.format(formattedStatusDate);
 		    	}
-		    	log.info("Order Date  is "+strOrderDateOnly);
-				log.info("Order Time is "+strOrderTimeOnly);
-				log.info("Pick Date  is "+strStatusDateOnly);
-				log.info("Pick Time is "+strStatusTimeOnly);
+		    	printLogs("Order Date  is "+strOrderDateOnly);
+				printLogs("Order Time is "+strOrderTimeOnly);
+				printLogs("Pick Date  is "+strStatusDateOnly);
+				printLogs("Pick Time is "+strStatusTimeOnly);
 				
 			    //Changes for Order Date and Pick Date- 17th Aug 2020- END
 		        
@@ -996,7 +996,7 @@ public class VSISOMReprintReceiptXML {
 				putElementValue(eleCustomerReceiptXML,"Total", strTotal);
 					//NewChanges-14Aug2020- START
 				String strAssociate= env.getUserId();
-				log.info("env.getUserId()"+env.getUserId()+" env.getProgId() "+env.getProgId()+" env.getTokenID() "+env.getTokenID());
+				printLogs("env.getUserId()"+env.getUserId()+" env.getProgId() "+env.getProgId()+" env.getTokenID() "+env.getTokenID());
 				putElementValue(eleCustomerReceiptXML,"Associate", strAssociate);
 				//NewChanges-14Aug2020- END
 				

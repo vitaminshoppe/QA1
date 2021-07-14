@@ -18,26 +18,25 @@ import com.yantra.yfs.japi.YFSUserExitException;
 public class VSITransferInvForBOPUS implements YCDBeforeConfirmShipmentOfRecordCustomerPickUE,VSIConstants
 {
 	private YFCLogCategory log = YFCLogCategory.instance(VSITransferInvForBOPUS.class);
+	private static final String TAG = VSITransferInvForBOPUS.class.getSimpleName();
 	@Override
 	public Document beforeConfirmShipmentOfRecordCustomerPick(YFSEnvironment env, Document docShipment) throws YFSUserExitException 
 	{
-		log.info("Input for VSITransferInvForBOPUS.beforeConfirmShipmentOfRecordCustomerPick => "+XMLUtil.getXMLString(docShipment));
-		if(log.isDebugEnabled())
-			log.debug("Input for VSITransferInvForBOPUS.beforeConfirmShipmentOfRecordCustomerPick => "+XMLUtil.getXMLString(docShipment));
+		printLogs("Input for VSITransferInvForBOPUS.beforeConfirmShipmentOfRecordCustomerPick => "+XMLUtil.getXMLString(docShipment));
 		try
 		{
 			Element eleShipment = docShipment.getDocumentElement();
 			String shipmentKey = eleShipment.getAttribute(ATTR_SHIPMENT_KEY);
-			log.info("shipmentKey => "+shipmentKey);
+			printLogs("shipmentKey => "+shipmentKey);
 			Document getShipmentListInXml=XMLUtil.createDocument(ELE_SHIPMENT);
 			Element shipmentEle = getShipmentListInXml.getDocumentElement();
 			shipmentEle.setAttribute(ATTR_SHIPMENT_KEY,shipmentKey);
 			Document getShipmentListOutXML = VSIUtils.invokeAPI(env, TEMPLATE_GET_SHIPMENT_LIST, API_GET_SHIPMENT_LIST, getShipmentListInXml);
-			log.info("getShipmentListOutXML => "+XMLUtil.getXMLString(getShipmentListOutXML));
+			printLogs("getShipmentListOutXML => "+XMLUtil.getXMLString(getShipmentListOutXML));
 			Element elemShipment = (Element) getShipmentListOutXML.getElementsByTagName(ELE_SHIPMENT).item(0);
 			String shipNode = elemShipment.getAttribute(ATTR_SHIP_NODE);
 			String strEnterprise = elemShipment.getAttribute(ATTR_ENTERPRISE_CODE);
-			log.info("shipNode => "+shipNode+"strEnterprise => "+strEnterprise);
+			printLogs("shipNode => "+shipNode+"strEnterprise => "+strEnterprise);
 			NodeList shipmentLineNode = getShipmentListOutXML.getElementsByTagName(ELE_SHIPMENT_LINE);
 			for (int j = 0; j < shipmentLineNode.getLength(); j++) 
 			{
@@ -52,7 +51,7 @@ public class VSITransferInvForBOPUS implements YCDBeforeConfirmShipmentOfRecordC
 					if(shipmentLineKey.equalsIgnoreCase(shipmentLineElement.getAttribute(ATTR_SHIPMENT_LINE_KEY)))
 						dblRequiredQty = SCXmlUtil.getDoubleAttribute(shipmentLineElement, ATTR_PICKED_QTY);
 				}				
-				log.info("strItemId => "+strItemId+"dblRequiredQty" + dblRequiredQty);
+				printLogs("strItemId => "+strItemId+"dblRequiredQty" + dblRequiredQty);
 				String strFromOrganizationCode = VSI_INV;
 				Document docGetInventorySupply = SCXmlUtil.createDocument(ELE_INVENTORY_SUPPLY);
 				Element eleGetInventorySupply = docGetInventorySupply.getDocumentElement();
@@ -125,7 +124,7 @@ public class VSITransferInvForBOPUS implements YCDBeforeConfirmShipmentOfRecordC
 					eleTransferInventory = obj.addItemToTransferInv(eleTransferInventory,shipNode,strEnterprise,strItemId,dblRequiredQty);
 					dblRequiredQty = 0.0;
 				}
-			log.info("docTransferInventory Before API call in BOPUS flow => "+XMLUtil.getXMLString(docTransferInventory));
+				printLogs("docTransferInventory Before API call in BOPUS flow => "+XMLUtil.getXMLString(docTransferInventory));
 			VSIUtils.invokeAPI(env, API_TRANSFER_INV_OWNERSHIP, docTransferInventory);				
 			}
 		}
@@ -133,7 +132,12 @@ public class VSITransferInvForBOPUS implements YCDBeforeConfirmShipmentOfRecordC
 		{
 			e.printStackTrace();
 		}
-		log.info("docShipment final => "+XMLUtil.getXMLString(docShipment));
+		printLogs("docShipment final => "+XMLUtil.getXMLString(docShipment));
 		return docShipment;
+	}
+	private void printLogs(String mesg) {
+		if(log.isDebugEnabled()){
+			log.debug(TAG +" : "+mesg);
+		}
 	}
 }

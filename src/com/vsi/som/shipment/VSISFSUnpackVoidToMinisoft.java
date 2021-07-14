@@ -33,7 +33,7 @@ public class VSISFSUnpackVoidToMinisoft extends VSIBaseCustomAPI implements VSIC
 		Document requestDoc= SCXmlUtil.createDocument("CartonData");
 		printLogs("================Inside VSISFSUnpackVoidToMinisoft Class and callSFSUnpackVoidWS Method================");
 		printLogs("VSISFSUnpackVoidToMinisoft: Printing Input XML to callSFSUnpackVoidWS from  :"+SCXmlUtil.getString(inXml));		
-		log.info("VSISFSUnpackVoidToMinisoft: Printing Input XML to callSFSUnpackVoidWS from  :"+SCXmlUtil.getString(inXml));
+		//log.info("VSISFSUnpackVoidToMinisoft: Printing Input XML to callSFSUnpackVoidWS from  :"+SCXmlUtil.getString(inXml));
 		//changes for re-packing scenarios-11Sep2020-Ashutosh-Start
 		Document docChangeShipment = SCXmlUtil.createDocument("Shipment");
 		//changes for re-packing scenarios-11Sep2020-Ashutosh-End
@@ -95,7 +95,7 @@ public class VSISFSUnpackVoidToMinisoft extends VSIBaseCustomAPI implements VSIC
 						Document responseDoc= invokeMiniSoftWebService (env, requestDoc);
 						//changes for new minisoft response-start
 						printLogs("VSISFSUnpackVoidToMinisoft: Printing Response XML From WS :"+SCXmlUtil.getString(responseDoc));
-						log.info("VSISFSUnpackVoidToMinisoft: Printing Response XML From WS :"+SCXmlUtil.getString(responseDoc));
+						//log.info("VSISFSUnpackVoidToMinisoft: Printing Response XML From WS :"+SCXmlUtil.getString(responseDoc));
 
 						Element eleResponse= responseDoc.getDocumentElement();						
 						Element eleStatus=SCXmlUtil.getChildElement(eleResponse, "Status");
@@ -182,7 +182,7 @@ public class VSISFSUnpackVoidToMinisoft extends VSIBaseCustomAPI implements VSIC
 		{
 			if(log.isDebugEnabled())
 			{
-				log.info("alert For Unpack Void WS Failure - in catch block => ");
+				printLogs("alert For Unpack Void WS Failure - in catch block => ");
 				e.printStackTrace();
 			}
 		}
@@ -250,7 +250,7 @@ public class VSISFSUnpackVoidToMinisoft extends VSIBaseCustomAPI implements VSIC
 		 } 
 		 if(connection.getResponseCode() != 200)
 		 {
-			 log.info(connection.getResponseCode()+" - "+connection.getResponseMessage());
+			 printLogs(connection.getResponseCode()+" - "+connection.getResponseMessage());
 			 alertForUnpackVoidWebserviceFailure(env, "ALERT_SFS_UNPACK_VOID_WS_FAIL", "ALERT_SFS_UNPACK_VOID_WS_CONNECTION_FAILURE", "VSI_ALERT_SFS_UNPACK_VOID_WS_FAIL_QUEUE");
 		 }				 
 		 if(connection.getResponseCode() == 200)

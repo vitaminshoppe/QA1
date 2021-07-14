@@ -23,7 +23,7 @@ public class VSISFSGenerateShipConfirmForATG extends VSIBaseCustomAPI implements
 		Document responseDoc= SCXmlUtil.createDocument(ELE_SHIPMENT_LIST);
 		printLogs("================Inside VSISFSGenerateShipConfirmForATG Class and createShipConfirmForATG Method================");
 		printLogs("VSISFSGenerateShipConfirmForATG: Printing Input XML to createShipConfirmForATG from  :"+SCXmlUtil.getString(inXml));		
-		log.info("VSISFSGenerateShipConfirmForATG: Printing Input XML to createShipConfirmForATG from  :"+SCXmlUtil.getString(inXml));
+		//log.info("VSISFSGenerateShipConfirmForATG: Printing Input XML to createShipConfirmForATG from  :"+SCXmlUtil.getString(inXml));
 		
 		
 		try {
@@ -199,7 +199,7 @@ public class VSISFSGenerateShipConfirmForATG extends VSIBaseCustomAPI implements
 		
 
 		printLogs("VSISFSGenerateShipConfirmForATG: Printing Response Document XML :"+SCXmlUtil.getString(responseDoc));		
-		log.info("VSISFSGenerateShipConfirmForATG: Printing Response Document XML :"+SCXmlUtil.getString(responseDoc));
+		//log.info("VSISFSGenerateShipConfirmForATG: Printing Response Document XML :"+SCXmlUtil.getString(responseDoc));
 		
 		return responseDoc;
 

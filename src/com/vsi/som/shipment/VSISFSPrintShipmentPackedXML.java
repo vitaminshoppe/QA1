@@ -308,8 +308,8 @@ public class VSISFSPrintShipmentPackedXML {
 
 		    	}
 
-				log.info("PICK PACK Order Date  is "+strOrderDateOnly);		
-				log.info("PICK PACK Pick Date  is "+strStatusDateOnly);
+				printLogs("PICK PACK Order Date  is "+strOrderDateOnly);		
+				printLogs("PICK PACK Pick Date  is "+strStatusDateOnly);
 				
 				putElementValue(eleShipmentPackedXML,"OrderDate", strOrderDateOnly);
 				putElementValue(eleShipmentPackedXML,"ShipDate", strStatusDateOnly);
@@ -497,13 +497,13 @@ public class VSISFSPrintShipmentPackedXML {
 				putElementValue(eleShipmentPackedXML,"SignatureRequired", strSignatureRequired);
 				putElementValue(eleShipmentPackedXML,"AdultSignatureRequired", strAdultSignatureRequired);
 				
-				log.info("Printing Shipment Packed XML :"+SCXmlUtil.getString(docShipmentPackedXML));			
+				printLogs("Printing Shipment Packed XML :"+SCXmlUtil.getString(docShipmentPackedXML));			
 				
 				Document docMiniSoftOut=invokeMiniSoftWebService(env, docShipmentPackedXML, strShipFromFacilityID);     //OMS-2988 Changes
 				
 				processMiniSoftResponse(env,docMiniSoftOut,strShipmentKey);
 				
-				log.info("================Exiting VSISFSPrintShipmentPackedXML Class and printShipmentPackedXML Method================");
+				printLogs("================Exiting VSISFSPrintShipmentPackedXML Class and printShipmentPackedXML Method================");
 				
 				return docShipmentPackedXML;		
 			

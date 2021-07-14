@@ -15,10 +15,10 @@ import com.yantra.yfs.japi.YFSEnvironment;
 public class VSISFSShipmentDetailsToATG extends VSIBaseCustomAPI implements VSIConstants
 {
 	private YFCLogCategory log = YFCLogCategory.instance(VSISFSShipmentDetailsToATG.class);	
-	
+	private static final String TAG = VSISFSShipmentDetailsToATG.class.getSimpleName();
 	public void splitShipConfirmMsgToATG(YFSEnvironment env, Document inXml)
 	{
-         log.info("VSISFSShipmentDetailsToATG.splitShipConfirmMsgToATG() i/p xml => "+SCXmlUtil.getString(inXml));		
+         printLogs("VSISFSShipmentDetailsToATG.splitShipConfirmMsgToATG() i/p xml => "+SCXmlUtil.getString(inXml));		
 		try {
 			Element eleShipment = (Element) inXml.getElementsByTagName(ELE_SHIPMENT).item(0);
 			Element eleOrder = (Element) inXml.getElementsByTagName(ELE_ORDER).item(0);			
@@ -62,7 +62,7 @@ public class VSISFSShipmentDetailsToATG extends VSIBaseCustomAPI implements VSIC
 							Double cancelledQtyValue = Double.valueOf(orderLineEle.getAttribute(ATTR_USER_CANCELED_QTY));
 							Integer cancelledQty = cancelledQtyValue.intValue();
 							orderLineEle.setAttribute(ATTR_USER_CANCELED_QTY, cancelledQty.toString());
-							log.info("cancelledQtyValue => "+cancelledQtyValue +"cancelledQty => "+cancelledQty+"Value => "+orderLineEle.getAttribute(ATTR_USER_CANCELED_QTY));
+							printLogs("cancelledQtyValue => "+cancelledQtyValue +"cancelledQty => "+cancelledQty+"Value => "+orderLineEle.getAttribute(ATTR_USER_CANCELED_QTY));
 						}
 						if(orderLineEle.getAttribute(ATTR_ITEM_ID).equalsIgnoreCase(itemId))
 						{
@@ -74,7 +74,7 @@ public class VSISFSShipmentDetailsToATG extends VSIBaseCustomAPI implements VSIC
 					Node shipmentLineNode = splitShipDoc.importNode(shipmentLine, true);
 					splitShipLines.appendChild(shipmentLineNode);					
 				}				
-				log.info("VSISFSShipmentDetailsToATG.splitShipConfirmMsgToATG() splitShipDoc => "+SCXmlUtil.getString(splitShipDoc));
+				printLogs("VSISFSShipmentDetailsToATG.splitShipConfirmMsgToATG() splitShipDoc => "+SCXmlUtil.getString(splitShipDoc));
 				VSIUtils.invokeService(env, "VSISFSShipConfirmATG", splitShipDoc);
 			}
 			}
@@ -88,9 +88,9 @@ public class VSISFSShipmentDetailsToATG extends VSIBaseCustomAPI implements VSIC
 					Double cancelledQtyValue = Double.valueOf(orderLineEle.getAttribute(ATTR_USER_CANCELED_QTY));
 					Integer cancelledQty = cancelledQtyValue.intValue();
 					orderLineEle.setAttribute(ATTR_USER_CANCELED_QTY, cancelledQty.toString());
-					log.info("In else - cancelledQtyValue => "+cancelledQtyValue +"cancelledQty => "+cancelledQty+"Value => "+orderLineEle.getAttribute(ATTR_USER_CANCELED_QTY));
+					printLogs("In else - cancelledQtyValue => "+cancelledQtyValue +"cancelledQty => "+cancelledQty+"Value => "+orderLineEle.getAttribute(ATTR_USER_CANCELED_QTY));
 				}
-				log.info("VSISFSShipmentDetailsToATG.splitShipConfirmMsgToATG() splitShipDoc => "+SCXmlUtil.getString(inXml));
+				printLogs("VSISFSShipmentDetailsToATG.splitShipConfirmMsgToATG() splitShipDoc => "+SCXmlUtil.getString(inXml));
 				VSIUtils.invokeService(env, "VSISFSShipConfirmATG", inXml);
 			}
 		}
@@ -109,5 +109,10 @@ public class VSISFSShipmentDetailsToATG extends VSIBaseCustomAPI implements VSIC
 	    	toNode.setAttributeNS(attrNode.getNamespaceURI(), attrNode.getName(), attrNode.getValue());
 	    }
 		return toNode;
+	}
+	private void printLogs(String mesg) {
+		if(log.isDebugEnabled()){
+			log.debug(TAG +" : "+mesg);
+		}
 	}
 }
