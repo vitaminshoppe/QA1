@@ -118,7 +118,20 @@ templateText, _dojodeclare, _dojokernel, _dojolang, _dojotext, _gridxGrid, _idxC
 				} else {
 					var orderLineList = _scModelUtils.createNewModelObjectWithRootKey("OrderLines");
 					var tempOrderLines = modelOutput.Order.OrderLines;
-					orderLineList.OrderLines = tempOrderLines;					
+					orderLineList.OrderLines = tempOrderLines;
+					//Restricting the return of reshippedLine, so setting the ReturnableQty
+					for(var i=0; i< orderLineList.OrderLines.OrderLine.length;i++){
+				        var orderLine = orderLineList.OrderLines.OrderLine[i];
+				        var extnReshippedLineFlag = _scModelUtils.getStringValueFromPath("Extn.ExtnReshippedLineFlag",orderLine);
+				        var reshipQty = _scModelUtils.getNumberValueFromPath("ReshippedQty",orderLine);
+			            var returnableQty =  _scModelUtils.getNumberValueFromPath("ReturnableQty",orderLine);
+			            if(extnReshippedLineFlag == 'Y'){
+								if(returnableQty >= reshipQty){
+								var calRetQty = returnableQty - reshipQty;
+								_scModelUtils.setStringValueAtModelPath("ReturnableQty",_scBaseUtils.toString(calRetQty),orderLine);
+			                }  
+						}
+			        }					
 					
 					console.log("This is in HandleMashup of tempOrderLines",tempOrderLines);
 					console.log("This is in HandleMashup of orderLineList",orderLineList);

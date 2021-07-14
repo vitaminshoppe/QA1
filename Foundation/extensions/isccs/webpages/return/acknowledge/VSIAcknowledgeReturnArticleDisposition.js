@@ -257,6 +257,7 @@ dLang,templateText, _dijitButton, _dojodeclare, _dojokernel, _dojolang, _dojotex
 			
 			receivableQty = _scModelUtils.getNumberValueFromPath("OrderLine.ReturnableQty", vselectedLine);
 			qtyToReturn = _scModelUtils.getNumberValueFromPath("Receipt.ReceiptLines.ReceiptLine.Quantity", vreturnLine);
+			var extnReshipedFlag = _scModelUtils.getStringValueFromPath("OrderLine.Extn.ExtnReshippedLineFlag", vselectedLine);
 			if( qtyToReturn <= 0) {
 			
 			console.log("This is in if of negative in ValidateQuantity");
@@ -269,7 +270,14 @@ dLang,templateText, _dijitButton, _dojodeclare, _dojokernel, _dojolang, _dojotex
             var widget = "";
             widget = _scEventUtils.getOriginatingControlUId(bEvent);
             _scWidgetUtils.markFieldinError(this, widget, sMessage, true);
-			}else{
+			}else if(extnReshipedFlag == 'Y' && receivableQty <= 0) {
+			    
+			    var sMessage = "";
+                sMessage = _scScreenUtils.getString(this, "extn_Restrict_Return_Reship");
+                var widget = "";
+                widget = _scEventUtils.getOriginatingControlUId(bEvent);
+                _scWidgetUtils.markFieldinError(this, widget, sMessage, true);
+			} else{
 			
 			_scWidgetUtils.clearFieldinError(this, "quantity");
 			
