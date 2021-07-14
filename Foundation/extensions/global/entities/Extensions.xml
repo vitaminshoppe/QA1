@@ -452,7 +452,7 @@
 				XMLName="ExtnContainerVolume" XMLGroup="Extn" SqlServerDataType="" />
 				<!--OMS-3074: START-->
 				<Attribute ColumnName="EXTN_TRACKING_URL" DecimalDigits="" DefaultValue=""
-				Description="Used to store Tracking URL" Nullable="true" Size="100" Type="VARCHAR2" 
+				Description="Used to store Tracking URL" Nullable="true" Size="200" Type="VARCHAR2" 
 				XMLName="ExtnTrackingURL" XMLGroup="Extn" SqlServerDataType="" />
 				<!--OMS-3074: END-->
 			</Attributes>
