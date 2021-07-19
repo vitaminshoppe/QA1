@@ -20,7 +20,7 @@
 			DocumentType="" OrderNo="" SellerOrganizationCode="" TermsCode=""
 			OrderType="" OrderDate="" TaxExemptFlag="" TaxExemptionCertificate="" CustomerEMailID="">
 			<Extn ExtnDTCOrder="" ExtnSource="" ExtnSubscriptionOrder="" FirstName="" EmpLastName1="" EmpLastName2=""
-				ExtnEmpDiscLevel="" EmployeeID="" ExtnStoreNo="" ExtnOriginalADPOrder="" ExtnReOrder=""/>
+				ExtnEmpDiscLevel="" EmployeeID="" ExtnStoreNo="" ExtnOriginalADPOrder="" ExtnReOrder="" ExtnMobileType=""/>
 			<PriceInfo Currency="" />
 			<PersonInfoBillTo AddressLine1="" AddressLine2=""
 				AddressLine3="" AddressLine4="" AddressLine5="" AddressLine6=""
