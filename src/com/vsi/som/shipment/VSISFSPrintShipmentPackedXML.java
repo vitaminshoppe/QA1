@@ -559,6 +559,7 @@ public class VSISFSPrintShipmentPackedXML {
 					Element eleContainer=SCXmlUtil.createChild(eleContainers, VSIConstants.ELE_CONTAINER);
 					Element eleCartonID=SCXmlUtil.getChildElement(elePackage, "CartonID");
 					String strContainerNo=eleCartonID.getTextContent();
+					String strextnBoxNumber = elePackage.getAttribute("BoxNumber");
 					if(!YFCCommon.isVoid(strContainerNo)){
 						eleContainer.setAttribute(VSIConstants.ATTR_CONTAINER_NO, strContainerNo);
 					}
@@ -585,6 +586,7 @@ public class VSISFSPrintShipmentPackedXML {
 						printLogs("ExtnTrackingURL is: "+strExtnTrackingURL);
 						Element eleCntnrExtn=SCXmlUtil.createChild(eleContainer, VSIConstants.ELE_EXTN);
 						eleCntnrExtn.setAttribute("ExtnTrackingURL", strExtnTrackingURL);
+						eleCntnrExtn.setAttribute("ExtnBoxNumber", strextnBoxNumber);
 						printLogs("Container after adding ExtnTrackingURL is: "+SCXmlUtil.getString(eleContainer));
 						//OMS-3074 Changes -- End
 					}
