@@ -2206,21 +2206,7 @@ public static final String ATTR_USER_KEY="UserKey";
 	
 	
 	//OMS-NON-EDI Start
-	public static final String ATTR_PERSON_INFO_FIRSTNAME="_PERSON_INFO_FIRSTNAME";
-	public static final String ATTR_PERSON_INFO_ADDR_LINE_1="_PERSON_INFO_ADDR_LINE_1";
-	public static final String ATTR_PERSON_INFO_ADDR_LINE_2="_PERSON_INFO_ADDR_LINE_2";
-	public static final String ATTR_PERSON_INFO_CITY="_PERSON_INFO_CITY";
-	public static final String ATTR_PERSON_INFO_STATE="_PERSON_INFO_STATE";
-	public static final String ATTR_PERSON_INFO_COUNTRY="_PERSON_INFO_COUNTRY";
-	public static final String ATTR_PERSON_INFO_ZIPCODE="_PERSON_INFO_ZIPCODE";
 	
-	 public static final String ATTR_PERSON_INFO_BILLTO_FIRSTNAME="_PERSON_INFO_BILLTO_FIRSTNAME";
-		public static final String ATTR_PERSON_INFO_BILLTO_ADDR_LINE_1="_PERSON_INFO_BILLTO_ADDR_LINE_1";
-		public static final String ATTR_PERSON_INFO_BILLTO_ADDR_LINE_2="_PERSON_INFO_BILLTO_ADDR_LINE_2";
-		public static final String ATTR_PERSON_INFO_BILLTO_CITY="_PERSON_INFO_BILLTO_CITY";
-		public static final String ATTR_PERSON_INFO_BILLTO_STATE="_PERSON_INFO_BILLTO_STATE";
-		public static final String ATTR_PERSON_INFO_BILLTO_COUNTRY="_PERSON_INFO_BILLTO_COUNTRY";
-		public static final String ATTR_PERSON_INFO_BILLTO_ZIPCODE="_PERSON_INFO_BILLTO_ZIPCODE";
 									   
 		public static final String ATTR_EXTN_DTCORDER="_EXTN_DTCORDER";
 		public static final String ATTR_EXTN_GUESTCHECKOUT="_EXTN_GUESTCHECKOUT";
@@ -2229,6 +2215,8 @@ public static final String ATTR_USER_KEY="UserKey";
 		public static final String ATTR_EXTN_DEPARTMENTID="_EXTN_DEPARTMENTID";
 		public static final String VSI_WH_IS_SINGLE_CARTON="VSI_WH_SINGLE_CARTON";
 		public static final String ATTR_EXTN_IS_SINGLE_CARTON="ExtnSingleCarton";
+		public static final String SERVICE_GET_ORG_LIST_NON_EDI="VSIGetOrganizationListWH";
+		public static final String ELE_CORPORATE_PERSON_INFO = "CorporatePersonInfo";
 	
 	//OMS-NON-EDI End
 		

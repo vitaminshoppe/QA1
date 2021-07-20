@@ -2,15 +2,20 @@ package com.vsi.oms.api;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
+import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.NodeList;
 
 import com.sterlingcommerce.baseutil.SCXmlUtil;
 import com.vsi.oms.utils.VSIConstants;
 import com.vsi.oms.utils.VSIUtils;
 import com.vsi.oms.utils.XMLUtil;
 import com.yantra.interop.japi.YIFClientCreationException;
+import com.yantra.yfc.core.YFCObject;
 import com.yantra.yfc.log.YFCLogCategory;
 import com.yantra.yfc.util.YFCCommon;
 import com.yantra.yfs.core.YFSSystem;
@@ -33,29 +38,71 @@ public class VSINonEDIWholesaleOrderOnCreate {
 		
 		log.beginTimer("VSINonEDIWholesaleOrderOnCreate.createNonEDIOrder");		
 		printLogs("================Inside VSINonEDIWholesaleOrderOnCreate================================");
-		printLogs("Printing Input XML :" + SCXmlUtil.getString(inXML));		
+		printLogs("Printing Input XML :" + SCXmlUtil.getString(inXML));	
+		String strBillToFirstName=null;
+		String strBillToAddressLine1=null;
+		String strBillToAddressLine2=null;
+		String strBillToCity=null;
+		String strBillToState=null;
+		String strBillToCountry=null;
+		String strBillToZipCode=null;
+		
+		String strFirstName=null;
+		String strAddressLine1=null;
+		String strAddressLine2=null;
+		String strCity=null;
+		String strState=null;
+		String strCountry=null;
+		String strZipCode=null;
+		
+		HashMap hmAddressID_AddressDetails = new HashMap<>();
 
 		try {
 			Element rootElement = inXML.getDocumentElement();			
 			String strEnterprise = rootElement.getAttribute(VSIConstants.ATTR_ENTERPRISE_CODE);
-		
-			//check in git hub
-			String strFirstName=YFSSystem.getProperty(strEnterprise.concat(VSIConstants.ATTR_PERSON_INFO_FIRSTNAME));
-			String strAddressLine1=YFSSystem.getProperty(strEnterprise.concat(VSIConstants.ATTR_PERSON_INFO_ADDR_LINE_1));
-			String strAddressLine2=YFSSystem.getProperty(strEnterprise.concat(VSIConstants.ATTR_PERSON_INFO_ADDR_LINE_2));
-			String strCity=YFSSystem.getProperty(strEnterprise.concat(VSIConstants.ATTR_PERSON_INFO_CITY));
-			String strState=YFSSystem.getProperty(strEnterprise.concat(VSIConstants.ATTR_PERSON_INFO_STATE));
-			String strCountry=YFSSystem.getProperty(strEnterprise.concat(VSIConstants.ATTR_PERSON_INFO_COUNTRY));
-			String strZipCode=YFSSystem.getProperty(strEnterprise.concat(VSIConstants.ATTR_PERSON_INFO_ZIPCODE));
+			
+			//new code
+			Document getOrganizationListIn = SCXmlUtil.createDocument(VSIConstants.ELE_ORGANIZATION);
+			Element organizationElm = getOrganizationListIn.getDocumentElement();
+			organizationElm.setAttribute(VSIConstants.ATTR_ORGANIZATION_NAME, strEnterprise);
+			Document getOrgnizationListOut = VSIUtils.invokeService(env, VSIConstants.SERVICE_GET_ORG_LIST_NON_EDI, getOrganizationListIn);
+			Element eleOrganizationList = getOrgnizationListOut.getDocumentElement();
+			Element eleOrganization=(Element) eleOrganizationList.getElementsByTagName(VSIConstants.ELE_ORGANIZATION).item(0);
+			String strOrganizationCode=eleOrganization.getAttribute(VSIConstants.ATTR_ORG_CODE);
+			if(strEnterprise.equals(strOrganizationCode))
+			{
+				Element eleCorporatePersonInfo=(Element) eleOrganization.getElementsByTagName(VSIConstants.ELE_CORPORATE_PERSON_INFO).item(0);
+				strBillToFirstName=eleCorporatePersonInfo.getAttribute(VSIConstants.ATTR_FIRST_NAME);
+				strBillToAddressLine1=eleCorporatePersonInfo.getAttribute(VSIConstants.ATTR_ADDRESS1);
+				strBillToAddressLine2=eleCorporatePersonInfo.getAttribute(VSIConstants.ATTR_ADDRESS2);
+				strBillToCity=eleCorporatePersonInfo.getAttribute(VSIConstants.ATTR_CITY);
+				strBillToState=eleCorporatePersonInfo.getAttribute(VSIConstants.ATTR_STATE);
+				strBillToCountry=eleCorporatePersonInfo.getAttribute(VSIConstants.ATTR_COUNTRY);
+				strBillToZipCode=eleCorporatePersonInfo.getAttribute(VSIConstants.ATTR_ZIPCODE);
+			}
+			
+			
+
+			Document getCustomerListInXML = XMLUtil.createDocument(VSIConstants.ELE_CUSTOMER);
+			Element eleCustomer = getCustomerListInXML.getDocumentElement();
+			SCXmlUtil.setAttribute(eleCustomer, VSIConstants.ATTR_CUSTOMER_TYPE, "01");
+			SCXmlUtil.setAttribute(eleCustomer, VSIConstants.ATTR_CUSTOMER_ID, strEnterprise);
+			SCXmlUtil.setAttribute(eleCustomer, VSIConstants.ATTR_ORGANIZATION_CODE, strEnterprise);
+			
+			Document getCustomerListOutXML = VSIUtils.invokeService(env, VSIConstants.SERVICE_GET_WHOLESALE_CUSTOMER_DETAILS, getCustomerListInXML);
+			NodeList nlPersonInfo = getCustomerListOutXML.getElementsByTagName(VSIConstants.ELE_PERSON_INFO);
+			for(int i = 0; i < nlPersonInfo.getLength(); i++){
 				
-			//OMS-3472 Changes -- Start
-			String strBillToFirstName=YFSSystem.getProperty(strEnterprise.concat(VSIConstants.ATTR_PERSON_INFO_BILLTO_FIRSTNAME));
-			String strBillToAddressLine1=YFSSystem.getProperty(strEnterprise.concat(VSIConstants.ATTR_PERSON_INFO_BILLTO_ADDR_LINE_1));
-			String strBillToAddressLine2=YFSSystem.getProperty(strEnterprise.concat(VSIConstants.ATTR_PERSON_INFO_BILLTO_ADDR_LINE_2));
-			String strBillToCity=YFSSystem.getProperty(strEnterprise.concat(VSIConstants.ATTR_PERSON_INFO_BILLTO_CITY));
-			String strBillToState=YFSSystem.getProperty(strEnterprise.concat(VSIConstants.ATTR_PERSON_INFO_BILLTO_STATE));
-			String strBillToCountry=YFSSystem.getProperty(strEnterprise.concat(VSIConstants.ATTR_PERSON_INFO_BILLTO_COUNTRY));
-			String strBillToZipCode=YFSSystem.getProperty(strEnterprise.concat(VSIConstants.ATTR_PERSON_INFO_BILLTO_ZIPCODE));
+				Element elePersonInfo = (Element) nlPersonInfo.item(i);
+				String strAddressID = SCXmlUtil.getAttribute(elePersonInfo, VSIConstants.ATTR_ADDR_ID);
+				if(!YFCObject.isVoid(strAddressID)){
+					
+					hmAddressID_AddressDetails.put(strAddressID, elePersonInfo);
+					
+				}
+			}
+		
+					
 			
 			String strDTCOrder=YFSSystem.getProperty(strEnterprise.concat(VSIConstants.ATTR_EXTN_DTCORDER));
 			String strGuestCheckout=YFSSystem.getProperty(strEnterprise.concat(VSIConstants.ATTR_EXTN_GUESTCHECKOUT));
@@ -63,16 +110,13 @@ public class VSINonEDIWholesaleOrderOnCreate {
 			String strType=YFSSystem.getProperty(strEnterprise.concat(VSIConstants.ATTR_EXTN_TYPE_WH));
 			String strDepartmentID=YFSSystem.getProperty(strEnterprise.concat(VSIConstants.ATTR_EXTN_DEPARTMENTID));
 			//OMS-3472 Changes -- End
+			
+			//check in git hub
+			
 
 			Element orderElement = inXML.getDocumentElement();
 			Element eleOrderPersonInfoShipTo = SCXmlUtil.createChild(orderElement,  VSIConstants.ELE_PERSON_INFO_SHIP_TO);
-			eleOrderPersonInfoShipTo.setAttribute(VSIConstants.ATTR_FIRST_NAME, strFirstName);
-			eleOrderPersonInfoShipTo.setAttribute(VSIConstants.ATTR_ADDR_LINE_1, strAddressLine1);
-			eleOrderPersonInfoShipTo.setAttribute(VSIConstants.ATTR_ADDR_LINE_2, strAddressLine2);
-			eleOrderPersonInfoShipTo.setAttribute(VSIConstants.ATTR_CITY, strCity);
-			eleOrderPersonInfoShipTo.setAttribute(VSIConstants.ATTR_STATE, strState);
-			eleOrderPersonInfoShipTo.setAttribute(VSIConstants.ATTR_COUNTRY, strCountry);
-			eleOrderPersonInfoShipTo.setAttribute(VSIConstants.ATTR_ZIPCODE, strZipCode);
+			
 			
 
 			Element eleOrderPersonInfoBillTo= SCXmlUtil.createChild(orderElement,  VSIConstants.ELE_PERSON_INFO_BILL_TO);
@@ -109,6 +153,31 @@ public class VSINonEDIWholesaleOrderOnCreate {
 				
 				Element eleOrdLnShipTo=SCXmlUtil.getChildElement(eleOrderLine, VSIConstants.ELE_PERSON_INFO_SHIP_TO);		
 			
+				
+				Element eleOrdLnExtn=SCXmlUtil.getChildElement(eleOrderLine, VSIConstants.ELE_EXTN);
+				if(YFCCommon.isVoid(eleOrdLnExtn)) {
+					eleOrdLnExtn=SCXmlUtil.createChild(eleOrderLine, VSIConstants.ELE_EXTN);
+				}
+				String strMarkForStoreNo = SCXmlUtil.getAttribute(eleOrdLnExtn, VSIConstants.ATTR_EXTN_MARK_FOR_STORE_NO);
+				
+				
+				if(!YFCObject.isVoid(strMarkForStoreNo)){
+					if(hmAddressID_AddressDetails.containsKey(strMarkForStoreNo)){
+
+						Element elePersonInfo = (Element) hmAddressID_AddressDetails.get(strMarkForStoreNo);
+						elePersonInfo = (Element) inXML.importNode(elePersonInfo, true);
+						strFirstName=elePersonInfo.getAttribute(VSIConstants.ATTR_FIRST_NAME);
+						strAddressLine1=elePersonInfo.getAttribute(VSIConstants.ATTR_ADDRESS1);
+						strAddressLine2=elePersonInfo.getAttribute(VSIConstants.ATTR_ADDRESS2);
+						strCity=elePersonInfo.getAttribute(VSIConstants.ATTR_CITY);
+						strState=elePersonInfo.getAttribute(VSIConstants.ATTR_STATE);
+						strCountry=elePersonInfo.getAttribute(VSIConstants.ATTR_COUNTRY);
+						strZipCode=elePersonInfo.getAttribute(VSIConstants.ATTR_ZIPCODE);
+							
+						
+						
+					}
+				}
 				eleOrdLnShipTo.setAttribute(VSIConstants.ATTR_FIRST_NAME, strFirstName);
 				eleOrdLnShipTo.setAttribute(VSIConstants.ATTR_ADDR_LINE_1, strAddressLine1);
 				eleOrdLnShipTo.setAttribute(VSIConstants.ATTR_ADDR_LINE_2, strAddressLine2);
@@ -116,6 +185,15 @@ public class VSINonEDIWholesaleOrderOnCreate {
 				eleOrdLnShipTo.setAttribute(VSIConstants.ATTR_STATE, strState);
 				eleOrdLnShipTo.setAttribute(VSIConstants.ATTR_COUNTRY, strCountry);
 				eleOrdLnShipTo.setAttribute(VSIConstants.ATTR_ZIPCODE, strZipCode);
+				
+				eleOrderPersonInfoShipTo.setAttribute(VSIConstants.ATTR_FIRST_NAME, strFirstName);
+				eleOrderPersonInfoShipTo.setAttribute(VSIConstants.ATTR_ADDR_LINE_1, strAddressLine1);
+				eleOrderPersonInfoShipTo.setAttribute(VSIConstants.ATTR_ADDR_LINE_2, strAddressLine2);
+				eleOrderPersonInfoShipTo.setAttribute(VSIConstants.ATTR_CITY, strCity);
+				eleOrderPersonInfoShipTo.setAttribute(VSIConstants.ATTR_STATE, strState);
+				eleOrderPersonInfoShipTo.setAttribute(VSIConstants.ATTR_COUNTRY, strCountry);
+				eleOrderPersonInfoShipTo.setAttribute(VSIConstants.ATTR_ZIPCODE, strZipCode);
+				
 				
 				Element eleItemIn=SCXmlUtil.getChildElement(eleOrderLine, VSIConstants.ELE_ITEM);
 				String strItemId=eleItemIn.getAttribute(VSIConstants.ATTR_ITEM_ID);
