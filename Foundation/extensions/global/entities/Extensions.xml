@@ -1148,8 +1148,14 @@
 					DefaultValue="" Description="extn style"
 					Nullable="true" Size="40" Type="VARCHAR2" XMLName="ExtnStyle"
 					XMLGroup="Extn" />
-				  
-		        <!-- OMS-1801 End-->			
+
+		        <!-- OMS-1801 End-->
+                <!-- OMS 3778 start-->
+				<Attribute ColumnName="EXTN_ITEM_URL"
+						   DefaultValue="" Description="extn item url"
+						   Nullable="true" Size="200" Type="VARCHAR2" XMLName="ExtnItemUrl"
+						   XMLGroup="Extn" />
+				<!-- OMS 3778 End-->
 			</Attributes>
 		</Entity>
 
