@@ -41,7 +41,7 @@
 					
 				
 				<ItemDetails>
-				<Extn ExtnActSkuID="" ExtnBrand="" ExtnBrandTitle="" ExtnItemSize="" ExtnItemType="" ExtnItemUOM=""/>
+				<Extn ExtnActSkuID="" ExtnBrand="" ExtnBrandTitle="" ExtnItemSize="" ExtnItemType="" ExtnItemUOM="" ExtnItemUrl=""/>
 				</ItemDetails>
 
 				<PersonInfoShipTo AddressLine1="" AddressLine2=""
