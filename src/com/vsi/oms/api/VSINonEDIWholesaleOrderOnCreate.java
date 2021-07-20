@@ -152,13 +152,15 @@ public class VSINonEDIWholesaleOrderOnCreate {
 				//OMS-3472 Changes -- Start
 				
 				Element eleOrdLnShipTo=SCXmlUtil.getChildElement(eleOrderLine, VSIConstants.ELE_PERSON_INFO_SHIP_TO);		
-			
+			   
 				
 				Element eleOrdLnExtn=SCXmlUtil.getChildElement(eleOrderLine, VSIConstants.ELE_EXTN);
 				if(YFCCommon.isVoid(eleOrdLnExtn)) {
 					eleOrdLnExtn=SCXmlUtil.createChild(eleOrderLine, VSIConstants.ELE_EXTN);
 				}
-				String strMarkForStoreNo = SCXmlUtil.getAttribute(eleOrdLnExtn, VSIConstants.ATTR_EXTN_MARK_FOR_STORE_NO);
+				Element eleOrdLnShipToExtn=SCXmlUtil.getChildElement(eleOrdLnShipTo,VSIConstants.ELE_EXTN);				
+				
+				String strMarkForStoreNo = SCXmlUtil.getAttribute(eleOrdLnShipToExtn, VSIConstants.ATTR_EXTN_MARK_FOR_STORE_NO);
 				
 				
 				if(!YFCObject.isVoid(strMarkForStoreNo)){
