@@ -78,12 +78,16 @@ public class VSISFSUnpackVoidToMinisoft extends VSIBaseCustomAPI implements VSIC
 					for (int j = 0; j < totalEleContainer; j++) {		
 						
 						elePackage= SCXmlUtil.createChild(elePackages, "Package");
-						elePackage.setAttribute("BoxNumber", "1");
+						//elePackage.setAttribute("BoxNumber", "1");
 						Element eleContainer= (Element) nlEleContainer.item(j);
-						
+						Element eleExtnCntr = SCXmlUtil.getChildElement(eleContainer, "Extn");
 						String strContainerScm= eleContainer.getAttribute("ContainerScm");
 						strTrackingNo= eleContainer.getAttribute("TrackingNo");
-
+						if(eleExtnCntr != null) {
+							String extnBoxNumber = eleExtnCntr.getAttribute("ExtnBoxNumber");
+							log.info("BoxNumber::::"+extnBoxNumber);
+							elePackage.setAttribute("BoxNumber", extnBoxNumber);
+						}
 						putElementValue(elePackage,"ContainerScm", strContainerScm);
 						putElementValue(elePackage,"TrackingNo", strTrackingNo);
 						}

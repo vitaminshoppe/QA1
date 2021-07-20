@@ -454,6 +454,9 @@
 				<Attribute ColumnName="EXTN_TRACKING_URL" DecimalDigits="" DefaultValue=""
 				Description="Used to store Tracking URL" Nullable="true" Size="200" Type="VARCHAR2" 
 				XMLName="ExtnTrackingURL" XMLGroup="Extn" SqlServerDataType="" />
+				<Attribute ColumnName="EXTN_BOX_NUMBER" DecimalDigits="" DefaultValue=""
+				Description="Used to store box number" Nullable="true" Size="10" Type="VARCHAR2" 
+				XMLName="ExtnBoxNumber" XMLGroup="Extn" SqlServerDataType="" />					
 				<!--OMS-3074: END-->
 			</Attributes>
 		</Entity>
