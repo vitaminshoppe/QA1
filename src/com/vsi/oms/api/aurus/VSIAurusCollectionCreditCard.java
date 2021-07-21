@@ -584,7 +584,8 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 		}
 		}
 	}catch (Exception e) {
-		e.printStackTrace();
+		printLogs("Exception in VSIAurusCollectionCreditCard Class and doRefundAurus Method");
+		printLogs("The exception is [ "+ e.getMessage() +" ]");
 		throw new YFSException();
 		}
 	}
@@ -1015,7 +1016,9 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 		}	
 		
 	catch (Exception e) {
-		e.printStackTrace();
+		
+		printLogs("Exception in VSIAurusCollectionCreditCard Class and doChargeForAurus Method");
+		printLogs("The exception is [ "+ e.getMessage() +" ]");
 		
 		Document getCommonCodeListInputForRetryTime = getCommonCodeListInputForCodeType(VSIConstants.ATTR_DEFAULT,VSIConstants.CC_RETRY_TIME);
 		Document getCommonCodeOut = getCommonCodeList(env, getCommonCodeListInputForRetryTime);
@@ -1449,8 +1452,9 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 			}
 		}
 	
-} catch (Exception Ex) {
-	Ex.printStackTrace();
+} catch (Exception e) {
+	printLogs("Exception in VSIAurusCollectionCreditCard Class and DoAuthorizeAurusCharge Method");
+	printLogs("The exception is [ "+ e.getMessage() +" ]");
 	throw new YFSException();
 }		
 	return authResponse;
@@ -1703,8 +1707,9 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 			}
 		}
 
-		} catch (Exception Ex) {
-			Ex.printStackTrace();
+		} catch (Exception e) {
+			printLogs("Exception in VSIAurusCollectionCreditCard Class and doVoidAurus Method");
+			printLogs("The exception is [ "+ e.getMessage() +" ]");
 			throw new YFSException();
 		}		
 	}
@@ -2179,7 +2184,8 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 				applyPaymentErrorHold(env, strOrderHeaderKey);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			printLogs("Exception in VSIAurusCollectionCreditCard Class and doAuthorizationAurus Method");
+			printLogs("The exception is [ "+ e.getMessage() +" ]");
 			throw new YFSException();
 		}
 	}
