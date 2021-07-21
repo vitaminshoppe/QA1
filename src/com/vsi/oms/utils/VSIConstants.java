@@ -2223,6 +2223,39 @@ public static final String ATTR_USER_KEY="UserKey";
 	//SonarCube Changes -- Start
 	public static final String ATTR_REFERENCE1="Reference1";
 	public static final String ATTR_EXTN_STORE_NO="ExtnStoreNo";
+	public static final String ATTR_CI="CardIdentifier";
+	public static final String ATTR_APPROVAL_RESPONSE="00000";
+	public static final String CC_AUTH_EXP_TIME="CC_AUTH_EXP_TIME";
+	public static final String CC_REFUND_TIME="CC_REFUND_TIME";
+	public static final String CC_VSI_AURUS_PARAMS="VSI_AURUS_PARAMS";
+	public static final String CC_VSI_AURUS_RETRY="VSI_AURUS_RETRY";
+	public static final String CC_VSI_PROCESSOR_RETRY="VSI_PROCESSOR_RETRY";
+	public static final String ATTR_MERCHANT_IDENTIFIER="MerchantIdentifier";
+	public static final String ATTR_ADSDK_SPEC_VER="ADSDKSpecVer";
+	public static final String ATTR_CORP_ID="CorpID";
+	public static final String ATTR_LANGUAGE_INDICATOR="LanguageIndicator";
+	public static final String ATTR_STOREID="StoreId";
+	public static final String ATTR_TERMINAL_ID="TerminalId";
+	public static final String ATTR_TRANSACTION_TIME="TransactionTime";
+	public static final String ATTR_RESPONSE_TEXT="ResponseText";
+	public static final String ATTR_RESPONSE_CODE="ResponseCode";
+	public static final String ATTR_PROCESSOR_RESPONSE_CODE="ProcessorResponseCode";
+	public static final String ATTR_APPROVAL_CODE="ApprovalCode";
+	public static final String CC_RETRY_TIME="CC_RETRY_TIME";
+	public static final String AESDK_RETRY_RESP="71012";
+	public static final String ATTR_ADDRESS="address";
+	public static final String ATTR_ADDRESS_LINE1="addressLine1";
+	public static final String ATTR_AREACODE="areaCode";
+	public static final String ATTR_COUNTRY_LC="country";
+	public static final String ATTR_LOCALNUMBER="localNumber";
+	public static final String ATTR_POSTALCODE="postalCode";
+	public static final String ATTR_TERRITORY="territory";
+	public static final String EXCEPTION_PRINT_1="The exception xml is [ ";
+	public static final String EXCEPTION_PRINT_2=" ]";
+	public static final String ATTR_AMOUNT_LC="amount";
+	public static final String ATTR_DESCRIPTION_LC="description";
+	public static final String ATTR_TENDERTYPECODE="tenderTypeCode";
+	public static final String ATTR_VALUE_LC="value";
 	//SonarCube Changes -- End
 
 	//OMS-3787 Changes -- Start

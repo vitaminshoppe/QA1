@@ -1,6 +1,5 @@
 package com.vsi.oms.api.aurus;
 import java.rmi.RemoteException;
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -10,7 +9,6 @@ import java.util.HashSet;
 import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -24,7 +22,6 @@ import com.vsi.oms.utils.VSIConstants;
 import com.vsi.oms.utils.VSIDBUtil;
 import com.vsi.oms.utils.VSIUtils;
 import com.vsi.oms.utils.XMLUtil;
-import com.yantra.api.omp.receipts.inspectReceipt;
 import com.yantra.interop.japi.YIFApi;
 import com.yantra.interop.japi.YIFClientCreationException;
 import com.yantra.interop.japi.YIFClientFactory;
@@ -89,48 +86,41 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 			printLogs("================Inside VSIAurusCollectionCreditCard================================");
 			printLogs("Printing Input XML :");
 			
-			YFSExtnPaymentCollectionOutputStruct outStruct = new YFSExtnPaymentCollectionOutputStruct();
-			String paymentType = inStruct.paymentType;
-
-			String strChargeType = inStruct.chargeType;
-
-			Double dRequestAmount = inStruct.requestAmount;
+			YFSExtnPaymentCollectionOutputStruct outStruct = new YFSExtnPaymentCollectionOutputStruct();			
 
 			if (VSIConstants.PAYMENT_MODE_CC
 					.equalsIgnoreCase(inStruct.paymentType)) {
 						
-				HashMap<String, String> IsDraftOrAurus = initailAurusOrderDetail(inStruct, outStruct, env);
+				HashMap<String, String> isDraftOrAurus = initailAurusOrderDetail(inStruct, outStruct, env);
 
 				boolean isAurusOrder = false;
 				boolean isDraftOrder = false;
 
-				String strMaxOrderStatus=IsDraftOrAurus.get("MAXORDERSTATUS");
-				String strMinOrderStatus=IsDraftOrAurus.get("MINORDERSTATUS");
-				String strExtnPostAuthSequenceNo=IsDraftOrAurus.get("POSTAUTHSEQNO");
-				String strExtnPostAuthCount=IsDraftOrAurus.get("POSTAUTHCOUNT");
-				String strExtnRefundSequenceNo=IsDraftOrAurus.get("REFUNDSEQNO");
-				String strExtnRefundCount=IsDraftOrAurus.get("REFUNDCOUNT");
+				String strMinOrderStatus=isDraftOrAurus.get("MINORDERSTATUS");
+				String strExtnPostAuthSequenceNo=isDraftOrAurus.get("POSTAUTHSEQNO");
+				String strExtnPostAuthCount=isDraftOrAurus.get("POSTAUTHCOUNT");
+				String strExtnRefundSequenceNo=isDraftOrAurus.get("REFUNDSEQNO");
+				String strExtnRefundCount=isDraftOrAurus.get("REFUNDCOUNT");
 				boolean isTNSDecommission =false; 
 				boolean isTNSSwitch =false;
 				boolean isCallCenterAurus = false;
-				String aurusCI=IsDraftOrAurus.get("EXTNAURUSCI");
-				String aurusOOT=IsDraftOrAurus.get("EXTNAURUSOOT");
-				String strSOHdrKey=IsDraftOrAurus.get("SALESORDERHEADERKEY");
-				String strAurusReauth=IsDraftOrAurus.get("EXTNAURUSREAUTHORIZED");
-				String strEntryType=IsDraftOrAurus.get("ENTRYTYPE");
-				String strAurusOrder=IsDraftOrAurus.get("ISAURUSORDER");
+				String aurusCI=isDraftOrAurus.get("EXTNAURUSCI");
+				String aurusOOT=isDraftOrAurus.get("EXTNAURUSOOT");
+				String strSOHdrKey=isDraftOrAurus.get("SALESORDERHEADERKEY");
+				String strAurusReauth=isDraftOrAurus.get("EXTNAURUSREAUTHORIZED");
+				String strEntryType=isDraftOrAurus.get("ENTRYTYPE");
+				String strAurusOrder=isDraftOrAurus.get("ISAURUSORDER");
 				//OMS-2437 -- Start
-				String strOrderType=IsDraftOrAurus.get("ORDERTYPE");
+				String strOrderType=isDraftOrAurus.get("ORDERTYPE");
 				//OMS-2437 -- End
 				//OMS-3181 Changes -- Start
-				String strOrigTranId=IsDraftOrAurus.get("EXTNORIGINALTRANID");
+				String strOrigTranId=isDraftOrAurus.get("EXTNORIGINALTRANID");
 				//OMS-3181 Changes -- End
 				//OMS-3452 Changes -- Start
-				String strCreditCardType=IsDraftOrAurus.get("CREDITCARDTYPE");
+				String strCreditCardType=isDraftOrAurus.get("CREDITCARDTYPE");
 				//OMS-3452 Changes -- End
-				//OMS-3469 Changes -- Start
-				String strOriginalADPOrder=IsDraftOrAurus.get("EXTNORIGINALADPORDER");
-	        	String strSubscriptionOrder=IsDraftOrAurus.get("EXTNSUBSCRIPTIONORDER");
+				//OMS-3469 Changes -- Start				
+	        	String strSubscriptionOrder=isDraftOrAurus.get("EXTNSUBSCRIPTIONORDER");
 				//OMS-3469 Changes -- End
 				
 
@@ -143,7 +133,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 				if(!YFCCommon.isVoid(strAurusOrder) && VSIConstants.FLAG_Y.equalsIgnoreCase(strAurusOrder)) {
 					isAurusOrder=true;
 				}
-				if(IsDraftOrAurus.get("ISDRAFTORDER").equalsIgnoreCase(VSIConstants.FLAG_Y) && isCallCenterAurus) {
+				if(isDraftOrAurus.get("ISDRAFTORDER").equalsIgnoreCase(VSIConstants.FLAG_Y) && isCallCenterAurus) {
 					isDraftOrder=true;
 				}
 
@@ -152,11 +142,11 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 					if (inStruct.requestAmount >= 0.0D) {
 						
 						if(isAurusOrder || isDraftOrder) { 
-							doAuthorizationAurus(inStruct, outStruct, env ,aurusCI,aurusOOT ,isAurusOrder,false,false,strEntryType,isDraftOrder,strOrderType,strOrigTranId,strAurusReauth,strSubscriptionOrder);		//OMS-3181 Change	//OMS-3365 Change		//OMS-3469 Change
+							doAuthorizationAurus(inStruct, outStruct, env ,aurusCI,aurusOOT ,isAurusOrder,false,false,strEntryType,isDraftOrder,strOrderType,strOrigTranId,strAurusReauth);		//OMS-3181 Change	//OMS-3365 Change		//OMS-3469 Change
 						}else if(!isAurusOrder && isTNSDecommission ){
-							doAuthorizationAurus(inStruct, outStruct, env ,aurusCI,aurusOOT,isAurusOrder,isTNSDecommission,isTNSSwitch,strEntryType,isDraftOrder,strOrderType,strOrigTranId,strAurusReauth,strSubscriptionOrder);		//OMS-3181 Change	//OMS-3365 Change		//OMS-3469 Change	
+							doAuthorizationAurus(inStruct, outStruct, env ,aurusCI,aurusOOT,isAurusOrder,isTNSDecommission,isTNSSwitch,strEntryType,isDraftOrder,strOrderType,strOrigTranId,strAurusReauth);		//OMS-3181 Change	//OMS-3365 Change		//OMS-3469 Change	
 						}else if(!isAurusOrder && isTNSSwitch ){
-							doAuthorizationAurus(inStruct, outStruct, env ,aurusCI,aurusOOT,isAurusOrder,isTNSDecommission,isTNSSwitch,strEntryType,isDraftOrder,strOrderType,strOrigTranId,strAurusReauth,strSubscriptionOrder);		//OMS-3181 Change	//OMS-3365 Change		//OMS-3469 Change
+							doAuthorizationAurus(inStruct, outStruct, env ,aurusCI,aurusOOT,isAurusOrder,isTNSDecommission,isTNSSwitch,strEntryType,isDraftOrder,strOrderType,strOrigTranId,strAurusReauth);		//OMS-3181 Change	//OMS-3365 Change		//OMS-3469 Change
 						}
 						else{
 							doAuthorization(inStruct, outStruct, env);
@@ -174,7 +164,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 					if (inStruct.requestAmount >= 0.0D) {
 						if(isAurusOrder ||isTNSDecommission || isTNSSwitch){
 						
-						doChargeForAurus(inStruct, outStruct, env,strMaxOrderStatus,strMinOrderStatus,strExtnPostAuthSequenceNo,
+						doChargeForAurus(inStruct, outStruct, env,strMinOrderStatus,strExtnPostAuthSequenceNo,
 								strExtnPostAuthCount,aurusCI,aurusOOT,isTNSDecommission,isAurusOrder,strAurusReauth,isTNSSwitch,strEntryType,strOrderType,strOrigTranId,strCreditCardType,strSubscriptionOrder);		//OMS-3241 Change		//OMS-3452 Change		//OMS-3469 Change		
 						}
 						else{
@@ -183,8 +173,8 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 
 					} else {
 						if(isAurusOrder || isTNSDecommission || isTNSSwitch){
-							doRefundAurus(inStruct, outStruct, env,strMaxOrderStatus,strMinOrderStatus,aurusCI,aurusOOT,isTNSDecommission,
-									isAurusOrder,strExtnRefundSequenceNo,strExtnRefundCount,strSOHdrKey,isTNSSwitch,strCreditCardType);		//OMS-3452 Change
+							doRefundAurus(inStruct, outStruct, env,strMinOrderStatus,aurusCI,isTNSDecommission,
+									isAurusOrder,strExtnRefundSequenceNo,strExtnRefundCount,strSOHdrKey,isTNSSwitch,strCreditCardType,strOrigTranId);		//OMS-3452 Change		//OMS-3690 Change
 						}
 						else{
 							doRefund(inStruct, outStruct, env);
@@ -209,46 +199,57 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 	private boolean isCallCenterAurus(YFSEnvironment env) throws ParserConfigurationException {
 		
 		boolean isCallCenterAurus=false;
-		Document getCommonCodeListInputForCallCenterAurus = getCommonCodeListInputForCodeType("DEFAULT","CALL_CENTER_AURUS");
+		Document getCommonCodeListInputForCallCenterAurus = getCommonCodeListInputForCodeType(VSIConstants.ATTR_DEFAULT,"CALL_CENTER_AURUS");
 		Document getCommonCodeOutCallCenterAurus = getCommonCodeList(env, getCommonCodeListInputForCallCenterAurus);
-		Element eleCOmmonCodeOut = (Element)getCommonCodeOutCallCenterAurus.getElementsByTagName("CommonCode").item(0);
-		String strCallCenterAurus = eleCOmmonCodeOut.getAttribute("CodeLongDescription");
-		if(strCallCenterAurus.equalsIgnoreCase(VSIConstants.FLAG_Y)) {
-			isCallCenterAurus=true;
+		if(getCommonCodeOutCallCenterAurus!=null) {
+			Element eleCOmmonCodeOut = (Element)getCommonCodeOutCallCenterAurus.getElementsByTagName(VSIConstants.ELEMENT_COMMON_CODE).item(0);
+			if(!YFCCommon.isVoid(eleCOmmonCodeOut)) {
+				String strCallCenterAurus = eleCOmmonCodeOut.getAttribute("CodeLongDescription");
+				if(VSIConstants.FLAG_Y.equalsIgnoreCase(strCallCenterAurus)) {
+					isCallCenterAurus=true;
+				}
+			}
 		}
-		
 		return isCallCenterAurus;
 	}
 
 	private boolean isTNSDecommission(YFSEnvironment env) throws ParserConfigurationException {
 		boolean isTNSDecommission=false;
-		Document getCommonCodeListInputForTNSDecommission = getCommonCodeListInputForCodeType("DEFAULT","VSI_TNSDecommission");
+		Document getCommonCodeListInputForTNSDecommission = getCommonCodeListInputForCodeType(VSIConstants.ATTR_DEFAULT,"VSI_TNSDecommission");
 		Document getCommonCodeOutTNSDecommission = getCommonCodeList(env, getCommonCodeListInputForTNSDecommission);
-		Element eleCOmmonCodeOut = (Element)getCommonCodeOutTNSDecommission.getElementsByTagName("CommonCode").item(0);
-		String TNSDecommission = eleCOmmonCodeOut.getAttribute("CodeLongDescription");
-		if(TNSDecommission.equalsIgnoreCase(VSIConstants.FLAG_Y)) {
-			isTNSDecommission=true;
-		}
+		if(getCommonCodeOutTNSDecommission!=null) {
+			Element eleCOmmonCodeOut = (Element)getCommonCodeOutTNSDecommission.getElementsByTagName(VSIConstants.ELEMENT_COMMON_CODE).item(0);
+			if(!YFCCommon.isVoid(eleCOmmonCodeOut)) {
+				String tnsDecommission = eleCOmmonCodeOut.getAttribute("CodeLongDescription");
+				if(VSIConstants.FLAG_Y.equalsIgnoreCase(tnsDecommission)) {
+					isTNSDecommission=true;
+				}
+			}
+		}		
 		return isTNSDecommission;
 	}
 	
 	private boolean isTNSSwitch(YFSEnvironment env) throws ParserConfigurationException {
 		boolean isTNSSwitch=false;
-		Document getCommonCodeListInputForTNSDecommission = getCommonCodeListInputForCodeType("DEFAULT","VSI_TNSSwitch");
-		Document getCommonCodeOutTNSDecommission = getCommonCodeList(env, getCommonCodeListInputForTNSDecommission);
-		Element eleCOmmonCodeOut = (Element)getCommonCodeOutTNSDecommission.getElementsByTagName("CommonCode").item(0);
-		String TNSDecommission = eleCOmmonCodeOut.getAttribute("CodeLongDescription");
-		if(TNSDecommission.equalsIgnoreCase(VSIConstants.FLAG_Y)) {
-			isTNSSwitch=true;
-		}
+		Document getCommonCodeListInputForTNSSwitch = getCommonCodeListInputForCodeType(VSIConstants.ATTR_DEFAULT,"VSI_TNSSwitch");
+		Document getCommonCodeOutTNSSwitch = getCommonCodeList(env, getCommonCodeListInputForTNSSwitch);
+		if(getCommonCodeOutTNSSwitch!=null) {
+			Element eleCOmmonCodeOut = (Element)getCommonCodeOutTNSSwitch.getElementsByTagName(VSIConstants.ELEMENT_COMMON_CODE).item(0);
+			if(!YFCCommon.isVoid(eleCOmmonCodeOut)) {
+				String tnsSwitch = eleCOmmonCodeOut.getAttribute("CodeLongDescription");
+				if(VSIConstants.FLAG_Y.equalsIgnoreCase(tnsSwitch)) {
+					isTNSSwitch=true;
+				}
+			}
+		}		
 		return isTNSSwitch;
 	}
 	
 		private void doRefundAurus(YFSExtnPaymentCollectionInputStruct inStruct,
 			YFSExtnPaymentCollectionOutputStruct outStruct, YFSEnvironment env,
-			String strMaxOrderStatus, String strMinOrderStatus, String aurusCI,
-			String aurusOOT, boolean isTNSDecommission, boolean isAurusOrder,
-			String strExtnRefundSequenceNo, String strExtnRefundCount, String strSOHdrKey, boolean isTNSSwitch, String strCreditCardType) {		//OMS-3452 Change
+			String strMinOrderStatus, String aurusCI,
+			boolean isTNSDecommission, boolean isAurusOrder,
+			String strExtnRefundSequenceNo, String strExtnRefundCount, String strSOHdrKey, boolean isTNSSwitch, String strCreditCardType, String strOrigTranId) {		//OMS-3452 Change		//OMS-3690 Change
 					//Harshit: In Flight changes:
 		//if not an Aurus Order and TNS is decommissioned, and if CI is present use the CI directly to refund
 		//if not an Aurus Order and TNS is decommissioned, and if CI is not present then raise an alert to customer care so that we can get the CI and update it and rerun the scenario in production.
@@ -265,21 +266,33 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 		//OMS-3452 Changes -- Start
 		String strChrgTrxnKey=inStruct.chargeTransactionKey;
 		//OMS-3452 Changes -- End
+		
+		//OMS-3690 Changes -- Start
+		boolean bIsKlarnaOrder=false;		
+		if("klarna".equals(strCreditCardType)) {
+			bIsKlarnaOrder=true;
+			printLogs("Its a Klarna order");
+		}
+		//OMS-3690 Changes -- End
 
 		
 		try {
 			
 			if(!isAurusOrder && isTNSDecommission && YFCCommon.isVoid(aurusCI)){
 				
-				Document getCommonCodeListInputForRetryTime = getCommonCodeListInputForCodeType("DEFAULT","CC_REFUND_TIME");				
+				Document getCommonCodeListInputForRetryTime = getCommonCodeListInputForCodeType(VSIConstants.ATTR_DEFAULT,VSIConstants.CC_REFUND_TIME);				
 				Document getCommonCodeOut = getCommonCodeList(env, getCommonCodeListInputForRetryTime);
-				Element eleCOmmonCodeOut = (Element)getCommonCodeOut.getElementsByTagName("CommonCode").item(0);
-				
-				String retryMinutes = eleCOmmonCodeOut.getAttribute("CodeLongDescription");
+				String retryMinutes = null;
+				if(getCommonCodeOut!=null) {
+					Element eleCOmmonCodeOut = (Element)getCommonCodeOut.getElementsByTagName(VSIConstants.ELEMENT_COMMON_CODE).item(0);
+					retryMinutes = eleCOmmonCodeOut.getAttribute("CodeLongDescription");
+				}				
 
 				Calendar calendar = Calendar.getInstance();
 				int retMinutes = 10 ; //10 default
-				retMinutes = Integer.parseInt(retryMinutes);
+				if(!YFCCommon.isVoid(retryMinutes)) {
+					retMinutes = Integer.parseInt(retryMinutes);
+				}				
 				calendar.add(Calendar.MINUTE,retMinutes);
 				outStruct.collectionDate=calendar.getTime();
 				
@@ -299,9 +312,9 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 			}
 			else{
 			
-			ArrayList<Element> alCommonCodeList = VSIUtils.getCommonCodeListWithCodeType(env, "VSI_AURUS_PARAMS", null, "DEFAULT");
+			ArrayList<Element> alCommonCodeList = VSIUtils.getCommonCodeListWithCodeType(env, VSIConstants.CC_VSI_AURUS_PARAMS, null, VSIConstants.ATTR_DEFAULT);
 	
-			HashMap<String, String> aurusMandateParam= new HashMap<String, String>();
+			HashMap<String, String> aurusMandateParam= new HashMap<>();
 	
 			if(!alCommonCodeList.isEmpty()){
 				for(int i=0;i<alCommonCodeList.size();i++) {
@@ -310,9 +323,9 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 					String strCodeValue=eleCommonCode.getAttribute(VSIConstants.ATTR_CODE_VALUE);
 					if(!YFCCommon.isStringVoid(strShortdecValue) && !YFCCommon.isStringVoid(strCodeValue)){
 								
-						if(strCodeValue.startsWith("TransactionType")) {
+						if(strCodeValue.startsWith(VSIConstants.TRANSACTION_TYPE)) {
 							if(strCodeValue.indexOf("Refund")>0) {
-								aurusMandateParam.put("TransactionType", strShortdecValue);
+								aurusMandateParam.put(VSIConstants.TRANSACTION_TYPE, strShortdecValue);
 							}
 						}else {
 							aurusMandateParam.put(strCodeValue, strShortdecValue);	
@@ -320,9 +333,9 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 					}
 				}
 			}
-			ArrayList<Element> aurusRetryErrCodeCommonCodeList = VSIUtils.getCommonCodeListWithCodeType(env, "VSI_AURUS_RETRY", null, "DEFAULT");
+			ArrayList<Element> aurusRetryErrCodeCommonCodeList = VSIUtils.getCommonCodeListWithCodeType(env, VSIConstants.CC_VSI_AURUS_RETRY, null, VSIConstants.ATTR_DEFAULT);
 				
-			HashMap<String, String> aurusRetryErrCode= new HashMap<String, String>();
+			HashMap<String, String> aurusRetryErrCode= new HashMap<>();
 				
 			if(!aurusRetryErrCodeCommonCodeList.isEmpty()){
 				for(int i=0;i<aurusRetryErrCodeCommonCodeList.size() ;i++) {
@@ -334,25 +347,20 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 					}
 				}
 			}
-			ArrayList<Element> processorRetryErrCodeCommonCodeList = VSIUtils.getCommonCodeListWithCodeType(env, "VSI_PROCESSOR_RETRY", null, "DEFAULT");
+			ArrayList<Element> processorRetryErrCodeCommonCodeList = VSIUtils.getCommonCodeListWithCodeType(env, VSIConstants.CC_VSI_PROCESSOR_RETRY, null, VSIConstants.ATTR_DEFAULT);
 			
-			HashMap<String, String> processorRetryErrCode= new HashMap<String, String>();
+			HashMap<String, String> processorRetryErrCode= new HashMap<>();
 			
 			if(!processorRetryErrCodeCommonCodeList.isEmpty()){
 				for(int i=0;i<processorRetryErrCodeCommonCodeList.size() ;i++) {
 					Element eleCommonCode=processorRetryErrCodeCommonCodeList.get(i);
 					String strShortdecValue=eleCommonCode.getAttribute(VSIConstants.ATTR_CODE_SHORT_DESCRIPTION);
 					String strCodeValue=eleCommonCode.getAttribute(VSIConstants.ATTR_CODE_VALUE);
-					if(!YFCCommon.isStringVoid(strShortdecValue) && !YFCCommon.isStringVoid(strCodeValue)){
-						//							System.out.println(strCodeValue + " "+strShortdecValue);
+					if(!YFCCommon.isStringVoid(strShortdecValue) && !YFCCommon.isStringVoid(strCodeValue)){						
 						processorRetryErrCode.put(strCodeValue, strShortdecValue);
 					}
 				}
 			}
-				
-			String transactionIdStr = null;
-			String Orderid = null;
-			String merchantId = null;
 				
 			double dRequestAmountNeg  = inStruct.requestAmount;
 			//OMS-3452 Changes -- Start
@@ -361,35 +369,14 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 			double dRequestAmount = Math.abs(dRequestAmountNeg);
 			String requestAmountStr=Double.toString(dRequestAmount);				  
 				
-			String currencyCodestr = "840";
-				
-			String tokenIdStr = inStruct.creditCardNo;
-			if(inStruct.paymentReference2 ==null && inStruct.paymentReference3 == null) {
-				tokenIdStr=inStruct.creditCardNo; //ott
-			}else if(inStruct.paymentReference2 !=null){
-				tokenIdStr=inStruct.paymentReference2;; //CI
-			}
+			String currencyCodestr = "840";			
 	
 			String firstName = inStruct.firstName;
 			String lastName = inStruct.lastName;
 			String expDate = inStruct.creditCardExpirationDate;
-			String AdressLine1=inStruct.billToAddressLine1;
+			String adressLine1=inStruct.billToAddressLine1;
 			
-			String country=inStruct.billToCountry;
-	
-			// change 2 char country to 3 char
-			if(country.length() == 2) {
-				country = VSIUtils.getCountryCode(env, country);
-			}
-			//jira 803	
-								
-			String tranNumber = VSIDBUtil.getNextSequence(env, VSIConstants.SEQ_VSI_CC_NO);
-			transactionIdStr = inStruct.chargeTransactionKey+tranNumber;
-			Orderid = inStruct.chargeTransactionKey+tranNumber;
-				
-			if(transactionIdStr.length()>13) {
-				transactionIdStr = transactionIdStr.substring(transactionIdStr.length() - 13);
-			}
+			//jira 803						
 	
 			VSIPreAuthAESDKFunction vsiAurusAuth=new VSIPreAuthAESDKFunction();
 			TransRequestObject transReq = new TransRequestObject();
@@ -403,27 +390,38 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 					transReq.setCardIdentifier(aurusCI);
 				}
 			} else{
-				transReq.setCardIdentifier(aurusCI);
+				//OMS-3690 Changes -- Start
+				if(!bIsKlarnaOrder) {
+				//OMS-3690 Changes -- End
+					transReq.setCardIdentifier(aurusCI);
+				//OMS-3690 Changes -- Start
+				}
+				//OMS-3690 Changes -- End
 			}
+			
+			//OMS-3690 Changes -- Start
+			if(bIsKlarnaOrder) {
+				transReq.setOrigTransactionIdentifier(strOrigTranId);
+			}
+			//OMS-3690 Changes -- End
 								
 			transReq.setTransactionTotal(requestAmountStr); 
-			transReq.setCurrencyCode(currencyCodestr);
-			transReq.setMerchantIdentifier(merchantId);
+			transReq.setCurrencyCode(currencyCodestr);			
 			transReq.setBillingFirstName(firstName);
 			transReq.setBillingLastName(lastName);
 			String strExpDate=expDate.substring(0, 2)+expDate.substring(5);
 			transReq.setCardExpiryDate(strExpDate);
-			transReq.setBillingAddressLine1(AdressLine1);
+			transReq.setBillingAddressLine1(adressLine1);
 	
-			transReq.setMerchantIdentifier(aurusMandateParam.get("MerchantIdentifier"));
-			transReq.setaDSDKSpecVer(aurusMandateParam.get("ADSDKSpecVer"));
-			transReq.setCorpID(aurusMandateParam.get("CorpID"));
-			transReq.setLanguageIndicator(aurusMandateParam.get("LanguageIndicator"));
-			transReq.setStoreId(aurusMandateParam.get("StoreId"));
-			transReq.setTerminalId(aurusMandateParam.get("TerminalId"));
-			transReq.setTransactionType(aurusMandateParam.get("TransactionType"));
+			transReq.setMerchantIdentifier(aurusMandateParam.get(VSIConstants.ATTR_MERCHANT_IDENTIFIER));
+			transReq.setaDSDKSpecVer(aurusMandateParam.get(VSIConstants.ATTR_ADSDK_SPEC_VER));
+			transReq.setCorpID(aurusMandateParam.get(VSIConstants.ATTR_CORP_ID));
+			transReq.setLanguageIndicator(aurusMandateParam.get(VSIConstants.ATTR_LANGUAGE_INDICATOR));
+			transReq.setStoreId(aurusMandateParam.get(VSIConstants.ATTR_STOREID));
+			transReq.setTerminalId(aurusMandateParam.get(VSIConstants.ATTR_TERMINAL_ID));
+			transReq.setTransactionType(aurusMandateParam.get(VSIConstants.TRANSACTION_TYPE));
 			
-			printLogs("TransactionType "+aurusMandateParam.get("TransactionType"));
+			printLogs("TransactionType "+aurusMandateParam.get(VSIConstants.TRANSACTION_TYPE));
 			
 			//OMS-2438 -- Start
 			int iLength=strOrderNo.length();
@@ -444,10 +442,10 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 			//OMS-2392 -- End
 			
 			//OMS-2408 -- Start
-			HashMap<String, String> transDateAndTime =  new HashMap<String, String>();
+			HashMap<String, String> transDateAndTime;
 			transDateAndTime=getTransactionDateAndTime();			
-			String strTransDate = transDateAndTime.get("TransactionDate");
-			String strTransTime = transDateAndTime.get("TransactionTime");
+			String strTransDate = transDateAndTime.get(VSIConstants.TRANSACTION_DATE);
+			String strTransTime = transDateAndTime.get(VSIConstants.ATTR_TRANSACTION_TIME);
 			transReq.setTransactionDate(strTransDate);
 			transReq.setTransactionTime(strTransTime);
 			//OMS-2408 -- End
@@ -510,18 +508,17 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 			HashMap<String, String> refundResponse = vsiAurusAuth.parseTransReponseOutDoc(outDoc);
 	
 			//parsing the response
-			if (refundResponse.containsKey("ResponseText")) {
+			if (refundResponse.containsKey(VSIConstants.ATTR_RESPONSE_TEXT)) {
 				
-				printLogs("Aurus Refund Response:"+refundResponse.toString());
-					
-				String responseCode=refundResponse.get("ResponseCode");					
-				String processorResponseCode=refundResponse.get("ProcessorResponseCode");
-				String approvalCode=refundResponse.get("ApprovalCode");
+				printLogs("Aurus Refund Response:"+refundResponse.toString());					
+				String responseCode=refundResponse.get(VSIConstants.ATTR_RESPONSE_CODE);
+				String processorResponseCode=refundResponse.get(VSIConstants.ATTR_PROCESSOR_RESPONSE_CODE);
+				String approvalCode=refundResponse.get(VSIConstants.ATTR_APPROVAL_CODE);
 				//OMS-3452 Changes -- Start
-				String strResponseText=refundResponse.get("ResponseText");
+				String strResponseText=refundResponse.get(VSIConstants.ATTR_RESPONSE_TEXT);
 				//OMS-3452 Changes -- End
 				
-			if (responseCode.equalsIgnoreCase("00000")) {  //Approval					
+			if (responseCode.equalsIgnoreCase(VSIConstants.ATTR_APPROVAL_RESPONSE)) {  //Approval					
 					
 				outStruct.authorizationId = inStruct.authorizationId;	
 				outStruct.authorizationAmount = inStruct.requestAmount;					
@@ -537,20 +534,23 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 				printLogs("Processing Aurus Refund Approval Response Done");
 					
 			}else if(aurusRetryErrCode.containsKey(responseCode)||processorRetryErrCode.containsKey(processorResponseCode)) {  //retry
-				Document getCommonCodeListInputForRetryTime = getCommonCodeListInputForCodeType("DEFAULT","CC_RETRY_TIME");
+				Document getCommonCodeListInputForRetryTime = getCommonCodeListInputForCodeType(VSIConstants.ATTR_DEFAULT,VSIConstants.CC_RETRY_TIME);
 				Document getCommonCodeOut = getCommonCodeList(env, getCommonCodeListInputForRetryTime);
-				Element eleCOmmonCodeOut = (Element)getCommonCodeOut.getElementsByTagName("CommonCode").item(0);
-					
-				String retryMinutes = eleCOmmonCodeOut.getAttribute("CodeLongDescription");
-	
+				String retryMinutes = null;
+				if(getCommonCodeOut!=null) {
+					Element eleCOmmonCodeOut = (Element)getCommonCodeOut.getElementsByTagName(VSIConstants.ELEMENT_COMMON_CODE).item(0);
+					retryMinutes = eleCOmmonCodeOut.getAttribute("CodeLongDescription");
+				}	
 				Calendar calendar = Calendar.getInstance();
 				int retMinutes = 10 ; 
-				retMinutes = Integer.parseInt(retryMinutes);
+				if(!YFCCommon.isVoid(retryMinutes)) {
+					retMinutes = Integer.parseInt(retryMinutes);
+				}
 				calendar.add(Calendar.MINUTE,retMinutes);
 				outStruct.collectionDate=calendar.getTime();					
 				outStruct.retryFlag="Y";	
 				
-				if(responseCode.equalsIgnoreCase("71012")) {
+				if(responseCode.equalsIgnoreCase(VSIConstants.AESDK_RETRY_RESP)) {
 						initAESDK();					
 				}
 				//OMS-3452 Changes -- Start
@@ -583,8 +583,8 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 			}
 		}
 		}
-	}catch (Exception Ex) {
-		Ex.printStackTrace();
+	}catch (Exception e) {
+		e.printStackTrace();
 		throw new YFSException();
 		}
 	}
@@ -644,9 +644,12 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 
 		private void doChargeForAurus(YFSExtnPaymentCollectionInputStruct inStruct,
 			YFSExtnPaymentCollectionOutputStruct outStruct, YFSEnvironment env,
-			String strMaxOrderStatus, String strMinOrderStatus,
+			String strMinOrderStatus,
 			String strExtnPostAuthSequenceNo, String strExtnPostAuthCount,
-			String aurusCI, String aurusOOT, boolean isTNSDecommission, boolean isAurusOrder, String strAurusReauth, boolean isTNSSwitch, String strEntryType, String strOrderType, String strOrigTranId, String strCreditCardType, String strSubscriptionOrder) throws ParserConfigurationException {		//OMS-3241 Change		//OMS-3452 Change		//OMS-3469 Change
+			String aurusCI, String aurusOOT, boolean isTNSDecommission, boolean isAurusOrder, 
+			String strAurusReauth, boolean isTNSSwitch, String strEntryType, String strOrderType, 
+			String strOrigTranId, String strCreditCardType, String strSubscriptionOrder) 
+					throws ParserConfigurationException {		//OMS-3241 Change		//OMS-3452 Change		//OMS-3469 Change
 		
 		printLogs("================Inside doChargeForAurus================================");
 		
@@ -661,6 +664,14 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 		String strChrgTrxnKey=inStruct.chargeTransactionKey;
 		//OMS-3452 Changes -- End
 		
+		//OMS-3690 Changes -- Start
+		boolean bIsKlarnaOrder=false;		
+		if("klarna".equals(strCreditCardType)) {
+			bIsKlarnaOrder=true;
+			printLogs("Its a Klarna order");
+		}
+		//OMS-3690 Changes -- End
+		
 		try {
 			
 			String authorizationIdStr=null;
@@ -673,27 +684,31 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 			boolean bIsAuthDuringCharge=false;
 			//OMS-3260 Changes -- End
 			
-			if(YFCObject.isVoid(authorizationIdStr) || YFCObject.isVoid(aurusCI) || (!isAurusOrder && (!VSIConstants.FLAG_Y.equals(strAurusReauth)))){				
+			if((YFCObject.isVoid(authorizationIdStr) || YFCObject.isVoid(aurusCI) || (!isAurusOrder && (!VSIConstants.FLAG_Y.equals(strAurusReauth)))) && !bIsKlarnaOrder){		//OMS-3690 Change						
 				HashMap<String, String> authResponse = DoAuthorizeAurusCharge(inStruct,outStruct,aurusCI,aurusOOT,isTNSDecommission,isAurusOrder,env,isTNSSwitch,strEntryType,strOrderType,strOrigTranId,strSubscriptionOrder);		//OMS-3241 Change		//OMS-3469 Change	
 
 				if(!authResponse.isEmpty()){					
-					authorizationIdStr = authResponse.get("TransactionID");
-					aurusCI=authResponse.get("CardIdentifier");					
+					authorizationIdStr = authResponse.get(VSIConstants.ATTR_PAYPAL_TRANSACTION_ID);
+					aurusCI=authResponse.get(VSIConstants.ATTR_CI);					
 					//OMS-3260 Changes -- Start
 					bIsAuthDuringCharge=true;
 					//OMS-3260 Changes -- End
 				}				
 			}			
-				if(YFCCommon.isVoid(aurusCI)){
-					Document getCommonCodeListInputForRetryTime = getCommonCodeListInputForCodeType("DEFAULT","CC_REFUND_TIME");				
+				if(YFCCommon.isVoid(aurusCI) && !bIsKlarnaOrder){		//OMS-3690 Change
+					Document getCommonCodeListInputForRetryTime = getCommonCodeListInputForCodeType(VSIConstants.ATTR_DEFAULT,VSIConstants.CC_REFUND_TIME);				
 					Document getCommonCodeOut = getCommonCodeList(env, getCommonCodeListInputForRetryTime);
-					Element eleCOmmonCodeOut = (Element)getCommonCodeOut.getElementsByTagName("CommonCode").item(0);
-					
-					String retryMinutes = eleCOmmonCodeOut.getAttribute("CodeLongDescription");
+					String retryMinutes = null;
+					if(getCommonCodeOut!=null) {
+						Element eleCOmmonCodeOut = (Element)getCommonCodeOut.getElementsByTagName(VSIConstants.ELEMENT_COMMON_CODE).item(0);						
+						retryMinutes = eleCOmmonCodeOut.getAttribute("CodeLongDescription");
+					}
 	
 					Calendar calendar = Calendar.getInstance();
-					int retMinutes = 10 ; //10 default
-					retMinutes = Integer.parseInt(retryMinutes);
+					int retMinutes=10; 
+					if(!YFCCommon.isVoid(retryMinutes)) {
+						retMinutes = Integer.parseInt(retryMinutes);
+					}
 					calendar.add(Calendar.MINUTE,retMinutes);
 					outStruct.collectionDate=calendar.getTime();
 					
@@ -713,9 +728,9 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 				
 				else if(!YFCObject.isVoid(authorizationIdStr)){
 	
-					ArrayList<Element> alCommonCodeList = VSIUtils.getCommonCodeListWithCodeType(env, "VSI_AURUS_PARAMS", null, "DEFAULT");
+					ArrayList<Element> alCommonCodeList = VSIUtils.getCommonCodeListWithCodeType(env, VSIConstants.CC_VSI_AURUS_PARAMS, null, VSIConstants.ATTR_DEFAULT);
 	
-					HashMap<String, String> aurusMandateParam= new HashMap<String, String>();
+					HashMap<String, String> aurusMandateParam= new HashMap<>();
 	
 					if(!alCommonCodeList.isEmpty()){
 						for(int i=0;i<alCommonCodeList.size() ;i++) {
@@ -724,9 +739,9 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 							String strCodeValue=eleCommonCode.getAttribute(VSIConstants.ATTR_CODE_VALUE);
 							if(!YFCCommon.isStringVoid(strShortdecValue) && !YFCCommon.isStringVoid(strCodeValue)){
 								
-								if(strCodeValue.startsWith("TransactionType")) {
+								if(strCodeValue.startsWith(VSIConstants.TRANSACTION_TYPE)) {
 									if(strCodeValue.indexOf("PostAuth")>0) {
-										aurusMandateParam.put("TransactionType", strShortdecValue);
+										aurusMandateParam.put(VSIConstants.TRANSACTION_TYPE, strShortdecValue);
 									}
 								}else {
 									aurusMandateParam.put(strCodeValue, strShortdecValue);	
@@ -734,9 +749,9 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 							}
 						}
 					}
-					ArrayList<Element> aurusRetryErrCodeCommonCodeList = VSIUtils.getCommonCodeListWithCodeType(env, "VSI_AURUS_RETRY", null, "DEFAULT");
+					ArrayList<Element> aurusRetryErrCodeCommonCodeList = VSIUtils.getCommonCodeListWithCodeType(env, VSIConstants.CC_VSI_AURUS_RETRY, null, VSIConstants.ATTR_DEFAULT);
 					
-					HashMap<String, String> aurusRetryErrCode= new HashMap<String, String>();
+					HashMap<String, String> aurusRetryErrCode= new HashMap<>();
 					
 					if(!aurusRetryErrCodeCommonCodeList.isEmpty()){
 						for(int i=0;i<aurusRetryErrCodeCommonCodeList.size() ;i++) {
@@ -748,9 +763,9 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 							}
 						}
 					}
-					ArrayList<Element> processorRetryErrCodeCommonCodeList = VSIUtils.getCommonCodeListWithCodeType(env, "VSI_PROCESSOR_RETRY", null, "DEFAULT");
+					ArrayList<Element> processorRetryErrCodeCommonCodeList = VSIUtils.getCommonCodeListWithCodeType(env, VSIConstants.CC_VSI_PROCESSOR_RETRY, null, VSIConstants.ATTR_DEFAULT);
 					
-					HashMap<String, String> processorRetryErrCode= new HashMap<String, String>();
+					HashMap<String, String> processorRetryErrCode= new HashMap<>();
 					
 					if(!processorRetryErrCodeCommonCodeList.isEmpty()){
 						for(int i=0;i<processorRetryErrCodeCommonCodeList.size() ;i++) {
@@ -758,30 +773,22 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 							String strShortdecValue=eleCommonCode.getAttribute(VSIConstants.ATTR_CODE_SHORT_DESCRIPTION);
 							String strCodeValue=eleCommonCode.getAttribute(VSIConstants.ATTR_CODE_VALUE);
 							if(!YFCCommon.isStringVoid(strShortdecValue) && !YFCCommon.isStringVoid(strCodeValue)){
-								//							System.out.println(strCodeValue + " "+strShortdecValue);
 								processorRetryErrCode.put(strCodeValue, strShortdecValue);
 							}
 						}
 					}
 	
 					String transactionIdStr = null;
-					String Orderid = null;
+					String orderid = null;
 					String merchantId = null;
 					
 					String requestAmountStr=Double.toString(inStruct.requestAmount);  
 					String currencyCodestr = "840";
-					//Harshit: Comment this if not require it is confuson
-					/*String tokenIdStr = inStruct.creditCardNo;
-					if(inStruct.paymentReference2 ==null && inStruct.paymentReference3 == null) {
-						tokenIdStr=inStruct.creditCardNo; //ott
-					}else if(inStruct.paymentReference2 !=null){
-						tokenIdStr=inStruct.paymentReference2;; //CI
-					}*/
-	
+						
 					String firstName = inStruct.firstName;
 					String lastName = inStruct.lastName;
 					String expDate = inStruct.creditCardExpirationDate;
-					String AdressLine1=inStruct.billToAddressLine1;
+					String adressLine1=inStruct.billToAddressLine1;
 					
 					String country=inStruct.billToCountry;
 	
@@ -795,10 +802,10 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 	
 					String tranNumber = VSIDBUtil.getNextSequence(env, VSIConstants.SEQ_VSI_CC_NO);
 					transactionIdStr = inStruct.chargeTransactionKey+tranNumber;
-					Orderid = inStruct.chargeTransactionKey+tranNumber;
+					orderid = inStruct.chargeTransactionKey+tranNumber;
 					
 					printLogs("transactionIdStr before trimming: "+transactionIdStr);
-					printLogs("Orderid: "+Orderid);
+					printLogs("Orderid: "+orderid);
 					
 					if(transactionIdStr.length()>13) {
 						transactionIdStr = transactionIdStr.substring(transactionIdStr.length() - 13);
@@ -809,8 +816,13 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 					VSIPreAuthAESDKFunction vsiAurusAuth=new VSIPreAuthAESDKFunction();
 					TransRequestObject transReq = new TransRequestObject();				
 					
-					transReq.setCardIdentifier(aurusCI);
-									
+					//OMS-3690 Changes -- Start
+					if(!bIsKlarnaOrder) {
+					//OMS-3690 Changes -- End
+						transReq.setCardIdentifier(aurusCI);
+					//OMS-3690 Changes -- Start
+					}
+					//OMS-3690 Changes -- End				
 					transReq.setOrigTransactionIdentifier(authorizationIdStr);
 					
 					transReq.setTransactionTotal(requestAmountStr); 
@@ -821,16 +833,16 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 					transReq.setBillingLastName(lastName);
 					String strExpDate=expDate.substring(0, 2)+expDate.substring(5);
 					transReq.setCardExpiryDate(strExpDate);
-					transReq.setBillingAddressLine1(AdressLine1);
+					transReq.setBillingAddressLine1(adressLine1);
 					
-					transReq.setMerchantIdentifier(aurusMandateParam.get("MerchantIdentifier"));
-					transReq.setaDSDKSpecVer(aurusMandateParam.get("ADSDKSpecVer"));
-					transReq.setCorpID(aurusMandateParam.get("CorpID"));
-					transReq.setLanguageIndicator(aurusMandateParam.get("LanguageIndicator"));
-					transReq.setStoreId(aurusMandateParam.get("StoreId"));
-					transReq.setTerminalId(aurusMandateParam.get("TerminalId"));
-					transReq.setTransactionType(aurusMandateParam.get("TransactionType"));				
-					printLogs("TransactionType "+aurusMandateParam.get("TransactionType"));				
+					transReq.setMerchantIdentifier(aurusMandateParam.get(VSIConstants.ATTR_MERCHANT_IDENTIFIER));
+					transReq.setaDSDKSpecVer(aurusMandateParam.get(VSIConstants.ATTR_ADSDK_SPEC_VER));
+					transReq.setCorpID(aurusMandateParam.get(VSIConstants.ATTR_CORP_ID));
+					transReq.setLanguageIndicator(aurusMandateParam.get(VSIConstants.ATTR_LANGUAGE_INDICATOR));
+					transReq.setStoreId(aurusMandateParam.get(VSIConstants.ATTR_STOREID));
+					transReq.setTerminalId(aurusMandateParam.get(VSIConstants.ATTR_TERMINAL_ID));
+					transReq.setTransactionType(aurusMandateParam.get(VSIConstants.TRANSACTION_TYPE));				
+					printLogs("TransactionType "+aurusMandateParam.get(VSIConstants.TRANSACTION_TYPE));				
 					
 					//OMS-2437 -- Start
 					if(VSIConstants.ATTR_ORDER_TYPE_POS.equals(strOrderType) || VSIConstants.POS_ENTRY_TYPE.equals(strEntryType)){
@@ -849,10 +861,10 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 					//OMS-2392 -- End
 					
 					//OMS-2408 -- Start
-					HashMap<String, String> transDateAndTime =  new HashMap<String, String>();
+					HashMap<String, String> transDateAndTime;
 					transDateAndTime=getTransactionDateAndTime();			
-					String strTransDate = transDateAndTime.get("TransactionDate");
-					String strTransTime = transDateAndTime.get("TransactionTime");
+					String strTransDate = transDateAndTime.get(VSIConstants.TRANSACTION_DATE);
+					String strTransTime = transDateAndTime.get(VSIConstants.ATTR_TRANSACTION_TIME);
 					transReq.setTransactionDate(strTransDate);
 					transReq.setTransactionTime(strTransTime);
 					//OMS-2408 -- End
@@ -912,18 +924,18 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 					HashMap<String, String> preAuthResponse = vsiAurusAuth.parseTransReponseOutDoc(outDoc);
 	
 					//parsing the response
-					if (preAuthResponse.containsKey("ResponseText")) {
+					if (preAuthResponse.containsKey(VSIConstants.ATTR_RESPONSE_TEXT)) {
 							
 							printLogs("Aurus Charge Response:"+preAuthResponse.toString());
 		
-							String responseCode=preAuthResponse.get("ResponseCode");					
-							String processorResponseCode=preAuthResponse.get("ProcessorResponseCode");
-							String approvalCode=preAuthResponse.get("ApprovalCode");
+							String responseCode=preAuthResponse.get(VSIConstants.ATTR_RESPONSE_CODE);					
+							String processorResponseCode=preAuthResponse.get(VSIConstants.ATTR_PROCESSOR_RESPONSE_CODE);
+							String approvalCode=preAuthResponse.get(VSIConstants.ATTR_APPROVAL_CODE);
 							//OMS-3452 Changes -- Start
-							String strResponseText=preAuthResponse.get("ResponseText");
+							String strResponseText=preAuthResponse.get(VSIConstants.ATTR_RESPONSE_TEXT);
 							//OMS-3452 Changes -- End
 							
-						if (responseCode.equalsIgnoreCase("00000")) {  //Approval					
+						if (responseCode.equalsIgnoreCase(VSIConstants.ATTR_APPROVAL_RESPONSE)) {  //Approval					
 							
 							outStruct.authorizationId = authorizationIdStr;
 							outStruct.authorizationAmount = inStruct.requestAmount;					
@@ -950,20 +962,24 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 							printLogs("Processing Aurus Charge Approval Response Done");
 							
 						}else if(aurusRetryErrCode.containsKey(responseCode)||processorRetryErrCode.containsKey(processorResponseCode)) {  //retry
-							Document getCommonCodeListInputForRetryTime = getCommonCodeListInputForCodeType("DEFAULT","CC_RETRY_TIME");
+							Document getCommonCodeListInputForRetryTime = getCommonCodeListInputForCodeType(VSIConstants.ATTR_DEFAULT,VSIConstants.CC_RETRY_TIME);
 							Document getCommonCodeOut = getCommonCodeList(env, getCommonCodeListInputForRetryTime);
-							Element eleCOmmonCodeOut = (Element)getCommonCodeOut.getElementsByTagName("CommonCode").item(0);
-							
-							String retryMinutes = eleCOmmonCodeOut.getAttribute("CodeLongDescription");
+							String retryMinutes =null;
+							if(getCommonCodeOut!=null) {
+								Element eleCOmmonCodeOut = (Element)getCommonCodeOut.getElementsByTagName(VSIConstants.ELEMENT_COMMON_CODE).item(0);
+								retryMinutes = eleCOmmonCodeOut.getAttribute("CodeLongDescription");
+							}						
 		
 							Calendar calendar = Calendar.getInstance();
 							int retMinutes = 10 ; //10 default
-							retMinutes = Integer.parseInt(retryMinutes);
+							if(!YFCCommon.isVoid(retryMinutes)) {
+								retMinutes = Integer.parseInt(retryMinutes);
+							}
 							calendar.add(Calendar.MINUTE,retMinutes);
 							outStruct.collectionDate=calendar.getTime();					
 							outStruct.retryFlag="Y";
 							
-						if(responseCode.equalsIgnoreCase("71012")) {
+						if(responseCode.equalsIgnoreCase(VSIConstants.AESDK_RETRY_RESP)) {
 							initAESDK();
 						}
 							//OMS-3452 Changes -- Start
@@ -998,18 +1014,22 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 				}			
 		}	
 		
-	catch (Exception Ex) {
-		Ex.printStackTrace();
+	catch (Exception e) {
+		e.printStackTrace();
 		
-		Document getCommonCodeListInputForRetryTime = getCommonCodeListInputForCodeType("DEFAULT","CC_RETRY_TIME");
+		Document getCommonCodeListInputForRetryTime = getCommonCodeListInputForCodeType(VSIConstants.ATTR_DEFAULT,VSIConstants.CC_RETRY_TIME);
 		Document getCommonCodeOut = getCommonCodeList(env, getCommonCodeListInputForRetryTime);
-		Element eleCOmmonCodeOut = (Element)getCommonCodeOut.getElementsByTagName("CommonCode").item(0);
+		String retryMinutes =null;
+		if(getCommonCodeOut!=null) {
+			Element eleCOmmonCodeOut = (Element)getCommonCodeOut.getElementsByTagName(VSIConstants.ELEMENT_COMMON_CODE).item(0);
+			retryMinutes = eleCOmmonCodeOut.getAttribute("CodeLongDescription");
+		}
 		
-		String retryMinutes = eleCOmmonCodeOut.getAttribute("CodeLongDescription");
-
 		Calendar calendar = Calendar.getInstance();
 		int retMinutes = 10 ; //10 default
-		retMinutes = Integer.parseInt(retryMinutes);
+		if(!YFCCommon.isVoid(retryMinutes)) {
+			retMinutes = Integer.parseInt(retryMinutes);
+		}
 		calendar.add(Calendar.MINUTE,retMinutes);
 		outStruct.collectionDate=calendar.getTime();					
 		outStruct.retryFlag="Y";			
@@ -1058,7 +1078,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 	
 	try {
 
-		ArrayList<Element> alCommonCodeList = VSIUtils.getCommonCodeListWithCodeType(env, "VSI_AURUS_PARAMS", null, "DEFAULT");
+		ArrayList<Element> alCommonCodeList = VSIUtils.getCommonCodeListWithCodeType(env, VSIConstants.CC_VSI_AURUS_PARAMS, null, VSIConstants.ATTR_DEFAULT);
 
 		HashMap<String, String> aurusMandateParam= new HashMap<String, String>();		
 
@@ -1069,9 +1089,9 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 				String strCodeValue=eleCommonCode.getAttribute(VSIConstants.ATTR_CODE_VALUE);
 				if(!YFCCommon.isStringVoid(strShortdecValue) && !YFCCommon.isStringVoid(strCodeValue)){
 					
-					if(strCodeValue.startsWith("TransactionType")) {
+					if(strCodeValue.startsWith(VSIConstants.TRANSACTION_TYPE)) {
 						if(strCodeValue.indexOf("PreAuth")>0) {
-							aurusMandateParam.put("TransactionType", strShortdecValue);
+							aurusMandateParam.put(VSIConstants.TRANSACTION_TYPE, strShortdecValue);
 						}
 					}if(strCodeValue.startsWith("SubTransType")) {
 						if(strCodeValue.indexOf("ReAuth")>0) {
@@ -1085,7 +1105,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 			}
 		}
 		
-		ArrayList<Element> aurusRetryErrCodeCommonCodeList = VSIUtils.getCommonCodeListWithCodeType(env, "VSI_AURUS_RETRY", null, "DEFAULT");
+		ArrayList<Element> aurusRetryErrCodeCommonCodeList = VSIUtils.getCommonCodeListWithCodeType(env, VSIConstants.CC_VSI_AURUS_RETRY, null, VSIConstants.ATTR_DEFAULT);
 		
 		HashMap<String, String> aurusRetryErrCode= new HashMap<String, String>();
 		
@@ -1100,7 +1120,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 				}
 			}
 		}
-       ArrayList<Element> processorRetryErrCodeCommonCodeList = VSIUtils.getCommonCodeListWithCodeType(env, "VSI_PROCESSOR_RETRY", null, "DEFAULT");
+       ArrayList<Element> processorRetryErrCodeCommonCodeList = VSIUtils.getCommonCodeListWithCodeType(env, VSIConstants.CC_VSI_PROCESSOR_RETRY, null, VSIConstants.ATTR_DEFAULT);
 		
 		HashMap<String, String> processorRetryErrCode= new HashMap<String, String>();
 		
@@ -1117,7 +1137,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 		}
 		
 		//OMS-3365 Changes -- Start
-		ArrayList<Element> aurusCITMITParamsList = VSIUtils.getCommonCodeListWithCodeType(env, "CIT_MIT_AURUS_PARAMS", null, "DEFAULT");
+		ArrayList<Element> aurusCITMITParamsList = VSIUtils.getCommonCodeListWithCodeType(env, "CIT_MIT_AURUS_PARAMS", null, VSIConstants.ATTR_DEFAULT);
 		
 		HashMap<String, String> aurusCITMITParams= new HashMap<String, String>();
 		
@@ -1193,7 +1213,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 		if(inStruct.paymentReference2 ==null && inStruct.paymentReference3 == null) {
 			tokenIdStr=inStruct.creditCardNo; //ott
 		}else if(inStruct.paymentReference2 !=null){
-			tokenIdStr=inStruct.paymentReference2;; //CI
+			tokenIdStr=inStruct.paymentReference2; //CI
 		}
 
 		String expDate = inStruct.creditCardExpirationDate;
@@ -1313,12 +1333,12 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 		}
 		//OMS-2367 -- End
 
-		transReq.setMerchantIdentifier(aurusMandateParam.get("MerchantIdentifier"));
-		transReq.setaDSDKSpecVer(aurusMandateParam.get("ADSDKSpecVer"));
-		transReq.setCorpID(aurusMandateParam.get("CorpID"));
-		transReq.setLanguageIndicator(aurusMandateParam.get("LanguageIndicator"));
-		transReq.setStoreId(aurusMandateParam.get("StoreId"));
-		transReq.setTerminalId(aurusMandateParam.get("TerminalId"));
+		transReq.setMerchantIdentifier(aurusMandateParam.get(VSIConstants.ATTR_MERCHANT_IDENTIFIER));
+		transReq.setaDSDKSpecVer(aurusMandateParam.get(VSIConstants.ATTR_ADSDK_SPEC_VER));
+		transReq.setCorpID(aurusMandateParam.get(VSIConstants.ATTR_CORP_ID));
+		transReq.setLanguageIndicator(aurusMandateParam.get(VSIConstants.ATTR_LANGUAGE_INDICATOR));
+		transReq.setStoreId(aurusMandateParam.get(VSIConstants.ATTR_STOREID));
+		transReq.setTerminalId(aurusMandateParam.get(VSIConstants.ATTR_TERMINAL_ID));
 		//OMS-3365 Changes -- Start
 		transReq.setTransactionType(strTransType);
 		//OMS-3469 Changes -- Start
@@ -1354,8 +1374,8 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 		//OMS-2408 -- Start
 		HashMap<String, String> transDateAndTime =  new HashMap<String, String>();
 		transDateAndTime=getTransactionDateAndTime();			
-		String strTransDate = transDateAndTime.get("TransactionDate");
-		String strTransTime = transDateAndTime.get("TransactionTime");
+		String strTransDate = transDateAndTime.get(VSIConstants.TRANSACTION_DATE);
+		String strTransTime = transDateAndTime.get(VSIConstants.ATTR_TRANSACTION_TIME);
 		transReq.setTransactionDate(strTransDate);
 		transReq.setTransactionTime(strTransTime);
 		//OMS-2408 -- End
@@ -1380,24 +1400,24 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 		HashMap<String, String> preAuthResponse = vsiAurusAuth.parseTransReponseOutDoc(outDoc);
 
 		//parsing the response
-		if (preAuthResponse.containsKey("ResponseText")) {
+		if (preAuthResponse.containsKey(VSIConstants.ATTR_RESPONSE_TEXT)) {
 			
 			printLogs("Aurus Response:"+preAuthResponse.toString());
 			
 			String transactionIdentifier=preAuthResponse.get("TransactionIdentifier");			
-			String responseCode=preAuthResponse.get("ResponseCode");
-			String cardIdentifier = preAuthResponse.get("CardIdentifier");
-			String processorResponseCode=preAuthResponse.get("ProcessorResponseCode");
+			String responseCode=preAuthResponse.get(VSIConstants.ATTR_RESPONSE_CODE);
+			String cardIdentifier = preAuthResponse.get(VSIConstants.ATTR_CI);
+			String processorResponseCode=preAuthResponse.get(VSIConstants.ATTR_PROCESSOR_RESPONSE_CODE);
 			
-			if (responseCode.equalsIgnoreCase("00000")) {  //Approval
+			if (responseCode.equalsIgnoreCase(VSIConstants.ATTR_APPROVAL_RESPONSE)) {  //Approval
 				
-				authResponse.put("TransactionID", transactionIdentifier);
-				authResponse.put("CardIdentifier", cardIdentifier);				
+				authResponse.put(VSIConstants.ATTR_PAYPAL_TRANSACTION_ID, transactionIdentifier);
+				authResponse.put(VSIConstants.ATTR_CI, cardIdentifier);				
 				
 			}else if(aurusRetryErrCode.containsKey(responseCode)||processorRetryErrCode.containsKey(processorResponseCode)) {  //retry				
-				Document getCommonCodeListInputForRetryTime = getCommonCodeListInputForCodeType("DEFAULT","CC_RETRY_TIME");
+				Document getCommonCodeListInputForRetryTime = getCommonCodeListInputForCodeType(VSIConstants.ATTR_DEFAULT,VSIConstants.CC_RETRY_TIME);
 				Document getCommonCodeOut = getCommonCodeList(env, getCommonCodeListInputForRetryTime);
-				Element eleCOmmonCodeOut = (Element)getCommonCodeOut.getElementsByTagName("CommonCode").item(0);
+				Element eleCOmmonCodeOut = (Element)getCommonCodeOut.getElementsByTagName(VSIConstants.ELEMENT_COMMON_CODE).item(0);
 				
 				String retryMinutes = eleCOmmonCodeOut.getAttribute("CodeLongDescription");
 
@@ -1408,7 +1428,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 				outStruct.collectionDate=calendar.getTime();				
 				outStruct.retryFlag="Y";	
 				
-				if(responseCode.equalsIgnoreCase("71012")) {
+				if(responseCode.equalsIgnoreCase(VSIConstants.AESDK_RETRY_RESP)) {
 						initAESDK();			
 				}
 				
@@ -1446,7 +1466,13 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 	Element eleExtn = SCXmlUtil.createChild(eleOrder, "Extn");
 	eleExtn.setAttribute("ExtnPostAuthSequenceNo", fstrExtnPostAuthSequenceNo);
 	eleExtn.setAttribute("ExtnPostAuthCount", strExtnPostAuthCount);
-	eleExtn.setAttribute("ExtnAurusCI", aurusCI);
+	//OMS-3690 Changes -- Start
+	if(!YFCCommon.isVoid(aurusCI)) {
+	//OMS-3690 Changes -- End
+		eleExtn.setAttribute("ExtnAurusCI", aurusCI);
+	//OMS-3690 Changes -- Start
+	}
+	//OMS-3690 Changes -- End
 	
 	printLogs("Exiting recordExtnPaymentData method with output "+SCXmlUtil.getString(docOrder));
 	return docOrder;	
@@ -1472,7 +1498,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 				outStruct.retryFlag = "N";
 			}else{
 
-			ArrayList<Element> alCommonCodeList = VSIUtils.getCommonCodeListWithCodeType(env, "VSI_AURUS_PARAMS", null, "DEFAULT");
+			ArrayList<Element> alCommonCodeList = VSIUtils.getCommonCodeListWithCodeType(env, VSIConstants.CC_VSI_AURUS_PARAMS, null, VSIConstants.ATTR_DEFAULT);
 
 			HashMap<String, String> aurusMandateParam= new HashMap<String, String>();
 
@@ -1483,9 +1509,9 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 					String strCodeValue=eleCommonCode.getAttribute(VSIConstants.ATTR_CODE_VALUE);
 					if(!YFCCommon.isStringVoid(strShortdecValue) && !YFCCommon.isStringVoid(strCodeValue)){
 						
-						if(strCodeValue.startsWith("TransactionType")) {
+						if(strCodeValue.startsWith(VSIConstants.TRANSACTION_TYPE)) {
 							if(strCodeValue.indexOf("Void")>0) {
-								aurusMandateParam.put("TransactionType", strShortdecValue);
+								aurusMandateParam.put(VSIConstants.TRANSACTION_TYPE, strShortdecValue);
 							}
 						}else {
 							aurusMandateParam.put(strCodeValue, strShortdecValue);	
@@ -1494,7 +1520,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 				}
 			}
 
-			ArrayList<Element> aurusRetryErrCodeCommonCodeList = VSIUtils.getCommonCodeListWithCodeType(env, "VSI_AURUS_RETRY", null, "DEFAULT");
+			ArrayList<Element> aurusRetryErrCodeCommonCodeList = VSIUtils.getCommonCodeListWithCodeType(env, VSIConstants.CC_VSI_AURUS_RETRY, null, VSIConstants.ATTR_DEFAULT);
 			
 			HashMap<String, String> aurusRetryErrCode= new HashMap<String, String>();
 			
@@ -1508,7 +1534,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 					}
 				}
 			}
-			ArrayList<Element> processorRetryErrCodeCommonCodeList = VSIUtils.getCommonCodeListWithCodeType(env, "VSI_PROCESSOR_RETRY", null, "DEFAULT");
+			ArrayList<Element> processorRetryErrCodeCommonCodeList = VSIUtils.getCommonCodeListWithCodeType(env, VSIConstants.CC_VSI_PROCESSOR_RETRY, null, VSIConstants.ATTR_DEFAULT);
 			
 			HashMap<String, String> processorRetryErrCode= new HashMap<String, String>();
 			
@@ -1572,13 +1598,13 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 			transReq.setCardExpiryDate(strExpDate);
 			transReq.setBillingAddressLine1(AdressLine1);
 
-			transReq.setMerchantIdentifier(aurusMandateParam.get("MerchantIdentifier"));
-			transReq.setaDSDKSpecVer(aurusMandateParam.get("ADSDKSpecVer"));
-			transReq.setCorpID(aurusMandateParam.get("CorpID"));
-			transReq.setLanguageIndicator(aurusMandateParam.get("LanguageIndicator"));
-			transReq.setStoreId(aurusMandateParam.get("StoreId"));
-			transReq.setTerminalId(aurusMandateParam.get("TerminalId"));
-			transReq.setTransactionType(aurusMandateParam.get("TransactionType"));
+			transReq.setMerchantIdentifier(aurusMandateParam.get(VSIConstants.ATTR_MERCHANT_IDENTIFIER));
+			transReq.setaDSDKSpecVer(aurusMandateParam.get(VSIConstants.ATTR_ADSDK_SPEC_VER));
+			transReq.setCorpID(aurusMandateParam.get(VSIConstants.ATTR_CORP_ID));
+			transReq.setLanguageIndicator(aurusMandateParam.get(VSIConstants.ATTR_LANGUAGE_INDICATOR));
+			transReq.setStoreId(aurusMandateParam.get(VSIConstants.ATTR_STOREID));
+			transReq.setTerminalId(aurusMandateParam.get(VSIConstants.ATTR_TERMINAL_ID));
+			transReq.setTransactionType(aurusMandateParam.get(VSIConstants.TRANSACTION_TYPE));
 			
 			//OMS-2437 -- Start
 			if(VSIConstants.ATTR_ORDER_TYPE_POS.equals(strOrderType) || VSIConstants.POS_ENTRY_TYPE.equals(strEntryType)){
@@ -1599,8 +1625,8 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 			//OMS-2408 -- Start
 			HashMap<String, String> transDateAndTime =  new HashMap<String, String>();
 			transDateAndTime=getTransactionDateAndTime();			
-			String strTransDate = transDateAndTime.get("TransactionDate");
-			String strTransTime = transDateAndTime.get("TransactionTime");
+			String strTransDate = transDateAndTime.get(VSIConstants.TRANSACTION_DATE);
+			String strTransTime = transDateAndTime.get(VSIConstants.ATTR_TRANSACTION_TIME);
 			transReq.setTransactionDate(strTransDate);
 			transReq.setTransactionTime(strTransTime);
 			//OMS-2408 -- End
@@ -1626,16 +1652,16 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 				HashMap<String, String> voidResponse = vsiAurusAuth.parseTransReponseOutDoc(outDoc);
 	
 				//parsing the response
-				if (voidResponse.containsKey("ResponseText")) {
+				if (voidResponse.containsKey(VSIConstants.ATTR_RESPONSE_TEXT)) {
 					
 					printLogs("Aurus Void Response:"+voidResponse.toString());
 					
-					String responseText=voidResponse.get("ResponseText");
-					String responseCode=voidResponse.get("ResponseCode");
-					String processorResponseCode=voidResponse.get("ProcessorResponseCode");
-					String approvalCode=voidResponse.get("ApprovalCode");
+					String responseText=voidResponse.get(VSIConstants.ATTR_RESPONSE_TEXT);
+					String responseCode=voidResponse.get(VSIConstants.ATTR_RESPONSE_CODE);
+					String processorResponseCode=voidResponse.get(VSIConstants.ATTR_PROCESSOR_RESPONSE_CODE);
+					String approvalCode=voidResponse.get(VSIConstants.ATTR_APPROVAL_CODE);
 					
-					if ("APPROVAL".equalsIgnoreCase(responseText) && responseCode.equalsIgnoreCase("00000")) {  //Approval
+					if ("APPROVAL".equalsIgnoreCase(responseText) && responseCode.equalsIgnoreCase(VSIConstants.ATTR_APPROVAL_RESPONSE)) {  //Approval
 						
 						outStruct.authorizationId = inStruct.authorizationId;
 						outStruct.authorizationAmount = inStruct.requestAmount;
@@ -1646,9 +1672,9 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 						printLogs("Approval Void Response processing done");
 						
 					}else if(aurusRetryErrCode.containsKey(responseCode)||processorRetryErrCode.containsKey(processorResponseCode)) {  //retry
-						Document getCommonCodeListInputForRetryTime = getCommonCodeListInputForCodeType("DEFAULT","CC_RETRY_TIME");
+						Document getCommonCodeListInputForRetryTime = getCommonCodeListInputForCodeType(VSIConstants.ATTR_DEFAULT,VSIConstants.CC_RETRY_TIME);
 						Document getCommonCodeOut = getCommonCodeList(env, getCommonCodeListInputForRetryTime);
-						Element eleCOmmonCodeOut = (Element)getCommonCodeOut.getElementsByTagName("CommonCode").item(0);
+						Element eleCOmmonCodeOut = (Element)getCommonCodeOut.getElementsByTagName(VSIConstants.ELEMENT_COMMON_CODE).item(0);
 						
 						String retryMinutes = eleCOmmonCodeOut.getAttribute("CodeLongDescription");
 
@@ -1659,7 +1685,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 						outStruct.collectionDate=calendar.getTime();						
 						outStruct.retryFlag="Y";	
 						
-						if(responseCode.equalsIgnoreCase("71012")) {
+						if(responseCode.equalsIgnoreCase(VSIConstants.AESDK_RETRY_RESP)) {
 							initAESDK();				
 						}
 					}
@@ -1696,7 +1722,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 	}
 
 	void doAuthorizationAurus(YFSExtnPaymentCollectionInputStruct inStruct, YFSExtnPaymentCollectionOutputStruct outStruct, YFSEnvironment env,
-			String aurusCI,String aurusOOT ,boolean isAurusOrder,boolean isTNSDecommission, boolean isTNSSwitch, String strEntryType, boolean isDraftOrder, String strOrderType, String strOrigTranId, String strAurusReauth, String strSubscriptionOrder) {		//OMS-3181 Change	//OMS-3365 Change		//OMS-3469 Change
+			String aurusCI,String aurusOOT ,boolean isAurusOrder,boolean isTNSDecommission, boolean isTNSSwitch, String strEntryType, boolean isDraftOrder, String strOrderType, String strOrigTranId, String strAurusReauth) {		//OMS-3181 Change	//OMS-3365 Change		//OMS-3469 Change
 		
 		printLogs("================Inside doAuthorizationAurus================================");
 
@@ -1712,21 +1738,20 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 
 		try {
 
-			ArrayList<Element> alCommonCodeList = VSIUtils.getCommonCodeListWithCodeType(env, "VSI_AURUS_PARAMS", null, "DEFAULT");
+			ArrayList<Element> alCommonCodeList = VSIUtils.getCommonCodeListWithCodeType(env, VSIConstants.CC_VSI_AURUS_PARAMS, null, VSIConstants.ATTR_DEFAULT);
 
 			HashMap<String, String> aurusMandateParam= new HashMap<String, String>();
 
 			if(!alCommonCodeList.isEmpty()){
 				for(int i=0;i<alCommonCodeList.size() ;i++) {
 					Element eleCommonCode=alCommonCodeList.get(i);
-					String strShortdecValue=eleCommonCode.getAttribute(VSIConstants.ATTR_CODE_SHORT_DESCRIPTION);
-					String strLongdecValue=eleCommonCode.getAttribute(VSIConstants.ATTR_CODE_LONG_DESCRIPTION);
+					String strShortdecValue=eleCommonCode.getAttribute(VSIConstants.ATTR_CODE_SHORT_DESCRIPTION);					
 					String strCodeValue=eleCommonCode.getAttribute(VSIConstants.ATTR_CODE_VALUE);
 					if(!YFCCommon.isStringVoid(strShortdecValue) && !YFCCommon.isStringVoid(strCodeValue)){
 
-						if(strCodeValue.startsWith("TransactionType")) {
+						if(strCodeValue.startsWith(VSIConstants.TRANSACTION_TYPE)) {
 							if(strCodeValue.indexOf("PreAuth")>0) {
-								aurusMandateParam.put("TransactionType", strShortdecValue);
+								aurusMandateParam.put(VSIConstants.TRANSACTION_TYPE, strShortdecValue);
 							}
 						}if(strCodeValue.startsWith("SubTransType")) {
 							if(strCodeValue.indexOf("ReAuth")>0) {
@@ -1740,22 +1765,21 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 				}
 			}
 			
-			ArrayList<Element> aurusRetryErrCodeCommonCodeList = VSIUtils.getCommonCodeListWithCodeType(env, "VSI_AURUS_RETRY", null, "DEFAULT");
+			ArrayList<Element> aurusRetryErrCodeCommonCodeList = VSIUtils.getCommonCodeListWithCodeType(env, VSIConstants.CC_VSI_AURUS_RETRY, null, VSIConstants.ATTR_DEFAULT);
 			
 			HashMap<String, String> aurusRetryErrCode= new HashMap<String, String>();
 			
 			if(!aurusRetryErrCodeCommonCodeList.isEmpty()){
 				for(int i=0;i<aurusRetryErrCodeCommonCodeList.size() ;i++) {
 					Element eleCommonCode=aurusRetryErrCodeCommonCodeList.get(i);
-					String strShortdecValue=eleCommonCode.getAttribute(VSIConstants.ATTR_CODE_SHORT_DESCRIPTION);
-					String strLongdecValue=eleCommonCode.getAttribute(VSIConstants.ATTR_CODE_LONG_DESCRIPTION);
+					String strShortdecValue=eleCommonCode.getAttribute(VSIConstants.ATTR_CODE_SHORT_DESCRIPTION);					
 					String strCodeValue=eleCommonCode.getAttribute(VSIConstants.ATTR_CODE_VALUE);
 					if(!YFCCommon.isStringVoid(strShortdecValue) && !YFCCommon.isStringVoid(strCodeValue)){
 						aurusRetryErrCode.put(strCodeValue, strShortdecValue);
 					}
 				}
 			}
-			ArrayList<Element> processorRetryErrCodeCommonCodeList = VSIUtils.getCommonCodeListWithCodeType(env, "VSI_PROCESSOR_RETRY", null, "DEFAULT");
+			ArrayList<Element> processorRetryErrCodeCommonCodeList = VSIUtils.getCommonCodeListWithCodeType(env, VSIConstants.CC_VSI_PROCESSOR_RETRY, null, VSIConstants.ATTR_DEFAULT);
 			
 			HashMap<String, String> processorRetryErrCode= new HashMap<String, String>();
 			
@@ -1765,14 +1789,13 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 					String strShortdecValue=eleCommonCode.getAttribute(VSIConstants.ATTR_CODE_SHORT_DESCRIPTION);
 					String strCodeValue=eleCommonCode.getAttribute(VSIConstants.ATTR_CODE_VALUE);
 					if(!YFCCommon.isStringVoid(strShortdecValue) && !YFCCommon.isStringVoid(strCodeValue)){
-						//							System.out.println(strCodeValue + " "+strShortdecValue);
 						processorRetryErrCode.put(strCodeValue, strShortdecValue);
 					}
 				}
 			}
 
 			//OMS-3365 Changes -- Start
-			ArrayList<Element> aurusCITMITParamsList = VSIUtils.getCommonCodeListWithCodeType(env, "CIT_MIT_AURUS_PARAMS", null, "DEFAULT");
+			ArrayList<Element> aurusCITMITParamsList = VSIUtils.getCommonCodeListWithCodeType(env, "CIT_MIT_AURUS_PARAMS", null, VSIConstants.ATTR_DEFAULT);
 			
 			HashMap<String, String> aurusCITMITParams= new HashMap<String, String>();
 			
@@ -1794,19 +1817,13 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 			if(VSIConstants.WEB.equals(strOrderType) && VSIConstants.WEB.equals(strEntryType)) {
 				strTransType=aurusCITMITParams.get("WEB_REAUTH_TRANSTYPE");
 				//OMS-3469 Changes -- Start
-				strSubTransType=aurusCITMITParams.get("WEB_REAUTH_SUBTRANSTYPE");		//New Changes for Sub Trans Type		
-				//if(!VSIConstants.FLAG_Y.equals(strSubscriptionOrder)) {		//New Changes for Sub Trans Type
+				strSubTransType=aurusCITMITParams.get("WEB_REAUTH_SUBTRANSTYPE");		//New Changes for Sub Trans Type				
 				//OMS-3469 Changes -- End
-					strPOSEnvIndicator=aurusCITMITParams.get("WEB_REAUTH_POSINDICATOR");
-				//OMS-3469 Changes -- Start
-				//}		//New Changes for Sub Trans Type
-				//OMS-3469 Changes -- End
+				strPOSEnvIndicator=aurusCITMITParams.get("WEB_REAUTH_POSINDICATOR");
+				
 			}else if(VSIConstants.WEB.equals(strOrderType) && VSIConstants.ENTRYTYPE_CC.equals(strEntryType)) {
 				if((aurusCI==null) || (aurusCI!=null && aurusCI.length()==0)) {
-					strTransType=aurusCITMITParams.get("COM_AUTH_TRANSTYPE");
-					//OMS-3469 Changes -- Start
-					//strSubTransType=aurusCITMITParams.get("COM_AUTH_SUBTRANSTYPE");
-					//OMS-3469 Changes -- End
+					strTransType=aurusCITMITParams.get("COM_AUTH_TRANSTYPE");					
 					strPOSEnvIndicator=aurusCITMITParams.get("COM_AUTH_POSINDICATOR");
 				}else {
 					strTransType=aurusCITMITParams.get("COM_REAUTH_TRANSTYPE");
@@ -1817,10 +1834,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 				}
 			}else if(VSIConstants.ATTR_ORDER_TYPE_POS.equals(strOrderType) && VSIConstants.POS_ENTRY_TYPE.equals(strEntryType)) {
 				if(((strOrigTranId==null) || (strOrigTranId!=null && strOrigTranId.length()==0)) && (!VSIConstants.FLAG_Y.equals(strAurusReauth))) {
-					strTransType=aurusCITMITParams.get("POS_AUTH_TRANSTYPE");
-					//OMS-3469 Changes -- Start
-					//strSubTransType=aurusCITMITParams.get("POS_AUTH_SUBTRANSTYPE");
-					//OMS-3469 Changes -- End
+					strTransType=aurusCITMITParams.get("POS_AUTH_TRANSTYPE");					
 					strPOSEnvIndicator=aurusCITMITParams.get("POS_AUTH_INDICATOR");
 				}else {
 					strTransType=aurusCITMITParams.get("POS_REAUTH_TRANSTYPE");
@@ -1832,43 +1846,24 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 			}
 			//OMS-3365 Changes -- End
 
-			String transactionIdStr = null;
-			String Orderid = null;
-			String merchantId = null;
-			String generateId = null;
+			String merchantId = null;		
 			
-			String entCode = "DEFAULT";
 			//OMS-1635 : Start
-			String strIsNewOrder = checkNewOrder(env, strOrderHeaderKey);
-			String strDefaultPrefixReqd = getCommonCodeLongDescriptionByCodeValue(env,entCode,"DefaultMerchPrefixActive");
-
-			DecimalFormat df1 = new DecimalFormat("#,###,###.00");
+			
 			String currencyCodestr = "840";
 
-			String requestAmountStr=Double.toString(inStruct.requestAmount);  
-			String sourceOfFundstype = "CARD";
-
-
-//			String tokenIdStr = null;
-			String tokenIdStr = inStruct.creditCardNo;
-			if(inStruct.paymentReference2 ==null && inStruct.paymentReference3 == null) {
-				tokenIdStr=inStruct.creditCardNo; //ott
-			}else if(inStruct.paymentReference2 !=null){
-				tokenIdStr=inStruct.paymentReference2;; //CI
-			}
-
-			String firstName = inStruct.firstName;
-			String lastName = inStruct.lastName;
+			String requestAmountStr=Double.toString(inStruct.requestAmount);
+			
 			String expDate = inStruct.creditCardExpirationDate;
 			//OMS-2320 -- Start
 			String strBillFirstName = inStruct.billToFirstName;
 			String strBillLastName = inStruct.billToLastName;
 			String strBillEmailID = inStruct.billToEmailId;
 			//OMS-2320 -- End
-			String AdressLine1=inStruct.billToAddressLine1;
-			String City=inStruct.billToCity;
-			String ZipCode=inStruct.billToZipCode;
-			String State=inStruct.billToState;
+			String adressLine1=inStruct.billToAddressLine1;
+			String city=inStruct.billToCity;
+			String zipCode=inStruct.billToZipCode;
+			String state=inStruct.billToState;
 
 			String country=inStruct.billToCountry;
 
@@ -1876,49 +1871,11 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 			if(country.length() == 2) {
 				country = VSIUtils.getCountryCode(env, country);
 			}
-			//jira 803		
-
-			//System.out.println("ExpDate is " + expDate);
-
-			String expMonth = expDate.substring(0, 2);
-			//System.out.println("Exp mnth is " + expMonth);
-
-			String expYr = expDate.substring(expDate.length() - 2);
-			//System.out.println("Exp yr is " + expYr);
-
-			//				String concExpDt = expMonth + expYr;
-			String concExpDt = expDate;
-			//System.out.println("new Exp dt is " + concExpDt);
-
-
-			String tranNumber = VSIDBUtil.getNextSequence(env, VSIConstants.SEQ_VSI_CC_NO);
-			transactionIdStr = inStruct.chargeTransactionKey+tranNumber;
-			Orderid = inStruct.chargeTransactionKey+tranNumber;
-			
-			if(transactionIdStr.length()>13) {
-				transactionIdStr = transactionIdStr.substring(transactionIdStr.length() - 13);
-			}
-
-			//transactionIdStr  trans id
-
-
-			/**
-			 * HashMap nvp =
-			 * VSICreditCardFunction.DoAuthorization(Orderid,merchantId
-			 * ,apiUsername,apiPassword,requestAmountStr,
-			 * currencyCodestr,transactionIdStr,sourceOfFundstype,tokenIdStr);
-			 **/
-
-
-
-
+			//jira 803						
 
 			VSIPreAuthAESDKFunction vsiAurusAuth=new VSIPreAuthAESDKFunction();
-			TransRequestObject transReq = new TransRequestObject();
-			//			transReq.setOneTimeToken(inStruct.paymentReference3);
-			
-			
-//			String oneTToken=inStruct.creditCardNo;
+			TransRequestObject transReq = new TransRequestObject();			
+
 			String oneTToken=inStruct.paymentReference3;
 
 			String cardI =aurusCI;
@@ -1978,17 +1935,17 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 			String strExpDate=expDate.substring(0, 2)+expDate.substring(5);
 			transReq.setCardExpiryDate(strExpDate);
 			//OMS-2320 -- Start
-			if(!YFCCommon.isVoid(AdressLine1)){
-				transReq.setBillingAddressLine1(AdressLine1);
+			if(!YFCCommon.isVoid(adressLine1)){
+				transReq.setBillingAddressLine1(adressLine1);
 			}
-			if(!YFCCommon.isVoid(City)){
-				transReq.setBillingCity(City);
+			if(!YFCCommon.isVoid(city)){
+				transReq.setBillingCity(city);
 			}
-			if(!YFCCommon.isVoid(State)){
-				transReq.setBillingState(State);
+			if(!YFCCommon.isVoid(state)){
+				transReq.setBillingState(state);
 			}			
-			if(!YFCCommon.isVoid(ZipCode)){
-				transReq.setBillingZip(ZipCode);
+			if(!YFCCommon.isVoid(zipCode)){
+				transReq.setBillingZip(zipCode);
 			}
 			if(!YFCCommon.isVoid(country)){
 				transReq.setBillingCountry(country);
@@ -1997,12 +1954,12 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 				transReq.setBillingEmailId(strBillEmailID);
 			}			
 			//OMS-2320 -- End
-			transReq.setMerchantIdentifier(aurusMandateParam.get("MerchantIdentifier"));
-			transReq.setaDSDKSpecVer(aurusMandateParam.get("ADSDKSpecVer"));
-			transReq.setCorpID(aurusMandateParam.get("CorpID"));
-			transReq.setLanguageIndicator(aurusMandateParam.get("LanguageIndicator"));
-			transReq.setStoreId(aurusMandateParam.get("StoreId"));
-			transReq.setTerminalId(aurusMandateParam.get("TerminalId"));
+			transReq.setMerchantIdentifier(aurusMandateParam.get(VSIConstants.ATTR_MERCHANT_IDENTIFIER));
+			transReq.setaDSDKSpecVer(aurusMandateParam.get(VSIConstants.ATTR_ADSDK_SPEC_VER));
+			transReq.setCorpID(aurusMandateParam.get(VSIConstants.ATTR_CORP_ID));
+			transReq.setLanguageIndicator(aurusMandateParam.get(VSIConstants.ATTR_LANGUAGE_INDICATOR));
+			transReq.setStoreId(aurusMandateParam.get(VSIConstants.ATTR_STOREID));
+			transReq.setTerminalId(aurusMandateParam.get(VSIConstants.ATTR_TERMINAL_ID));
 			//OMS-3365 Changes -- Start
 			transReq.setTransactionType(strTransType);
 			//OMS-3469 Changes -- Start
@@ -2038,8 +1995,8 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 			//OMS-2408 -- Start
 			HashMap<String, String> transDateAndTime =  new HashMap<String, String>();
 			transDateAndTime=getTransactionDateAndTime();			
-			String strTransDate = transDateAndTime.get("TransactionDate");
-			String strTransTime = transDateAndTime.get("TransactionTime");
+			String strTransDate = transDateAndTime.get(VSIConstants.TRANSACTION_DATE);
+			String strTransTime = transDateAndTime.get(VSIConstants.ATTR_TRANSACTION_TIME);
 			transReq.setTransactionDate(strTransDate);
 			transReq.setTransactionTime(strTransTime);
 			//OMS-2408 -- End
@@ -2068,76 +2025,41 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 			HashMap<String, String> preAuthResponse = vsiAurusAuth.parseTransReponseOutDoc(outDoc);			
 
 			//pasrsing the rsponse
-			if (preAuthResponse.containsKey("ResponseText")) {
+			if (preAuthResponse.containsKey(VSIConstants.ATTR_RESPONSE_TEXT)) {
 
 				printLogs("Aurus Response:"+preAuthResponse.toString());
 
-				String aurusPayTicketNum=preAuthResponse.get("AurusPayTicketNum");
-				String cardNumber=preAuthResponse.get("CardNumber");
-				String cardIdentifier=preAuthResponse.get("CardIdentifier");
-				String processorToken=preAuthResponse.get("ProcessorToken");
-				String cardExpiryDate=preAuthResponse.get("CardExpiryDate");
-				String cardEntryMode=preAuthResponse.get("CardEntryMode");
-				String receiptToken=preAuthResponse.get("ReceiptToken");
-				String transactionToken=preAuthResponse.get("TransactionToken");
-				String batchNumber=preAuthResponse.get("BatchNumber");
+				String aurusPayTicketNum=preAuthResponse.get("AurusPayTicketNum");				
+				String cardIdentifier=preAuthResponse.get(VSIConstants.ATTR_CI);				
 				String referenceNumber=preAuthResponse.get("ReferenceNumber");
-				String processorResponseCode=preAuthResponse.get("ProcessorResponseCode");
-				String responseText=preAuthResponse.get("ResponseText");
-				String totalApprovedAmount=preAuthResponse.get("TotalApprovedAmount");
-				String transactionType=preAuthResponse.get("TransactionType");
-				String auruspayTransactionId=preAuthResponse.get("AuruspayTransactionId");
-				String transactionIdentifier=preAuthResponse.get("TransactionIdentifier");
-				String cardType=preAuthResponse.get("CardType");
-				String transactionDate=preAuthResponse.get("TransactionDate");
-				String responseCode=preAuthResponse.get("ResponseCode");
-				String approvalCode=preAuthResponse.get("ApprovalCode");
-				String transactionAmount=preAuthResponse.get("TransactionAmount");
-				String transactionTime=preAuthResponse.get("TransactionTime");
-				String processorResponseText=preAuthResponse.get("ProcessorResponseText");
-				String processorTokenRespText=preAuthResponse.get("ProcessorTokenRespText");
-				String aurusProcessorId=preAuthResponse.get("AurusProcessorId");
-				String oneTimeToken=preAuthResponse.get("OneTimeToken");
-				String storeId=preAuthResponse.get("StoreId");
-				String merchantIdentifier=preAuthResponse.get("MerchantIdentifier");
+				String processorResponseCode=preAuthResponse.get(VSIConstants.ATTR_PROCESSOR_RESPONSE_CODE);				
+				String transactionIdentifier=preAuthResponse.get("TransactionIdentifier");				
+				String responseCode=preAuthResponse.get(VSIConstants.ATTR_RESPONSE_CODE);
+				String approvalCode=preAuthResponse.get(VSIConstants.ATTR_APPROVAL_CODE);				
 				String oneOrderToken=preAuthResponse.get("OneOrderToken");
-				String cVVResult=preAuthResponse.get("CVVResult");
-				String terminalId=preAuthResponse.get("TerminalId");
+				String cVVResult=preAuthResponse.get("CVVResult");				
 				String authAVSResult=preAuthResponse.get("AuthAVSResult");
 				String referralNUM=preAuthResponse.get("ReferralNUM");
 
-
-
-				if (responseCode.equalsIgnoreCase("00000")) {  //Aproval
-				printLogs("preAuth -- Approval");
-					String AvsResp=null;
-					String AvsRespCode=null;
-					String strAVSgatway=null;
-					String strAck = responseText;
-					//System.out.println("Autorization is" + strAck);
+				if (responseCode.equalsIgnoreCase(VSIConstants.ATTR_APPROVAL_RESPONSE)) {  //Aproval
+				printLogs("preAuth -- Approval");					
+					
 					String transactionId = transactionIdentifier;
-					//requestAmountStr = transactionAmount;
-
-
-					String transactionSource = "";
 
 					double authAmountStr = Double.parseDouble(requestAmountStr);
 					outStruct.authorizationId = transactionId;
-					outStruct.authorizationAmount = authAmountStr;
-					// outStruct.collectionDate = new Date();
-					//outStruct.executionDate = new Date();
-					outStruct.retryFlag = "N";
-					
+					outStruct.authorizationAmount = authAmountStr;					
+					outStruct.retryFlag = "N";				
 					outStruct.authCode = approvalCode;
 
 					// Setting the expiration date to + 7
 					Calendar calendar = Calendar.getInstance();
-					Document getCommonCodeListInputForReAuthTime = getCommonCodeListInputForCodeType("DEFAULT","CC_AUTH_EXP_TIME");
+					Document getCommonCodeListInputForReAuthTime = getCommonCodeListInputForCodeType(VSIConstants.ATTR_DEFAULT,VSIConstants.CC_AUTH_EXP_TIME);
 					Document getCommonCodeOut = getCommonCodeList(env, getCommonCodeListInputForReAuthTime);
 					Element eleCOmmonCodeOut = null;
 					String strReAuthMinutes = "";
-					if(!YFCObject.isVoid(getCommonCodeOut)){
-						eleCOmmonCodeOut = (Element)getCommonCodeOut.getElementsByTagName("CommonCode").item(0);
+					if(getCommonCodeOut!=null){
+						eleCOmmonCodeOut = (Element)getCommonCodeOut.getElementsByTagName(VSIConstants.ELEMENT_COMMON_CODE).item(0);
 						if(!YFCObject.isVoid(eleCOmmonCodeOut)){
 							strReAuthMinutes = eleCOmmonCodeOut.getAttribute("CodeLongDescription");
 						}
@@ -2146,30 +2068,17 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 					if(!YFCObject.isVoid(strReAuthMinutes))
 						authMinutes = Integer.parseInt(strReAuthMinutes);
 					calendar.add(Calendar.MINUTE,authMinutes);
-					//calendar.add(Calendar.DATE, 7);
-					String authExpDate = new SimpleDateFormat("yyyyMMddHHmmss")
+					
+					String authExpDate = new SimpleDateFormat(VSIConstants.DATE_STAMP_FORMAT)
 							.format(calendar.getTime());
 					
 					outStruct.authorizationExpirationDate = authExpDate;
 					
 					outStruct.tranAmount = authAmountStr;
 					
-//					Document  eleExtendedFieldsDoc = outStruct.eleExtendedFields;
 					Document  eleExtendedFieldsDoc=recordAdditionalAuthData(cardIdentifier,oneOrderToken,referralNUM,transactionId);		//OMS-3181 Change
 					printLogs("eleExtendedFieldsDoc ="+SCXmlUtil.getString(eleExtendedFieldsDoc));
-					outStruct.eleExtendedFields=eleExtendedFieldsDoc;
-
-					//payment reference 6 to Kount Token
-					//outStruct.PaymentReference6=KountToken;
-
-					/**
-					 * if(inStruct.paymentReference1!=null){ //incementing the
-					 * sequence at order header int
-					 * generateInt=Integer.parseInt(generateId); int
-					 * tranSequenceInt=generateInt+VSIConstants.ATTR_SEQ;
-					 * changeTranSequence
-					 * (env,strOrderHeaderKey,tranSequenceInt); }
-					 **/
+					outStruct.eleExtendedFields=eleExtendedFieldsDoc;					
 
 					//AurusAuthRecordinsert
 
@@ -2179,33 +2088,29 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 											aurusTnsAuthRecords(env, strOrderHeaderKey, transactionIdentifier,
 													referenceNumber, aurusPayTicketNum,
 													cVVResult, authAVSResult,processorResponseCode,responseCode);
-
-
-
 					
 					printLogs("Now inserting values  in aurusAuthRecords table done");
 					
 				}else if((aurusRetryErrCode.containsKey(responseCode)||processorRetryErrCode.containsKey(processorResponseCode)) &&
 						!(isDraftOrder && VSIConstants.ENTRYTYPE_CC.equals(strEntryType))) {  //retry
 					printLogs("Now inside retry for auth");
-					Document getCommonCodeListInputForRetryTime = getCommonCodeListInputForCodeType("DEFAULT","CC_RETRY_TIME");
+					Document getCommonCodeListInputForRetryTime = getCommonCodeListInputForCodeType(VSIConstants.ATTR_DEFAULT,VSIConstants.CC_RETRY_TIME);
 					Document getCommonCodeOut = getCommonCodeList(env, getCommonCodeListInputForRetryTime);
-					Element eleCOmmonCodeOut = (Element)getCommonCodeOut.getElementsByTagName("CommonCode").item(0);
-					//String  retryMinutes="10";
-					String retryMinutes = eleCOmmonCodeOut.getAttribute("CodeLongDescription");
-
+					String retryMinutes = null;
+					if(getCommonCodeOut!=null) {
+						Element eleCOmmonCodeOut = (Element)getCommonCodeOut.getElementsByTagName(VSIConstants.ELEMENT_COMMON_CODE).item(0);					
+						retryMinutes = eleCOmmonCodeOut.getAttribute("CodeLongDescription");
+					}
 					Calendar calendar = Calendar.getInstance();
 					int retMinutes = 10 ; //10 default
-					retMinutes = Integer.parseInt(retryMinutes);
+					if(!YFCCommon.isVoid(retryMinutes)) {
+						retMinutes = Integer.parseInt(retryMinutes);
+					}
 					calendar.add(Calendar.MINUTE,retMinutes);
-					outStruct.collectionDate=calendar.getTime();
-					//calendar.add(Calendar.DATE, 7);
-					//SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
-					//String collectionDate = new SimpleDateFormat("yyyyMMddHHmmss").format(calendar.getTime());
-					//outStruct.collectionDate=sdf.parse(collectionDate);
+					outStruct.collectionDate=calendar.getTime();					
 					outStruct.retryFlag="Y";	
 					
-					if(responseCode.equalsIgnoreCase("71012")) {
+					if(responseCode.equalsIgnoreCase(VSIConstants.AESDK_RETRY_RESP)) {
 						initAESDK();					
 					}
 					
@@ -2215,9 +2120,9 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 					String errorMessage = "AuthFail";
 					String orderNoStr = inStruct.orderNo;
 					String errorMessageStr = errorMessage;
-					// outStruct.suspendPayment="Y";
-//					String strAQRiskified = nvp.get("RESPONSE.ACQUIRERCODE").toString();
-					String strAQRiskified = processorResponseCode.toString();
+					
+
+					String strAQRiskified = processorResponseCode;		//Sonarcube Change
 					String strRiskifiedFlag=VSIConstants.FLAG_Y;
 					Document  eleExtendedFieldsDoc=recordAdditionalAuthData(cardIdentifier,oneOrderToken,referralNUM,"");		//OMS-3181 Change
 					printLogs("eleExtendedFieldsDoc ="+SCXmlUtil.getString(eleExtendedFieldsDoc));
@@ -2231,7 +2136,6 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 
 				//if authorization is failure
 			}
-//			else if (null != preAuthResponse.get("errorCode").toString())
 			else{
 				printLogs("Now inside else block when the Response does not contains ResponseText");
 				//for time out exception, setting the flag='Y', so that agent can retry the request
@@ -2245,15 +2149,19 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 			}
 			}else{
 				printLogs("Now inside else block when Aurus CI is not present for the order");
-				Document getCommonCodeListInputForRetryTime = getCommonCodeListInputForCodeType("DEFAULT","CC_REFUND_TIME");				
+				Document getCommonCodeListInputForRetryTime = getCommonCodeListInputForCodeType(VSIConstants.ATTR_DEFAULT,VSIConstants.CC_REFUND_TIME);				
 				Document getCommonCodeOut = getCommonCodeList(env, getCommonCodeListInputForRetryTime);
-				Element eleCOmmonCodeOut = (Element)getCommonCodeOut.getElementsByTagName("CommonCode").item(0);
-				
-				String retryMinutes = eleCOmmonCodeOut.getAttribute("CodeLongDescription");
+				String retryMinutes = null;
+				if(getCommonCodeOut!=null) {
+					Element eleCOmmonCodeOut = (Element)getCommonCodeOut.getElementsByTagName(VSIConstants.ELEMENT_COMMON_CODE).item(0);				
+					retryMinutes = eleCOmmonCodeOut.getAttribute("CodeLongDescription");
+				}
 
 				Calendar calendar = Calendar.getInstance();
 				int retMinutes = 10 ; //10 default
-				retMinutes = Integer.parseInt(retryMinutes);
+				if(!YFCCommon.isVoid(retryMinutes)) {
+					retMinutes = Integer.parseInt(retryMinutes);
+				}
 				calendar.add(Calendar.MINUTE,retMinutes);
 				outStruct.collectionDate=calendar.getTime();
 				
@@ -2270,13 +2178,10 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 				
 				applyPaymentErrorHold(env, strOrderHeaderKey);
 			}
-		} catch (Exception Ex) {
-			Ex.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
 			throw new YFSException();
 		}
-
-
-
 	}
 
 	//OMS-2408 -- Start
@@ -2290,8 +2195,8 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 		String strTransTime = new SimpleDateFormat("HHmmss")
 		.format(calendar.getTime());
 		printLogs("TransactionTime is: "+strTransTime);
-		transDateAndTime.put("TransactionDate", strTransDate);
-		transDateAndTime.put("TransactionTime", strTransTime);
+		transDateAndTime.put(VSIConstants.TRANSACTION_DATE, strTransDate);
+		transDateAndTime.put(VSIConstants.ATTR_TRANSACTION_TIME, strTransTime);
 		printLogs("================Exiting getTransactionDateAndTime================================");
 		return transDateAndTime;
 	}
@@ -2301,7 +2206,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 		
 		printLogs("================Inside getReferenceNumber================================");
 		Calendar calendar = Calendar.getInstance();
-		String sysdate = new SimpleDateFormat("yyyyMMddHHmmss")
+		String sysdate = new SimpleDateFormat(VSIConstants.DATE_STAMP_FORMAT)
 		.format(calendar.getTime());
 		printLogs("Sysdate is: "+sysdate);
 		String strRefNo = strOrderNo+sysdate;
@@ -2320,15 +2225,20 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 			api = YIFClientFactory.getInstance().getApi();
 			api.executeFlow(env,"VSIPaymentRecords", doc);
 		}catch (ParserConfigurationException e) {
-			// TODO: handle exception
+			printLogs("ParserConfigurationException in VSIAurusCollectionCreditCard Class and addDataToPaymentRecordTable Method");
+			printLogs("The exception is [ "+ e.getMessage() +" ]");
 		}catch (YIFClientCreationException e) {
-			// TODO: handle exception
+			printLogs("YIFClientCreationException in VSIAurusCollectionCreditCard Class and addDataToPaymentRecordTable Method");
+			printLogs("The exception is [ "+ e.getMessage() +" ]");
 		}catch (YFSException e) {
-			// TODO: handle exception
+			printLogs("YFSException in VSIAurusCollectionCreditCard Class and addDataToPaymentRecordTable Method");
+			printLogs("The exception is [ "+ e.getMessage() +" ]");
 		}catch (RemoteException e) {
-			// TODO: handle exception
+			printLogs("RemoteException in VSIAurusCollectionCreditCard Class and addDataToPaymentRecordTable Method");
+			printLogs("The exception is [ "+ e.getMessage() +" ]");
 		}catch (Exception e) {
-			// TODO: handle exception
+			printLogs("Exception in VSIAurusCollectionCreditCard Class and addDataToPaymentRecordTable Method");
+			printLogs("The exception is [ "+ e.getMessage() +" ]");
 		}
 	}
 
@@ -2342,19 +2252,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 		Element eleExtn = SCXmlUtil.createChild(eleOrder, "Extn");
 		eleExtn.setAttribute("ExtnAurusToken", "Y");
 		return docOrderList;		
-	}
-
-	private void updateAurusFlaginOH(String orderHeaderKey ,YFSEnvironment env) {
-		String orderHeaderKeyStr = orderHeaderKey;
-		env.clearApiTemplates();
-		try {
-			Document inputChangeOrder = createChangeOrderForExtnAurusToken(orderHeaderKeyStr);
-			Document docChangeOrderOutput = VSIUtils.invokeAPI(env, "changeOrder", inputChangeOrder);
-		} catch (Exception Ex) {
-			Ex.printStackTrace();
-			throw new YFSException();
-		}
-	}
+	}	
 
 	private HashMap<String, String> initailAurusOrderDetail(YFSExtnPaymentCollectionInputStruct inStruct, YFSExtnPaymentCollectionOutputStruct outStruct, YFSEnvironment env) {
 		
@@ -2570,36 +2468,6 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 		return IsDraftOrAurus;
 }
 
-
-	private Document getOrderListForAurus(YFSExtnPaymentCollectionInputStruct inStruct, YFSExtnPaymentCollectionOutputStruct outStruct, YFSEnvironment env) {
-		String orderHeaderKeyStr = inStruct.orderHeaderKey;
-		boolean isDarftOrder = false;
-		try {
-			Document getOrderListIP = SCXmlUtil.createDocument(VSIConstants.ELE_ORDER);
-			getOrderListIP.getDocumentElement().setAttribute(VSIConstants.ATTR_ORDER_HEADER_KEY, orderHeaderKeyStr);
-
-			Document getOrderListOP = VSIUtils.invokeAPI(env,"global/template/api/VSIGetOrderListAurus.xml",VSIConstants.API_GET_ORDER_LIST, getOrderListIP);
-
-			return getOrderListOP;
-		} catch (Exception Ex) {
-			Ex.printStackTrace();
-			throw new YFSException();
-		}
-
-	}
-
-
-	private Document createChangeOrderForExtnAurusToken(String sOHK) {
-		Document docOrder = SCXmlUtil.createDocument("Order");
-		Element eleOrder = docOrder.getDocumentElement();
-		eleOrder.setAttribute("Action", "MODIFY");
-		eleOrder.setAttribute("OrderHeaderKey", sOHK);
-		eleOrder.setAttribute("Override", "Y");
-		Element eleExtn = SCXmlUtil.createChild(eleOrder, "Extn");
-		eleExtn.setAttribute("ExtnAurusToken", "Y");
-		return docOrder;		
-	}
-
 	private Document recordAdditionalAuthData(String ci,String oot
 		,String referralNUM, String transactionId							//OMS-3181 Change
 		) {
@@ -2660,7 +2528,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 			String merchantId = null;
 			String generateId = null;
 			String strOrderHeaderKey = inStruct.orderHeaderKey;
-			String entCode = "DEFAULT";
+			String entCode = VSIConstants.ATTR_DEFAULT;
 			
 			//OMS-2445 -- Start
 			String strQueueId="VSI_CREDITCARD_ALERT";
@@ -2685,12 +2553,8 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 				log.debug("merchantId is" + merchantId);
 			}
 			//OMS-1635 : End
-			DecimalFormat df1 = new DecimalFormat("#,###,###.00");
-			String currencyCodestr = "USD";
-			//Fix for order with greater than 1000 getting declined auth due to format of the amount.
-
-			//double dRequestAmount = inStruct.requestAmount;
-			//String requestAmountStr = df1.format(dRequestAmount);
+			
+			String currencyCodestr = "USD";		
 
 			String requestAmountStr=Double.toString(inStruct.requestAmount);  
 			String sourceOfFundstype = "CARD";
@@ -2698,10 +2562,10 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 			String firstName = inStruct.firstName;
 			String lastName = inStruct.lastName;
 			String expDate = inStruct.creditCardExpirationDate;
-			String AdressLine1=inStruct.billToAddressLine1;
-			String City=inStruct.billToCity;
-			String ZipCode=inStruct.billToZipCode;
-			String State=inStruct.billToState;
+			String adressLine1=inStruct.billToAddressLine1;
+			String city=inStruct.billToCity;
+			String zipCode=inStruct.billToZipCode;
+			String state=inStruct.billToState;
 
 			//-----------------------------------------------Kount Token Faked REMOVE ONCE VERIFIED---------------------------------------------------------------------------------------------------
 			//String KountToken="12321321321";
@@ -2762,7 +2626,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 			HashMap nvp = VSICreditCardFunction.DoAuthorization(Orderid,
 					merchantId, requestAmountStr, currencyCodestr,
 					transactionIdStr, sourceOfFundstype, tokenIdStr, firstName,
-					lastName, expYr, expMonth,AdressLine1,City,ZipCode,State,country, env,strOrderHeaderKey);
+					lastName, expYr, expMonth,adressLine1,city,zipCode,state,country, env,strOrderHeaderKey);
 
 			Document doc = XMLUtil.createDocument("PaymentRecords");
 			Element elePayRecrds = doc.getDocumentElement();
@@ -2797,7 +2661,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 					if(isCallCenterTran)
 					{
 						ArrayList<Element> listTransactionSource;
-						listTransactionSource = VSIUtils.getCommonCodeList(env, "TRANS_SOURCE_STH", "SOURCE", "DEFAULT");
+						listTransactionSource = VSIUtils.getCommonCodeList(env, "TRANS_SOURCE_STH", "SOURCE", VSIConstants.ATTR_DEFAULT);
 						if(!listTransactionSource.isEmpty()){
 							Element eleCommonCode=listTransactionSource.get(0);
 							String strTSValue=eleCommonCode.getAttribute(VSIConstants.ATTR_CODE_SHORT_DESCRIPTION);
@@ -2809,7 +2673,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 					else
 					{
 						ArrayList<Element> listTransactionSourceNonSTH;
-						listTransactionSourceNonSTH = VSIUtils.getCommonCodeList(env, "TRANS_SOURCE_NONSTH", "SOURCE", "DEFAULT");
+						listTransactionSourceNonSTH = VSIUtils.getCommonCodeList(env, "TRANS_SOURCE_NONSTH", "SOURCE", VSIConstants.ATTR_DEFAULT);
 						if(!listTransactionSourceNonSTH.isEmpty()){
 							Element eleCommonCodenonSTH=listTransactionSourceNonSTH.get(0);
 							String strTSValue1=eleCommonCodenonSTH.getAttribute(VSIConstants.ATTR_CODE_SHORT_DESCRIPTION);
@@ -2856,12 +2720,12 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 
 					// Setting the expiration date to + 7
 					Calendar calendar = Calendar.getInstance();
-					Document getCommonCodeListInputForReAuthTime = getCommonCodeListInputForCodeType("DEFAULT","CC_AUTH_EXP_TIME");
+					Document getCommonCodeListInputForReAuthTime = getCommonCodeListInputForCodeType(VSIConstants.ATTR_DEFAULT,VSIConstants.CC_AUTH_EXP_TIME);
 					Document getCommonCodeOut = getCommonCodeList(env, getCommonCodeListInputForReAuthTime);
 					Element eleCOmmonCodeOut = null;
 					String strReAuthMinutes = "";
 					if(!YFCObject.isVoid(getCommonCodeOut)){
-						eleCOmmonCodeOut = (Element)getCommonCodeOut.getElementsByTagName("CommonCode").item(0);
+						eleCOmmonCodeOut = (Element)getCommonCodeOut.getElementsByTagName(VSIConstants.ELEMENT_COMMON_CODE).item(0);
 						if(!YFCObject.isVoid(eleCOmmonCodeOut)){
 							strReAuthMinutes = eleCOmmonCodeOut.getAttribute("CodeLongDescription");
 						}
@@ -2871,7 +2735,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 						authMinutes = Integer.parseInt(strReAuthMinutes);
 					calendar.add(Calendar.MINUTE,authMinutes);
 					//calendar.add(Calendar.DATE, 7);
-					String authExpDate = new SimpleDateFormat("yyyyMMddHHmmss")
+					String authExpDate = new SimpleDateFormat(VSIConstants.DATE_STAMP_FORMAT)
 							.format(calendar.getTime());
 					outStruct.authorizationExpirationDate = authExpDate;
 					outStruct.authCode = authCode;
@@ -2930,9 +2794,9 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 				//OMS-1564: Raising alert when we are getting ERROR response due to network issue : END
 				else if ("FAILURE".equalsIgnoreCase(nvp.get("RESULT").toString())) {
 					if("TIMED_OUT".equalsIgnoreCase(nvp.get("RESPONSE.GATEWAYCODE").toString())){
-						Document getCommonCodeListInputForRetryTime = getCommonCodeListInputForCodeType("DEFAULT","CC_RETRY_TIME");
+						Document getCommonCodeListInputForRetryTime = getCommonCodeListInputForCodeType(VSIConstants.ATTR_DEFAULT,VSIConstants.CC_RETRY_TIME);
 						Document getCommonCodeOut = getCommonCodeList(env, getCommonCodeListInputForRetryTime);
-						Element eleCOmmonCodeOut = (Element)getCommonCodeOut.getElementsByTagName("CommonCode").item(0);
+						Element eleCOmmonCodeOut = (Element)getCommonCodeOut.getElementsByTagName(VSIConstants.ELEMENT_COMMON_CODE).item(0);
 						//String  retryMinutes="10";
 						String retryMinutes = eleCOmmonCodeOut.getAttribute("CodeLongDescription");
 
@@ -2949,9 +2813,9 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 
 					}
 					else if("OFFLINE".equalsIgnoreCase(nvp.get("RESPONSE.ACQUIRERCODE").toString())){
-						Document getCommonCodeListInputForRetryTime = getCommonCodeListInputForCodeType("DEFAULT","CC_OFFLINE");
+						Document getCommonCodeListInputForRetryTime = getCommonCodeListInputForCodeType(VSIConstants.ATTR_DEFAULT,"CC_OFFLINE");
 						Document getCommonCodeOut = getCommonCodeList(env, getCommonCodeListInputForRetryTime);
-						Element eleCOmmonCodeOut = (Element)getCommonCodeOut.getElementsByTagName("CommonCode").item(0);
+						Element eleCOmmonCodeOut = (Element)getCommonCodeOut.getElementsByTagName(VSIConstants.ELEMENT_COMMON_CODE).item(0);
 						//String  retryMinutes="10";
 						String retryMinutes = eleCOmmonCodeOut.getAttribute("CodeLongDescription");
 
@@ -3002,7 +2866,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 						if(isCallCenterTran)
 						{
 							ArrayList<Element> listTransactionSource;
-							listTransactionSource = VSIUtils.getCommonCodeList(env, "TRANS_SOURCE_STH", "SOURCE", "DEFAULT");
+							listTransactionSource = VSIUtils.getCommonCodeList(env, "TRANS_SOURCE_STH", "SOURCE", VSIConstants.ATTR_DEFAULT);
 							if(!listTransactionSource.isEmpty()){
 								Element eleCommonCode=listTransactionSource.get(0);
 								String strTSValue=eleCommonCode.getAttribute(VSIConstants.ATTR_CODE_SHORT_DESCRIPTION);
@@ -3014,7 +2878,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 						else
 						{
 							ArrayList<Element> listTransactionSourceNonSTH;
-							listTransactionSourceNonSTH = VSIUtils.getCommonCodeList(env, "TRANS_SOURCE_NONSTH", "SOURCE", "DEFAULT");
+							listTransactionSourceNonSTH = VSIUtils.getCommonCodeList(env, "TRANS_SOURCE_NONSTH", "SOURCE", VSIConstants.ATTR_DEFAULT);
 							if(!listTransactionSourceNonSTH.isEmpty()){
 								Element eleCommonCodenonSTH=listTransactionSourceNonSTH.get(0);
 								String strTSValue1=eleCommonCodenonSTH.getAttribute(VSIConstants.ATTR_CODE_SHORT_DESCRIPTION);
@@ -3125,19 +2989,14 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 			YFSExtnPaymentCollectionOutputStruct outStruct, YFSEnvironment env) {
 
 		try {
-			String AvsResp=null;
-			String AvsRespCode=null;
-			String apiUsername = null;
-			String apiPassword = null;
-			String merchantId = null;
-			String generateId = null;
-			String Orderid = null;
-			String omsTranId = null;
+			String avsResp=null;			
+			String merchantId = null;			
+			String orderid = null;			
 			String transactionIdStr = null;
 
 
 			String strOrderHeaderKey = inStruct.orderHeaderKey;
-			String entCode = "DEFAULT";
+			String entCode = VSIConstants.ATTR_DEFAULT;
 			//OMS-1635 : Start
 			String strIsNewOrder = checkNewOrder(env, strOrderHeaderKey);
 			String strDefaultPrefixReqd = getCommonCodeLongDescriptionByCodeValue(env,entCode,"DefaultMerchPrefixActive");
@@ -3160,11 +3019,11 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 			String targetTranidStr = inStruct.authorizationId;
 			if(!YFCCommon.isVoid(inStruct.paymentReference9))
 			{
-				Orderid = inStruct.paymentReference9;
+				orderid = inStruct.paymentReference9;
 			}
 			else
 			{
-				Orderid = inStruct.authorizationId;
+				orderid = inStruct.authorizationId;
 			}
 
 			if (inStruct.paymentReference1 != null) {
@@ -3192,7 +3051,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 				if ("Y".equalsIgnoreCase(voidRequired)) {
 
 
-					HashMap nvp = VSICreditCardFunction.DoVoid(Orderid, merchantId,
+					HashMap nvp = VSICreditCardFunction.DoVoid(orderid, merchantId,
 							transactionIdStr, targetTranidStr, env,strOrderHeaderKey);
 
 					Document doc = XMLUtil.createDocument("PaymentRecords");
@@ -3225,7 +3084,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 							if(isCallCenterTran)
 							{
 								ArrayList<Element> listTransactionSource;
-								listTransactionSource = VSIUtils.getCommonCodeList(env, "TRANS_SOURCE_STH", "SOURCE", "DEFAULT");
+								listTransactionSource = VSIUtils.getCommonCodeList(env, "TRANS_SOURCE_STH", "SOURCE", VSIConstants.ATTR_DEFAULT);
 								if(!listTransactionSource.isEmpty()){
 									Element eleCommonCode=listTransactionSource.get(0);
 									String strTSValue=eleCommonCode.getAttribute(VSIConstants.ATTR_CODE_SHORT_DESCRIPTION);
@@ -3237,7 +3096,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 							else
 							{
 								ArrayList<Element> listTransactionSourceNonSTH;
-								listTransactionSourceNonSTH = VSIUtils.getCommonCodeList(env, "TRANS_SOURCE_NONSTH", "SOURCE", "DEFAULT");
+								listTransactionSourceNonSTH = VSIUtils.getCommonCodeList(env, "TRANS_SOURCE_NONSTH", "SOURCE", VSIConstants.ATTR_DEFAULT);
 								if(!listTransactionSourceNonSTH.isEmpty()){
 									Element eleCommonCodenonSTH=listTransactionSourceNonSTH.get(0);
 									String strTSValue1=eleCommonCodenonSTH.getAttribute(VSIConstants.ATTR_CODE_SHORT_DESCRIPTION);
@@ -3281,15 +3140,15 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 									transactionTerminal, transactionReceipt,
 									transactionSource, transactionAuthCode,
 									transactionAqTime, transactionAqDate,
-									transactionAqCode,concExpDt,AvsResp,strAVSgatway);
+									transactionAqCode,concExpDt,avsResp,strAVSgatway);
 
 						} 
 
 						else if ("FAILURE".equalsIgnoreCase(strAck)) {
 							if("TIMED_OUT".equalsIgnoreCase(nvp.get("RESPONSE.GATEWAYCODE").toString())){
-								Document getCommonCodeListInputForRetryTime = getCommonCodeListInputForCodeType("DEFAULT","CC_RETRY_TIME");
+								Document getCommonCodeListInputForRetryTime = getCommonCodeListInputForCodeType(VSIConstants.ATTR_DEFAULT,VSIConstants.CC_RETRY_TIME);
 								Document getCommonCodeOut = getCommonCodeList(env, getCommonCodeListInputForRetryTime);
-								Element eleCOmmonCodeOut = (Element)getCommonCodeOut.getElementsByTagName("CommonCode").item(0);
+								Element eleCOmmonCodeOut = (Element)getCommonCodeOut.getElementsByTagName(VSIConstants.ELEMENT_COMMON_CODE).item(0);
 								//String  retryMinutes="10";
 								String retryMinutes = eleCOmmonCodeOut.getAttribute("CodeLongDescription");
 
@@ -3314,7 +3173,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 								String transactionAqTime=null;
 								String transactionAqDate=null;
 								String transactionAqCode=null;
-								String AvsResp1=null;
+								String avsResp1=null;
 								if(nvp.containsKey("TRANSACTION.ID")){
 									transactionId = nvp.get("TRANSACTION.ID").toString();
 								}
@@ -3328,7 +3187,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 								if(isCallCenterTran)
 								{
 									ArrayList<Element> listTransactionSource;
-									listTransactionSource = VSIUtils.getCommonCodeList(env, "TRANS_SOURCE_STH", "SOURCE", "DEFAULT");
+									listTransactionSource = VSIUtils.getCommonCodeList(env, "TRANS_SOURCE_STH", "SOURCE", VSIConstants.ATTR_DEFAULT);
 									if(!listTransactionSource.isEmpty()){
 										Element eleCommonCode=listTransactionSource.get(0);
 										String strTSValue=eleCommonCode.getAttribute(VSIConstants.ATTR_CODE_SHORT_DESCRIPTION);
@@ -3340,7 +3199,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 								else
 								{
 									ArrayList<Element> listTransactionSourceNonSTH;
-									listTransactionSourceNonSTH = VSIUtils.getCommonCodeList(env, "TRANS_SOURCE_NONSTH", "SOURCE", "DEFAULT");
+									listTransactionSourceNonSTH = VSIUtils.getCommonCodeList(env, "TRANS_SOURCE_NONSTH", "SOURCE", VSIConstants.ATTR_DEFAULT);
 									if(!listTransactionSourceNonSTH.isEmpty()){
 										Element eleCommonCodenonSTH=listTransactionSourceNonSTH.get(0);
 										String strTSValue1=eleCommonCodenonSTH.getAttribute(VSIConstants.ATTR_CODE_SHORT_DESCRIPTION);
@@ -3391,7 +3250,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 										transactionTerminal, transactionReceipt,
 										transactionSource, transactionAuthCode,
 										transactionAqTime, transactionAqDate,
-										transactionAqCode,concExpDt,AvsResp1,strAVSgatway);
+										transactionAqCode,concExpDt,avsResp1,strAVSgatway);
 
 								String errorCodeStr = "VoidFail";
 								String errorMessage = "VoidFail";
@@ -3409,42 +3268,15 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 						else if ("ERROR".equalsIgnoreCase(strAck)
 								|| "DECLINE".equalsIgnoreCase(strAck) ) {
 							outStruct.authorizationId = inStruct.authorizationId;
-							outStruct.authorizationAmount = inStruct.requestAmount;
-							//outStruct.collectionDate = new Date();
-							//outStruct.executionDate = new Date();
-							outStruct.retryFlag = "N";
-
-
-							String errorCodeStr = "VoidFail";
-							String errorMessage = "VoidFail";
-							String orderNoStr = inStruct.orderNo;
-							String errorMessageStr = errorMessage;
-							//	String failureTypeStr = "Credit Card Void Alert";
-
-							// raising Credit card alerts
-							//	raiseVoidAlert(env, errorCodeStr, errorMessageStr,
-							//	orderNoStr, strOrderHeaderKey, inStruct,failureTypeStr);
+							outStruct.authorizationAmount = inStruct.requestAmount;							
+							outStruct.retryFlag = "N";							
 						}
-					} else if (null != nvp.get("errorCode").toString())
-
+					} else if ((null != nvp.get("errorCode").toString()) && ("0x01130006".equalsIgnoreCase(nvp.get("errorCode")
+							.toString())))
 					{
-						if ("0x01130006".equalsIgnoreCase(nvp.get("errorCode")
-								.toString())) {
-							outStruct.authorizationId = inStruct.authorizationId;
-							outStruct.authorizationAmount = inStruct.requestAmount;
-							//outStruct.collectionDate = new Date();
-							//outStruct.executionDate = new Date();
-							//outStruct.retryFlag = "N";
-
-							String errorCodeStr = "TNS Connection Fail";
-							String errorMessage = "TNS Connection Fail";
-							String orderNoStr = inStruct.orderNo;
-							String errorMessageStr = errorMessage;
-							outStruct.retryFlag = "Y";
-							// creditCardAlert(env,errorCodeStr,errorMessageStr,orderNoStr,strOrderHeaderKey,inStruct);
-
-						}
-
+						outStruct.authorizationId = inStruct.authorizationId;
+						outStruct.authorizationAmount = inStruct.requestAmount;						
+						outStruct.retryFlag = "Y";
 					}
 
 				} 
@@ -3453,8 +3285,8 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 
 		}
 
-		catch (Exception Ex) {
-			Ex.printStackTrace();
+		catch (Exception e) {
+			e.printStackTrace();
 			throw new YFSException();
 		}
 
@@ -3484,7 +3316,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 			//OMS-1635:Start
 			String storeNo=null;
 			String strIsNewOrder = checkNewOrder(env, orderHeaderKeyStr);
-			String strDefaultPrefixReqd = getCommonCodeLongDescriptionByCodeValue(env,"DEFAULT","DefaultMerchPrefixActive");
+			String strDefaultPrefixReqd = getCommonCodeLongDescriptionByCodeValue(env,VSIConstants.ATTR_DEFAULT,"DefaultMerchPrefixActive");
 			if ( !YFCCommon.isVoid(strDefaultPrefixReqd)  && "Y".equals(strDefaultPrefixReqd) && !YFCCommon.isVoid(strIsNewOrder) && "Y".equals(strIsNewOrder))
 			{
 				//Defaulting merchantId as 06101
@@ -3505,7 +3337,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 
 			String chargeTransactionKeyStr = inStruct.chargeTransactionKey;
 			String transactionType = "Sale";
-			String IsSettled = "N";
+			String isSettled = "N";
 			String requestAmount = Double.toString(inStruct.requestAmount);
 			//String storedAuthId=inStruct.authorizationId;
 			if(YFCObject.isVoid(authorizationIdStr)){
@@ -3525,7 +3357,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 
 					getAuthRecordsforCharge(env, orderHeaderKeyStr, storeNo,
 							authorizationIdStr, tokenValue, requestAmount,
-							transactionType, chargeTransactionKeyStr, IsSettled);
+							transactionType, chargeTransactionKeyStr, isSettled);
 
 					String authCodeStr = getAuthcodeforCharge(env, orderHeaderKeyStr,
 							authorizationIdStr);
@@ -3594,7 +3426,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 
 				getAuthRecordsforCharge(env, orderHeaderKeyStr, storeNo,
 						authorizationIdStr, tokenValue, requestAmount,
-						transactionType, chargeTransactionKeyStr, IsSettled);
+						transactionType, chargeTransactionKeyStr, isSettled);
 
 				String authCodeStr = getAuthcodeforCharge(env, orderHeaderKeyStr,
 						authorizationIdStr);
@@ -3607,8 +3439,8 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 			}
 		}
 
-		catch (Exception Ex) {
-			Ex.printStackTrace();
+		catch (Exception e) {
+			e.printStackTrace();
 			throw new YFSException();
 
 		}
@@ -3636,7 +3468,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 			//OMS-1635:Start
 			String storeNo=null;
 			String strIsNewOrder = checkNewOrder(env, orderHeaderKeyStr);
-			String strDefaultPrefixReqd = getCommonCodeLongDescriptionByCodeValue(env,"DEFAULT","DefaultMerchPrefixActive");
+			String strDefaultPrefixReqd = getCommonCodeLongDescriptionByCodeValue(env,VSIConstants.ATTR_DEFAULT,"DefaultMerchPrefixActive");
 			if ( !YFCCommon.isVoid(strDefaultPrefixReqd)  && "Y".equals(strDefaultPrefixReqd) && !YFCCommon.isVoid(strIsNewOrder) && "Y".equals(strIsNewOrder))
 			{
 				//Defaulting merchantId as 06101
@@ -3696,7 +3528,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 	public void getAuthRecordsforCharge(YFSEnvironment env,
 			String orderHeaderKeyStr, String storeNo, String transactionId,
 			String tokenValue, String requestAmount, String transactionType,
-			String chargeTransactionKeyStr, String IsSettled) throws Exception {
+			String chargeTransactionKeyStr, String isSettled) throws Exception {
 
 		// getting authorized records from TNSAuthRecords
 
@@ -3704,7 +3536,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 		Element eleOrder = getTNSAuthRecords.getDocumentElement();
 		eleOrder.setAttribute(VSIConstants.ATTR_ORDER_HEADER_KEY,
 				orderHeaderKeyStr);
-		eleOrder.setAttribute("TransactionID", transactionId);
+		eleOrder.setAttribute(VSIConstants.ATTR_PAYPAL_TRANSACTION_ID, transactionId);
 
 		api = YIFClientFactory.getInstance().getApi();
 		Document outDoc = api.executeFlow(env,
@@ -3732,7 +3564,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 
 		ajbChargeSettlementRecords(env, orderHeaderKeyStr, storeNo, tokenValue,
 				requestAmount, transactionType, chargeTransactionKeyStr,
-				IsSettled, transactionTerminal, transactionReceipt,
+				isSettled, transactionTerminal, transactionReceipt,
 				transactionSource, transactionAuth, transactonAqDate,
 				transactionAqTime, transactionAqCode,expDate,AvsResp);
 
@@ -3747,7 +3579,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 		Element eleOrder = getTNSAuthRecords.getDocumentElement();
 		eleOrder.setAttribute(VSIConstants.ATTR_ORDER_HEADER_KEY,
 				orderHeaderKeyStr);
-		eleOrder.setAttribute("TransactionID", transactionId);
+		eleOrder.setAttribute(VSIConstants.ATTR_PAYPAL_TRANSACTION_ID, transactionId);
 
 		api = YIFClientFactory.getInstance().getApi();
 		Document outDoc = api.executeFlow(env,
@@ -3755,10 +3587,8 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 		Element orderLineElem = (Element) outDoc.getElementsByTagName(
 				"TNSAuthRecords").item(0);
 
-		String transactionAuth = orderLineElem
+		return orderLineElem
 				.getAttribute("TransactionAuthCode");
-		return transactionAuth;
-
 	}
 
 	/**********************************************************************************
@@ -3787,10 +3617,8 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 				.format(currentDate);
 		String sLastFiveTranKeyNum = chargeTransactionKey
 				.substring(chargeTransactionKey.length() - 5);
-		String sOmsOrderId = sJDAStoreId + sSystemId + sNumericOrderId
-				+ sModifiedDate + sLastFiveTranKeyNum;
-
-		return sOmsOrderId;
+		return sJDAStoreId + sSystemId + sNumericOrderId
+				+ sModifiedDate + sLastFiveTranKeyNum;		
 	}
 
 	public String generateId(YFSEnvironment env,
@@ -3807,15 +3635,16 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 				getOrderListDoc);
 		Element orderLineElem = (Element) outDoc.getElementsByTagName(
 				VSIConstants.ELE_EXTN).item(0);
-		String tranSequence = orderLineElem
-				.getAttribute(VSIConstants.ATTR_SEQUENCE);
-		return tranSequence;
+		return orderLineElem
+				.getAttribute(VSIConstants.ATTR_SEQUENCE);		
 	}
-	private boolean isDraftOrder = false;
+	
 	private boolean isCallCenterTran = false;
+	
 	public String getShipNode(YFSEnvironment env, String orderHeaderKeyStr)
-			throws Exception {
-		String entCode = "DEFAULT";
+			throws Exception {		
+		boolean isDraftOrder = false;
+		String entCode = VSIConstants.ATTR_DEFAULT;
 		Document getOrderListDoc = XMLUtil.createDocument("Order");
 		Element eleOrder = getOrderListDoc.getDocumentElement();
 		eleOrder.setAttribute(VSIConstants.ATTR_ORDER_HEADER_KEY,
@@ -3843,7 +3672,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 		orderLineElem = (Element) outDoc.getElementsByTagName(VSIConstants.ELE_ORDER_LINE).item(0);
 		String deliveryMethod = orderLineElem.getAttribute("DeliveryMethod");
 		String shipNodestr = "";
-		//String sShipNode = null;
+		
 		if(!YFCObject.isVoid(deliveryMethod) && "PICK".equals(deliveryMethod))
 		{
 			shipNodestr = orderLineElem.getAttribute(VSIConstants.ATTR_SHIP_NODE);
@@ -3856,19 +3685,11 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 		if("WEB".equals(orderType) && (!YFCObject.isVoid(deliveryMethod) && "SHP".equals(deliveryMethod)))
 		{
 			isCallCenterTran = true;
-		}
-
-		/*if(YFSObject.isNull(shipNodestr) || YFSObject.isVoid(shipNodestr) || shipNodestr.equals("") || shipNodestr.equals(" ")){
-			shipNodestr = "9803";
-		}*/
+		}		
 
 		String merchPrefix = getCommonCodeLongDescriptionByCodeValue(env, entCode, "MerchPrefixDigit");
-		String shipNodePadded = (merchPrefix + shipNodestr).substring(shipNodestr
-				.length());
-		return shipNodePadded;
-
-		// String merchantIdStr=getMerchantId(env, shipNodestr);
-		// return merchantIdStr;
+		return (merchPrefix + shipNodestr).substring(shipNodestr
+				.length());		
 	}
 
 	public String getShipNodeCharge(YFSEnvironment env, String orderHeaderKeyStr)
@@ -3891,7 +3712,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 					VSIConstants.ELE_ORDER_LINE).item(0);
 
 		String shipNodestr = "7001";
-		if(!YFCObject.isVoid(orderLineElem))
+		if(orderLineElem != null )
 			shipNodestr = orderLineElem
 			.getAttribute(VSIConstants.ATTR_SHIP_NODE);
 
@@ -3902,12 +3723,9 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 		if(YFSObject.isNull(shipNodestr) || YFSObject.isVoid(shipNodestr) || shipNodestr.equals("") || shipNodestr.equals(" ")){
 			shipNodestr = "9803";
 		}
-		String shipNodePadded = ("00000" + shipNodestr).substring(shipNodestr
-				.length());
-		return shipNodePadded;
-
-		// String merchantIdStr=getMerchantId(env, shipNodestr);
-		// return merchantIdStr;
+		return (VSIConstants.VALUE_SEQ_PADDING + shipNodestr).substring(shipNodestr
+				.length());		
+		
 	}
 
 	/**
@@ -3964,19 +3782,16 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 					"ChargeTransactionRequest", "");
 			eleCTR.appendChild(eleCTRReq);
 			String ctrSeqId = VSIDBUtil.getNextSequence(env,VSIConstants.SEQ_CC_CTR);
-			String ChargeTransactionRequestId = ctrSeqId;
-			// Element eleCTRReq = XMLUtil.appendChild(createCTR, eleCTR,
-			// VSIConstants.ELE_CHARGE_TRANSACTION_REQ, "12");
+			String chargeTransactionRequestId = ctrSeqId;
+			
 			eleCTRReq.setAttribute(VSIConstants.ATTR_CHARGE_TRAN_REQ_KEY,
 					chargeTransactionkey);
 			eleCTRReq.setAttribute(VSIConstants.ATTR_CHARGE_TRAN_REQ_ID,
-					ChargeTransactionRequestId);
+					chargeTransactionRequestId);
 			eleCTRReq.setAttribute(VSIConstants.ATTR_MAX_REQ_AMT, maxReqAmount);
 
 			api = YIFClientFactory.getInstance().getApi();
-			Document ctrDoc = api.invoke(env,
-					VSIConstants.API_MANAGE_CHARGE_TRAN_REQ, createCTR);
-
+			api.invoke(env,VSIConstants.API_MANAGE_CHARGE_TRAN_REQ, createCTR);
 		}
 
 	}
@@ -4004,7 +3819,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 		String merchantId = null;
 		String generateId = null;
 		String strOrderHeaderKey = inStruct.orderHeaderKey;
-		String entCode = "DEFAULT";
+		String entCode = VSIConstants.ATTR_DEFAULT;
 		
 		//OMS-2445 -- Start
 		String strQueueId="VSI_CREDITCARD_ALERT";
@@ -4029,14 +3844,8 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 			log.debug("merchantId is" + merchantId);
 		}
 		//OMS-1635 : End
-		DecimalFormat df1 = new DecimalFormat("#,###,###.00");
-		String currencyCodestr = "USD";
-		//double dRequestAmount = inStruct.requestAmount;
-		//String requestAmountStr = df1.format(dRequestAmount);
-		//Fix for order with greater than 1000 getting declined auth due to format of the amount.
-
-		//double dRequestAmount = inStruct.requestAmount;
-		//String requestAmountStr = df1.format(dRequestAmount);
+		
+		String currencyCodestr = "USD";	
 
 		String requestAmountStr=Double.toString(inStruct.requestAmount);  
 
@@ -4045,14 +3854,11 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 		String firstName = inStruct.firstName;
 		String lastName = inStruct.lastName;
 		String expDate = inStruct.creditCardExpirationDate;
-		String AdressLine1=inStruct.billToAddressLine1;
-		String City=inStruct.billToCity;
-		String ZipCode=inStruct.billToZipCode;
-		String State=inStruct.billToState;
-		//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!		
-		String KountToken="12321321321";
-		//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
+		String adressLine1=inStruct.billToAddressLine1;
+		String city=inStruct.billToCity;
+		String zipCode=inStruct.billToZipCode;
+		String state=inStruct.billToState;
+		
 		//Jira 802
 		String country=inStruct.billToCountry;
 		if(country.length() == 2) {
@@ -4063,19 +3869,13 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 		String transactionId=null;
 
 
-		//System.out.println("ExpDate is " + expDate);
-
 		String expMonth = expDate.substring(0, 2);
-		//System.out.println("Exp mnth is " + expMonth);
-
+		
 		String expYr = expDate.substring(expDate.length() - 2);
-		//System.out.println("Exp yr is " + expYr);
-
+		
 		String concExpDt = expMonth + expYr;
-		//System.out.println("new Exp dt is " + concExpDt);
-
-		if (inStruct.paymentReference1 != null) {
-			// generateId=generateId(env,inStruct,strOrderHeaderKey);
+		
+		if (inStruct.paymentReference1 != null) {			
 			String atgTranId = inStruct.paymentReference1;
 			String sChargeTransactionKey = inStruct.chargeTransactionKey;
 			String sGeneratedOrderId = generateOrderId(atgTranId,
@@ -4106,7 +3906,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 		HashMap nvp = VSICreditCardFunction.DoAuthorization(Orderid,
 				merchantId, requestAmountStr, currencyCodestr,
 				transactionIdStr, sourceOfFundstype, tokenIdStr, firstName,
-				lastName, expYr, expMonth,AdressLine1,City,ZipCode,State,country, env,strOrderHeaderKey);
+				lastName, expYr, expMonth,adressLine1,city,zipCode,state,country, env,strOrderHeaderKey);
 		//Printing the Response
 		Document doc = XMLUtil.createDocument("PaymentRecords");
 		Element elePayRecrds = doc.getDocumentElement();
@@ -4128,9 +3928,8 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 				String AvsResp=null;
 				String AvsRespCode=null;
 				String strAck = nvp.get("RESULT").toString();
-				//System.out.println("Autorization is" + strAck);
-				transactionId = nvp.get("TRANSACTION.ID").toString();
-				requestAmountStr = nvp.get("TRANSACTION.AMOUNT").toString();
+				
+				transactionId = nvp.get("TRANSACTION.ID").toString();				
 				String transactionTerminal = nvp
 						.get("TRANSACTION.TERMINAL").toString();
 				String transactionReceipt = nvp.get("TRANSACTION.RECEIPT").toString();
@@ -4139,7 +3938,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 				if(isCallCenterTran)
 				{
 					ArrayList<Element> listTransactionSource;
-					listTransactionSource = VSIUtils.getCommonCodeList(env, "TRANS_SOURCE_STH", "SOURCE", "DEFAULT");
+					listTransactionSource = VSIUtils.getCommonCodeList(env, "TRANS_SOURCE_STH", "SOURCE", VSIConstants.ATTR_DEFAULT);
 					if(!listTransactionSource.isEmpty()){
 						Element eleCommonCode=listTransactionSource.get(0);
 						String strTSValue=eleCommonCode.getAttribute(VSIConstants.ATTR_CODE_SHORT_DESCRIPTION);
@@ -4151,7 +3950,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 				else
 				{
 					ArrayList<Element> listTransactionSourceNonSTH;
-					listTransactionSourceNonSTH = VSIUtils.getCommonCodeList(env, "TRANS_SOURCE_NONSTH", "SOURCE", "DEFAULT");
+					listTransactionSourceNonSTH = VSIUtils.getCommonCodeList(env, "TRANS_SOURCE_NONSTH", "SOURCE", VSIConstants.ATTR_DEFAULT);
 					if(!listTransactionSourceNonSTH.isEmpty()){
 						Element eleCommonCodenonSTH=listTransactionSourceNonSTH.get(0);
 						String strTSValue1=eleCommonCodenonSTH.getAttribute(VSIConstants.ATTR_CODE_SHORT_DESCRIPTION);
@@ -4164,8 +3963,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 				//OMS-1935 END
 				String transactionAuthCode = nvp.get(
 						"TRANSACTION.AUTHORIZATIONCODE").toString();
-				//String transactionReceipt = "110001";
-
+				
 				String transactionAqTime = nvp.get("TRANSACTION.ACQUIRER.TIME").toString();
 				String transactionAqDate = nvp.get("TRANSACTION.ACQUIRER.DATE").toString();
 				//oms-2046 start
@@ -4176,29 +3974,22 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 				}
 				//oms-2046 end
 
-				// String transactionAqDate =
-				// nvp.get("TRANSACTION.ACQUIRER.DATE").toString();
 				String transactionAqCode = nvp.get("RESPONSE.ACQUIRERCODE")
-						.toString();
-				String authCode = nvp.get("TRANSACTION.AUTHORIZATIONCODE")
-						.toString();
+						.toString();			
 
 				if(nvp.containsKey("RESPONSE.CARDHOLDERVERIFICATION.AVS.ACQUIRERCODE")){
 					AvsRespCode = nvp.get("RESPONSE.CARDHOLDERVERIFICATION.AVS.ACQUIRERCODE").toString();
 				}
 				AvsResp="AvsResp-"+AvsRespCode;
 
-				double authAmountStr = Double.parseDouble(requestAmountStr);
-
-
 				// Setting the expiration date to + 7
 				Calendar calendar = Calendar.getInstance();
-				Document getCommonCodeListInputForReAuthTime = getCommonCodeListInputForCodeType("DEFAULT","CC_AUTH_EXP_TIME");
+				Document getCommonCodeListInputForReAuthTime = getCommonCodeListInputForCodeType(VSIConstants.ATTR_DEFAULT,VSIConstants.CC_AUTH_EXP_TIME);
 				Document getCommonCodeOut = getCommonCodeList(env, getCommonCodeListInputForReAuthTime);
 				Element eleCOmmonCodeOut = null;
 				String strReAuthMinutes = "";
 				if(!YFCObject.isVoid(getCommonCodeOut)){
-					eleCOmmonCodeOut = (Element)getCommonCodeOut.getElementsByTagName("CommonCode").item(0);
+					eleCOmmonCodeOut = (Element)getCommonCodeOut.getElementsByTagName(VSIConstants.ELEMENT_COMMON_CODE).item(0);
 					if(!YFCObject.isVoid(eleCOmmonCodeOut)){
 						strReAuthMinutes = eleCOmmonCodeOut.getAttribute("CodeLongDescription");
 					}
@@ -4206,10 +3997,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 				int authMinutes = 10080 ; //7 days default
 				if(!YFCObject.isVoid(strReAuthMinutes))
 					authMinutes = Integer.parseInt(strReAuthMinutes);
-				calendar.add(Calendar.MINUTE,authMinutes);
-				//calendar.add(Calendar.DATE, 7);
-				String authExpDate = new SimpleDateFormat("yyyyMMddHHmmss")
-						.format(calendar.getTime());
+				calendar.add(Calendar.MINUTE,authMinutes);				
 
 				/**
 				 * if(inStruct.paymentReference1!=null){ //incementing the
@@ -4235,7 +4023,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 				String errorMessage = "AuthFail";
 				String orderNoStr = inStruct.orderNo;
 				String errorMessageStr = errorMessage;
-				// outStruct.suspendPayment="Y";
+				
 				String strAQRiskified = nvp.get("RESPONSE.ACQUIRERCODE").toString();
 				String strRiskifiedFlag=VSIConstants.FLAG_N;
 				// raising Credit card alerts
@@ -4261,9 +4049,9 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 			//OMS-1564: Raising alert when we are getting ERROR response due to network issue : END
 			else if ("FAILURE".equalsIgnoreCase(nvp.get("RESULT").toString())) {
 				if("TIMED_OUT".equalsIgnoreCase(nvp.get("RESPONSE.GATEWAYCODE").toString())){
-					Document getCommonCodeListInputForRetryTime = getCommonCodeListInputForCodeType("DEFAULT","CC_RETRY_TIME");
+					Document getCommonCodeListInputForRetryTime = getCommonCodeListInputForCodeType(VSIConstants.ATTR_DEFAULT,VSIConstants.CC_RETRY_TIME);
 					Document getCommonCodeOut = getCommonCodeList(env, getCommonCodeListInputForRetryTime);
-					Element eleCOmmonCodeOut = (Element)getCommonCodeOut.getElementsByTagName("CommonCode").item(0);
+					Element eleCOmmonCodeOut = (Element)getCommonCodeOut.getElementsByTagName(VSIConstants.ELEMENT_COMMON_CODE).item(0);
 					//String  retryMinutes="10";
 					String retryMinutes = eleCOmmonCodeOut.getAttribute("CodeLongDescription");
 
@@ -4271,19 +4059,15 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 					int retMinutes = 10 ; //10 default
 					retMinutes = Integer.parseInt(retryMinutes);
 					calendar.add(Calendar.MINUTE,retMinutes);
-					outStruct.collectionDate=calendar.getTime();
-					//calendar.add(Calendar.DATE, 7);
-					//SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
-					//String collectionDate = new SimpleDateFormat("yyyyMMddHHmmss").format(calendar.getTime());
-					//outStruct.collectionDate=sdf.parse(collectionDate);
+					outStruct.collectionDate=calendar.getTime();					
 					outStruct.retryFlag="Y";
 
 				}
 				//OMS-1676 : Start
 				else if("OFFLINE".equalsIgnoreCase(nvp.get("RESPONSE.ACQUIRERCODE").toString())){
-					Document getCommonCodeListInputForRetryTime = getCommonCodeListInputForCodeType("DEFAULT","CC_OFFLINE");
+					Document getCommonCodeListInputForRetryTime = getCommonCodeListInputForCodeType(VSIConstants.ATTR_DEFAULT,"CC_OFFLINE");
 					Document getCommonCodeOut = getCommonCodeList(env, getCommonCodeListInputForRetryTime);
-					Element eleCOmmonCodeOut = (Element)getCommonCodeOut.getElementsByTagName("CommonCode").item(0);
+					Element eleCOmmonCodeOut = (Element)getCommonCodeOut.getElementsByTagName(VSIConstants.ELEMENT_COMMON_CODE).item(0);
 					//String  retryMinutes="10";
 					String retryMinutes = eleCOmmonCodeOut.getAttribute("CodeLongDescription");
 
@@ -4292,16 +4076,13 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 					retMinutes = Integer.parseInt(retryMinutes);
 					calendar.add(Calendar.MINUTE,retMinutes);
 					outStruct.collectionDate=calendar.getTime();
-					//calendar.add(Calendar.DATE, 7);
-					//SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
-					//String collectionDate = new SimpleDateFormat("yyyyMMddHHmmss").format(calendar.getTime());
-					//outStruct.collectionDate=sdf.parse(collectionDate);
+					
 					outStruct.retryFlag="Y";
 					String errorCodeStr = "OfflineAuth";
 					String errorMessage = "OfflineAuth";
 					String orderNoStr = inStruct.orderNo;
 					String errorMessageStr = errorMessage;
-					// outStruct.suspendPayment="Y";
+					
 					String failureTypeStr = "Credit Card Authorization Offile";
 
 					// raising Credit card alerts
@@ -4337,7 +4118,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 					if(isCallCenterTran)
 					{
 						ArrayList<Element> listTransactionSource;
-						listTransactionSource = VSIUtils.getCommonCodeList(env, "TRANS_SOURCE_STH", "SOURCE", "DEFAULT");
+						listTransactionSource = VSIUtils.getCommonCodeList(env, "TRANS_SOURCE_STH", "SOURCE", VSIConstants.ATTR_DEFAULT);
 						if(!listTransactionSource.isEmpty()){
 							Element eleCommonCode=listTransactionSource.get(0);
 							String strTSValue=eleCommonCode.getAttribute(VSIConstants.ATTR_CODE_SHORT_DESCRIPTION);
@@ -4349,7 +4130,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 					else
 					{
 						ArrayList<Element> listTransactionSourceNonSTH;
-						listTransactionSourceNonSTH = VSIUtils.getCommonCodeList(env, "TRANS_SOURCE_NONSTH", "SOURCE", "DEFAULT");
+						listTransactionSourceNonSTH = VSIUtils.getCommonCodeList(env, "TRANS_SOURCE_NONSTH", "SOURCE", VSIConstants.ATTR_DEFAULT);
 						if(!listTransactionSourceNonSTH.isEmpty()){
 							Element eleCommonCodenonSTH=listTransactionSourceNonSTH.get(0);
 							String strTSValue1=eleCommonCodenonSTH.getAttribute(VSIConstants.ATTR_CODE_SHORT_DESCRIPTION);
@@ -4375,17 +4156,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 					if(nvp.containsKey("RESPONSE.CARDHOLDERVERIFICATION.AVS.ACQUIRERCODE")){
 						AvsRespCode = nvp.get("RESPONSE.CARDHOLDERVERIFICATION.AVS.ACQUIRERCODE").toString();
 					}
-					AvsResp="AvsResp-"+AvsRespCode;
-
-
-					String expDate1 = inStruct.creditCardExpirationDate;
-					//System.out.println("ExpDate is " + expDate);
-
-					String expMonth1 = expDate.substring(0, 2);
-					//System.out.println("Exp mnth is " + expMonth);
-
-					String expYr1 = expDate.substring(expDate.length() - 2);
-					//System.out.println("Exp yr is " + expYr);
+					AvsResp="AvsResp-"+AvsRespCode;					
 
 					String concExpDt1 = expMonth + expYr;
 					if(nvp.containsKey("RESPONSE.CARDHOLDERVERIFICATION.AVS.GATEWAYCODE")){
@@ -4403,16 +4174,12 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 					String errorMessage = "AuthFail";
 					String orderNoStr = inStruct.orderNo;
 					String errorMessageStr = errorMessage;
-					// outStruct.suspendPayment="Y";
+					
 
 					applyPaymentErrorHold(env, strOrderHeaderKey);
 					// raising Credit card alerts
 					creditCardAlert(env, errorCodeStr, errorMessageStr,
-							orderNoStr, strOrderHeaderKey, inStruct, strQueueId);
-					// raising holds and cancelling orders
-					//OMS-1564:Start
-					//authFailureCancel(env, strOrderHeaderKey, outStruct,inStruct);
-					//OMS-1564:End
+							orderNoStr, strOrderHeaderKey, inStruct, strQueueId);					
 				}
 			}
 		}
@@ -4467,7 +4234,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 		eleOrder.setAttribute("TransactionAqCode", transactionAqCode);
 		eleOrder.setAttribute("TokenNumber", tokenValue);
 		eleOrder.setAttribute("TransactionAmount", requestAmount);
-		eleOrder.setAttribute("TransactionType", tranactionType);
+		eleOrder.setAttribute(VSIConstants.TRANSACTION_TYPE, tranactionType);
 		eleOrder.setAttribute("IsSettled", IsSettled);
 		eleOrder.setAttribute("ChargeTransactionKey", chargeTransactionKeyStr);
 		eleOrder.setAttribute("ExpiryDate", expDate);
@@ -4541,7 +4308,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 		Element eleOrder = doc.getDocumentElement();
 		eleOrder.setAttribute(VSIConstants.ATTR_ORDER_HEADER_KEY,
 				strOrderHeaderKey);
-		eleOrder.setAttribute("TransactionID", transactionIdStr);
+		eleOrder.setAttribute(VSIConstants.ATTR_PAYPAL_TRANSACTION_ID, transactionIdStr);
 		eleOrder.setAttribute("TransactionTerminal", transactionTerminal);
 		eleOrder.setAttribute("TransactionReceipt", transactionReceipt);
 		eleOrder.setAttribute("TransactionSource", transactionSource);
@@ -4578,7 +4345,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 		eleOrder.setAttribute("CVVResp", cVVResult);
 		eleOrder.setAttribute("AvsGatewayCode", authAVSResult);
 		eleOrder.setAttribute("AurusResponseCode", responseCode);
-		eleOrder.setAttribute("ProcessorResponseCode", processorResponseCode);
+		eleOrder.setAttribute(VSIConstants.ATTR_PROCESSOR_RESPONSE_CODE, processorResponseCode);
 		
 		api = YIFClientFactory.getInstance().getApi();
 		Document outDoc = api.executeFlow(env,
@@ -4855,9 +4622,8 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 				}
 			}
 			catch (Exception e) {
-
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				printLogs("Exception in VSIAurusCollectionCreditCard Class and authFailureCancel Method");
+				printLogs("The exception is [ "+ e.getMessage() +" ]");				
 			}
 			//OMS-2046 END
 		}
@@ -4926,12 +4692,12 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 				//OMS-1760: Start
 				if(!isDraftOrd)
 				{
-					Document docChangeOrderOutput = VSIUtils.invokeAPI(env, "changeOrder", docApplyPaymentHold);
+					VSIUtils.invokeAPI(env, "changeOrder", docApplyPaymentHold);
 				}
 				//OMS-1760: End
-				Document getCommonCodeListInputForRetryTime = getCommonCodeListInputForCodeType("DEFAULT","CC_AUTH_DECLINE_RET");
+				Document getCommonCodeListInputForRetryTime = getCommonCodeListInputForCodeType(VSIConstants.ATTR_DEFAULT,"CC_AUTH_DECLINE_RET");
 				Document getCommonCodeOut = getCommonCodeList(env, getCommonCodeListInputForRetryTime);
-				Element eleCOmmonCodeOut = (Element)getCommonCodeOut.getElementsByTagName("CommonCode").item(0);
+				Element eleCOmmonCodeOut = (Element)getCommonCodeOut.getElementsByTagName(VSIConstants.ELEMENT_COMMON_CODE).item(0);
 				//String  retryMinutes="10";
 				String retryMinutes = eleCOmmonCodeOut.getAttribute("CodeLongDescription");
 
@@ -4952,9 +4718,9 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 
 			}
 			else{
-				Document getCommonCodeListInputForRetryTime = getCommonCodeListInputForCodeType("DEFAULT","CC_AUTH_DECLINE_RET");
+				Document getCommonCodeListInputForRetryTime = getCommonCodeListInputForCodeType(VSIConstants.ATTR_DEFAULT,"CC_AUTH_DECLINE_RET");
 				Document getCommonCodeOut = getCommonCodeList(env, getCommonCodeListInputForRetryTime);
-				Element eleCOmmonCodeOut = (Element)getCommonCodeOut.getElementsByTagName("CommonCode").item(0);
+				Element eleCOmmonCodeOut = (Element)getCommonCodeOut.getElementsByTagName(VSIConstants.ELEMENT_COMMON_CODE).item(0);
 				//String  retryMinutes="10";
 				String retryMinutes = eleCOmmonCodeOut.getAttribute("CodeLongDescription");
 
@@ -5024,7 +4790,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 
 	public static Document getCommonCodeListInputForCodeValue(String sOrgCode,
 			String codeValue) throws ParserConfigurationException {
-		Document docOutput = XMLUtil.createDocument("CommonCode");
+		Document docOutput = XMLUtil.createDocument(VSIConstants.ELEMENT_COMMON_CODE);
 		Element eleRootItem = docOutput.getDocumentElement();
 		eleRootItem.setAttribute("OrganizationCode", sOrgCode);
 		eleRootItem.setAttribute("CodeValue", codeValue);
@@ -5040,7 +4806,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 		Document docCCList = getCommonCodeList(env, docgetCCListInput);
 		Element eleComCode = null;
 		if (docCCList != null) {
-			eleComCode = (Element) docCCList.getElementsByTagName("CommonCode")
+			eleComCode = (Element) docCCList.getElementsByTagName(VSIConstants.ELEMENT_COMMON_CODE)
 					.item(0);
 		}
 		if (eleComCode != null) {
@@ -5080,7 +4846,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 
 	public static Document getCommonCodeListInputForCodeType(String sOrgCode,
 			String codeType) throws ParserConfigurationException {
-		Document docOutput = XMLUtil.createDocument("CommonCode");
+		Document docOutput = XMLUtil.createDocument(VSIConstants.ELEMENT_COMMON_CODE);
 		Element eleRootItem = docOutput.getDocumentElement() ;
 		eleRootItem.setAttribute("OrganizationCode", sOrgCode);
 		eleRootItem.setAttribute("CodeType", codeType);
@@ -5111,7 +4877,8 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 			}
 
 		} catch (Exception e) {
-			// TODO: handle exception
+			printLogs("Exception in VSIAurusCollectionCreditCard Class and getRetryCount Method");
+			printLogs("The exception is [ "+ e.getMessage() +" ]");
 		}
 
 		return iRetryCount;
@@ -5139,7 +4906,8 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 
 			}
 		} catch (Exception e) {
-			// TODO: handle exception
+			printLogs("Exception in VSIAurusCollectionCreditCard Class and modifyRetryCount Method");
+			printLogs("The exception is [ "+ e.getMessage() +" ]");
 		}
 	}
 	//OMS-1762: BR***Payment Confirmation Screen: No error message on Auth Failure: Throwing the exception from applyPaymentErrorHold method//
@@ -5233,7 +5001,9 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 		if (VSIConstants.FLAG_Y.equals(draftOrderFlag)) {
 			isDraftOrd = true;
 			printLogs("Draft Order Scenario");
-		}if (!isDraftOrd) {
+		}
+		
+		if (!isDraftOrd) {
 			NodeList orderLineList = outDoc.getElementsByTagName(VSIConstants.ELE_ORDER_LINE);
 			String strCancellationReasonCode = VSIConstants.AUTH_CANCEL_ORDER;
 			String strCancellationReasonText = VSIConstants.AUTH_CANCEL_ORDER;
