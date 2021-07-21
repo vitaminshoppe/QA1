@@ -1,20 +1,21 @@
 package com.vsi.oms.api.aurus;
 
-import java.rmi.RemoteException;
-
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.json.JSONObject;
-
-import com.aurus.aesdk.abstractfactory.formfactor.FormFactorHandler;
 import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
+import com.aurus.aesdk.abstractfactory.formfactor.FormFactorHandler;
+import com.sterlingcommerce.baseutil.SCXmlUtil;
+import com.vsi.oms.utils.XMLUtil;
+import com.yantra.yfc.log.YFCLogCategory;
 
 public class VSIInitAESDKServlet extends HttpServlet{
 
-
+	private static YFCLogCategory log = YFCLogCategory.instance(VSIInitAESDKServlet.class);
 	private static final String TAG = VSIInitAESDKServlet.class.getSimpleName();
 	
 	private static final long serialVersionUID = 8808616055836017631L;
@@ -22,50 +23,52 @@ public class VSIInitAESDKServlet extends HttpServlet{
 	  public synchronized void init(ServletConfig config)
 	    throws ServletException
 	  {
-	    
-			String outDoc =initAESDKAPI();
-			printLogs(outDoc);
-		  
+		  printLogs("================Inside VSIInitAESDKServlet Class and init Method================================");
+		  String outDoc=null;
+		  try {
+			  outDoc = initAESDKAPI();
+			  printLogs("outDoc: "+outDoc);
+		  } catch (ParserConfigurationException e) {
+			  printLogs("Exception in VSIInitAESDKServlet Class and init Method");
+			  printLogs("The exception is [ "+ e.getMessage() +" ]");
+		  }
+		  printLogs("================Exiting VSIInitAESDKServlet Class and init Method================================");		  
 	  }
-	
 
-//	public static void main(String[] args) throws ParserConfigurationException {
-//
-//		VSIInitAESDKServlet initAESDK1= new VSIInitAESDKServlet();
-//		String outDoc =initAESDK1.initAESDKAPI();
-//
-//		System.out.println("outDoc ="+outDoc);
-//
-//	}
-	
-	
-
-
-	private String initAESDKAPI()  {
+	private String initAESDKAPI() throws ParserConfigurationException  {
 		
-		JSONObject configJson = new JSONObject(); 
-		configJson.put("ConfigFilePath", "/Sterling/opt/aesdkprop/"); 
-//		configJson.put("ConfigFilePath", "C:/aesdkprop"); 
-		configJson.put("POSID", "VSIDEV20");
-
-		JSONObject initAESDKJSON = new JSONObject(); 
-		initAESDKJSON.put("InitAesdkRequest", configJson);
-
-		System.out.println("jsonRequest \n"+initAESDKJSON.toString());
-
-		FormFactorHandler formFactor = new FormFactorHandler(); 
-		//		JSONObject jsonResponse = formFactor.initAESDK(jsonRequest);
-		String response = formFactor.initAESDK(initAESDKJSON.toString());
-
+		printLogs("================Inside initAESDKAPI Method================================");
 		
+		Document docInitAESDKReq = XMLUtil.createDocument("InitAesdkRequest");
+		Element eleInitAESDKReq = docInitAESDKReq.getDocumentElement();
+
+		putElementValue(eleInitAESDKReq,"POSID","VSIDEV20");		
+		putElementValue(eleInitAESDKReq,"ConfigFilePath","/Sterling/opt/aesdkprop/");
 		
-		return response; 
+		String strRequest=XMLUtil.getXMLString(docInitAESDKReq);
+		printLogs("InitAesdkRequest: "+strRequest);
+
+		FormFactorHandler formFactor = new FormFactorHandler();		
+		String strResponse = formFactor.initAESDK(strRequest);
+		
+		printLogs("InitAesdkResponse: "+strResponse);
+		printLogs("================Exiting initAESDKAPI Method================================");
+		
+		return strResponse; 
 	}
-
-
-
+	
+	private void putElementValue(Element childEle, String key, Object value) {
+		Element ele = SCXmlUtil.createChild(childEle, key);
+		if(value instanceof String ) {
+			ele.setTextContent((String)value);
+		}else if(value instanceof Element ) {
+			ele.appendChild((Element)value);
+		}
+	}
 	
 	private void printLogs(String mesg) {
-		System.out.println(mesg);
+		if(log.isDebugEnabled()){
+			log.debug(TAG +" : "+mesg);
+		}
 	}
 }
