@@ -52,7 +52,7 @@ public class VSIProcessTrailerShipConfirmFromWMS extends VSIBaseCustomAPI implem
     		eleInboxElement.setAttribute(ATTR_ACTIVE_FLAG, FLAG_Y);
     		eleInboxElement.setAttribute("DetailDescription", "SCAC TBD is not valid");
     		eleInboxElement.setAttribute(ATTR_ERROR_REASON, "Invalid SCAC");
-    		eleInboxElement.setAttribute(ATTR_ERROR_TYPE,	"Invalid Attribute Alert");
+    		eleInboxElement.setAttribute(ATTR_ERROR_TYPE,	"Invalid SCAC Alert");
     		eleInboxElement.setAttribute(ATTR_EXCEPTION_TYPE, "Invalid SCAC");
     		eleInboxElement.setAttribute(ATTR_EXPIRATION_DAYS, "0");
     		eleInboxElement.setAttribute(ATTR_QUEUE_ID, "VSI_SHIP_CONFIRM_FROM_WMS_ERROR");    		
