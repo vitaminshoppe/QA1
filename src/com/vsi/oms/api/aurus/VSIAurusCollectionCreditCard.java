@@ -84,7 +84,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 
 		try {
 			printLogs("================Inside VSIAurusCollectionCreditCard================================");
-			printLogs("Printing Input XML :");
+			printLogs("Printing Input XML: "+inStruct);
 			
 			YFSExtnPaymentCollectionOutputStruct outStruct = new YFSExtnPaymentCollectionOutputStruct();			
 
@@ -183,13 +183,20 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 
 				}
 			} else {
+				
+				printLogs("Non credit card scenario");
+				
 				throw new YFSException("PAYMENT_FAILURE", "PAYMENT_FAILURE",
 						"Invalid Payment Tender");
 			}
+			
+			printLogs("================Exiting VSIAurusCollectionCreditCard================================");
+			printLogs("Printing Output XML: "+outStruct);
 
 			return outStruct;
-		} catch (Exception Ex) {
-			Ex.printStackTrace();
+		} catch (Exception e) {
+			printLogs("Exception in VSIAurusCollectionCreditCard Class and collectionCreditCard Method");
+			printLogs("The exception is [ "+ e.getMessage() +" ]");
 			throw new YFSException();
 
 		}
@@ -518,7 +525,9 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 				String strResponseText=refundResponse.get(VSIConstants.ATTR_RESPONSE_TEXT);
 				//OMS-3452 Changes -- End
 				
-			if (responseCode.equalsIgnoreCase(VSIConstants.ATTR_APPROVAL_RESPONSE)) {  //Approval					
+			if (responseCode.equalsIgnoreCase(VSIConstants.ATTR_APPROVAL_RESPONSE)) {  //Approval
+				
+				printLogs("Approval Response");
 					
 				outStruct.authorizationId = inStruct.authorizationId;	
 				outStruct.authorizationAmount = inStruct.requestAmount;					
@@ -534,6 +543,9 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 				printLogs("Processing Aurus Refund Approval Response Done");
 					
 			}else if(aurusRetryErrCode.containsKey(responseCode)||processorRetryErrCode.containsKey(processorResponseCode)) {  //retry
+				
+				printLogs("Retry Response");
+				
 				Document getCommonCodeListInputForRetryTime = getCommonCodeListInputForCodeType(VSIConstants.ATTR_DEFAULT,VSIConstants.CC_RETRY_TIME);
 				Document getCommonCodeOut = getCommonCodeList(env, getCommonCodeListInputForRetryTime);
 				String retryMinutes = null;
@@ -551,6 +563,9 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 				outStruct.retryFlag="Y";	
 				
 				if(responseCode.equalsIgnoreCase(VSIConstants.AESDK_RETRY_RESP)) {
+					
+					printLogs("AESDK not initialized response, invoking initAESDK method");
+					
 						initAESDK();					
 				}
 				//OMS-3452 Changes -- Start
@@ -562,6 +577,9 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 				//OMS-3452 Changes -- End
 				printLogs("Processing Aurus Refund Retry Response Done");
 			}else {   //Decline
+				
+				printLogs("Decline Response");
+				
 				String errorCodeStr = "RefundFail";
 				String errorMessage = "RefundFail";
 				String orderNoStr = inStruct.orderNo;
@@ -588,9 +606,13 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 		printLogs("The exception is [ "+ e.getMessage() +" ]");
 		throw new YFSException();
 		}
+		
+		printLogs("Exiting doRefundAurus Method");
 	}
 	
 	private void initAESDK() {
+		
+		printLogs("Inside initAESDK Method");
 		
 		VSIInitAESDK vsiInitAESDK = new VSIInitAESDK();
 		Document outInitDoc = vsiInitAESDK.initSDKCall();
@@ -936,7 +958,9 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 							String strResponseText=preAuthResponse.get(VSIConstants.ATTR_RESPONSE_TEXT);
 							//OMS-3452 Changes -- End
 							
-						if (responseCode.equalsIgnoreCase(VSIConstants.ATTR_APPROVAL_RESPONSE)) {  //Approval					
+						if (responseCode.equalsIgnoreCase(VSIConstants.ATTR_APPROVAL_RESPONSE)) {  //Approval
+							
+							printLogs("Approval Charge Response");
 							
 							outStruct.authorizationId = authorizationIdStr;
 							outStruct.authorizationAmount = inStruct.requestAmount;					
@@ -963,6 +987,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 							printLogs("Processing Aurus Charge Approval Response Done");
 							
 						}else if(aurusRetryErrCode.containsKey(responseCode)||processorRetryErrCode.containsKey(processorResponseCode)) {  //retry
+							printLogs("Retry Charge Response");
 							Document getCommonCodeListInputForRetryTime = getCommonCodeListInputForCodeType(VSIConstants.ATTR_DEFAULT,VSIConstants.CC_RETRY_TIME);
 							Document getCommonCodeOut = getCommonCodeList(env, getCommonCodeListInputForRetryTime);
 							String retryMinutes =null;
@@ -981,6 +1006,9 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 							outStruct.retryFlag="Y";
 							
 						if(responseCode.equalsIgnoreCase(VSIConstants.AESDK_RETRY_RESP)) {
+							
+							printLogs("AESDK not initialized response, invoking initAESDK method");
+							
 							initAESDK();
 						}
 							//OMS-3452 Changes -- Start
@@ -992,6 +1020,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 							//OMS-3452 Changes -- End
 							printLogs("Processing Aurus Charge Retry Response Done");
 						}else {   //Decline
+							printLogs("Decline Charge Response");
 							String errorCodeStr = "ChargeFail";
 							String errorMessage = "ChargeFail";
 							String orderNoStr = inStruct.orderNo;
@@ -1036,7 +1065,8 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 		calendar.add(Calendar.MINUTE,retMinutes);
 		outStruct.collectionDate=calendar.getTime();					
 		outStruct.retryFlag="Y";			
-	}		
+	}
+		printLogs("================Exiting doChargeForAurus================================");
 	}
 		//OMS-3452 Changes -- Start
 		private void updateSettlementDetails(YFSEnvironment env, String strCreditCardType, String strOrderHeaderKey,
@@ -1414,10 +1444,17 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 			
 			if (responseCode.equalsIgnoreCase(VSIConstants.ATTR_APPROVAL_RESPONSE)) {  //Approval
 				
-				authResponse.put(VSIConstants.ATTR_PAYPAL_TRANSACTION_ID, transactionIdentifier);
-				authResponse.put(VSIConstants.ATTR_CI, cardIdentifier);				
+				printLogs("Approval Response");
 				
-			}else if(aurusRetryErrCode.containsKey(responseCode)||processorRetryErrCode.containsKey(processorResponseCode)) {  //retry				
+				authResponse.put(VSIConstants.ATTR_PAYPAL_TRANSACTION_ID, transactionIdentifier);
+				authResponse.put(VSIConstants.ATTR_CI, cardIdentifier);		
+				
+				printLogs("Approval Response Processing Completed");
+				
+			}else if(aurusRetryErrCode.containsKey(responseCode)||processorRetryErrCode.containsKey(processorResponseCode)) {  //retry
+				
+				printLogs("Retry Response");
+				
 				Document getCommonCodeListInputForRetryTime = getCommonCodeListInputForCodeType(VSIConstants.ATTR_DEFAULT,VSIConstants.CC_RETRY_TIME);
 				Document getCommonCodeOut = getCommonCodeList(env, getCommonCodeListInputForRetryTime);
 				Element eleCOmmonCodeOut = (Element)getCommonCodeOut.getElementsByTagName(VSIConstants.ELEMENT_COMMON_CODE).item(0);
@@ -1432,10 +1469,18 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 				outStruct.retryFlag="Y";	
 				
 				if(responseCode.equalsIgnoreCase(VSIConstants.AESDK_RETRY_RESP)) {
+					
+					printLogs("AESDK not initialized response, invoking initAESDK method");
+					
 						initAESDK();			
 				}
 				
-			}else {   //Decline				
+				printLogs("Retry Response Processing Completed");
+				
+			}else {   //Decline
+				
+				printLogs("Decline Response");
+				
 				String errorCodeStr = "AuthFail";
 				String errorMessage = "AuthFail";
 				String orderNoStr = inStruct.orderNo;
@@ -1449,6 +1494,8 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 				
 				// raising holds and cancelling orders
 				authFailureCancel(env, strOrderHeaderKey, outStruct,inStruct,strAQRiskified,strRiskifiedFlag,null,null);
+				
+				printLogs("Decline Response Processing Completed");
 			}
 		}
 	
@@ -1456,7 +1503,8 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 	printLogs("Exception in VSIAurusCollectionCreditCard Class and DoAuthorizeAurusCharge Method");
 	printLogs("The exception is [ "+ e.getMessage() +" ]");
 	throw new YFSException();
-}		
+}
+	printLogs("================Exiting DoAuthorizeAurusCharge================================");
 	return authResponse;
 	}
 	
@@ -1667,6 +1715,8 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 					
 					if ("APPROVAL".equalsIgnoreCase(responseText) && responseCode.equalsIgnoreCase(VSIConstants.ATTR_APPROVAL_RESPONSE)) {  //Approval
 						
+						printLogs("Approval Void Response");
+						
 						outStruct.authorizationId = inStruct.authorizationId;
 						outStruct.authorizationAmount = inStruct.requestAmount;
 						outStruct.retryFlag = "N";
@@ -1676,6 +1726,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 						printLogs("Approval Void Response processing done");
 						
 					}else if(aurusRetryErrCode.containsKey(responseCode)||processorRetryErrCode.containsKey(processorResponseCode)) {  //retry
+						printLogs("Retry Void Response");
 						Document getCommonCodeListInputForRetryTime = getCommonCodeListInputForCodeType(VSIConstants.ATTR_DEFAULT,VSIConstants.CC_RETRY_TIME);
 						Document getCommonCodeOut = getCommonCodeList(env, getCommonCodeListInputForRetryTime);
 						Element eleCOmmonCodeOut = (Element)getCommonCodeOut.getElementsByTagName(VSIConstants.ELEMENT_COMMON_CODE).item(0);
@@ -1690,19 +1741,32 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 						outStruct.retryFlag="Y";	
 						
 						if(responseCode.equalsIgnoreCase(VSIConstants.AESDK_RETRY_RESP)) {
+							
+							printLogs("AESDK not initialized response, invoking initAESDK method");
+							
 							initAESDK();				
 						}
+						
+						printLogs("Exiting Retry Void Response");
 					}
 					else{
+						printLogs("Void Response is neither Approval nor Retry");
+						
 						outStruct.authorizationId = inStruct.authorizationId;
 						outStruct.authorizationAmount = inStruct.requestAmount;
 						outStruct.retryFlag = "N";
+						
+						printLogs("Exiting Void Response processing");
 					}
 				}	
 				else{
+					printLogs("Void Response does not contains ResponseText");
+					
 					outStruct.authorizationId = inStruct.authorizationId;
 					outStruct.authorizationAmount = inStruct.requestAmount;
 					outStruct.retryFlag = "N";
+					
+					printLogs("Exiting Void Response does not contains ResponseText");
 				}
 			}
 		}
@@ -1711,7 +1775,9 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 			printLogs("Exception in VSIAurusCollectionCreditCard Class and doVoidAurus Method");
 			printLogs("The exception is [ "+ e.getMessage() +" ]");
 			throw new YFSException();
-		}		
+		}
+		
+		printLogs("================Exiting doVoidAurus================================");
 	}
 
 	public boolean isAurusOrder(Document getOrderListOP) {
@@ -2116,8 +2182,13 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 					outStruct.retryFlag="Y";	
 					
 					if(responseCode.equalsIgnoreCase(VSIConstants.AESDK_RETRY_RESP)) {
+						
+						printLogs("AESDK not initialized response, invoking initAESDK method");
+						
 						initAESDK();					
 					}
+					
+					printLogs("Exiting retry for auth");
 					
 				}else {   //Decline
 					printLogs("Now inside Decline for auth");
@@ -2137,6 +2208,8 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 							orderNoStr, strOrderHeaderKey, inStruct, strQueueId);
 					// raising holds and cancelling orders
 					authFailureCancel(env, strOrderHeaderKey, outStruct,inStruct,strAQRiskified,strRiskifiedFlag,authAVSResult,cVVResult);
+					
+					printLogs("Exiting Decline for auth");
 				}
 
 				//if authorization is failure
@@ -2188,6 +2261,8 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 			printLogs("The exception is [ "+ e.getMessage() +" ]");
 			throw new YFSException();
 		}
+		
+		printLogs("================Exiting doAuthorizationAurus================================");
 	}
 
 	//OMS-2408 -- Start
@@ -2246,26 +2321,18 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 			printLogs("Exception in VSIAurusCollectionCreditCard Class and addDataToPaymentRecordTable Method");
 			printLogs("The exception is [ "+ e.getMessage() +" ]");
 		}
-	}
-
-
-	private static Document createIsDraftOrderTempleate() {
-		Document docOrderList = SCXmlUtil.createDocument("OrderList");
-		Element eleOrderList = docOrderList.getDocumentElement();
-		Element eleOrder = SCXmlUtil.createChild(eleOrderList, "Order");
-		eleOrder.setAttribute("OrderHeaderKey", "");
-		eleOrder.setAttribute("DraftOrderFlag", "");
-		Element eleExtn = SCXmlUtil.createChild(eleOrder, "Extn");
-		eleExtn.setAttribute("ExtnAurusToken", "Y");
-		return docOrderList;		
-	}	
+	}		
 
 	private HashMap<String, String> initailAurusOrderDetail(YFSExtnPaymentCollectionInputStruct inStruct, YFSExtnPaymentCollectionOutputStruct outStruct, YFSEnvironment env) {
 		
-				String orderHeaderKeyStr = inStruct.orderHeaderKey;
-		HashMap<String, String> IsDraftOrAurus = new HashMap<String, String>();
+		printLogs("Inside initailAurusOrderDetail method");
+		
+		String orderHeaderKeyStr = inStruct.orderHeaderKey;
+		HashMap<String, String> isDraftOrAurus = new HashMap<String, String>();
+		
 		try {
-				Document getOrderListIP = SCXmlUtil.createDocument(VSIConstants.ELE_ORDER);
+			
+			Document getOrderListIP = SCXmlUtil.createDocument(VSIConstants.ELE_ORDER);
 			getOrderListIP.getDocumentElement().setAttribute(VSIConstants.ATTR_ORDER_HEADER_KEY, orderHeaderKeyStr);
 
 			Document getOrderListOP = VSIUtils.invokeAPI(env,"global/template/api/VSIGetOrderListForAurus.xml",VSIConstants.API_GET_ORDER_LIST, getOrderListIP);
@@ -2428,50 +2495,54 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 				//OMS-2455: End			
 			}
 
-			IsDraftOrAurus.put("ISDRAFTORDER", draftOrderFlag);
-			IsDraftOrAurus.put("ISAURUSORDER", extnAurusTokenFlag);
-			IsDraftOrAurus.put("MAXORDERSTATUS", strMaxStatus);
-			IsDraftOrAurus.put("MINORDERSTATUS", strMinStatus);
-			IsDraftOrAurus.put("EXTNAURUSCI", strExtnAurusCI);
-			IsDraftOrAurus.put("EXTNAURUSOOT", strExtnAurusOOT);
-			IsDraftOrAurus.put("POSTAUTHCOUNT", strExtnPostAuthCount);
-			IsDraftOrAurus.put("REFUNDCOUNT", strExtnRefundCount);
-			IsDraftOrAurus.put("SALESORDERHEADERKEY", strSOHdrKey);
-			IsDraftOrAurus.put("EXTNAURUSREAUTHORIZED", strExtnAurusReauth);
-			IsDraftOrAurus.put("ENTRYTYPE", strEntryType);
+			isDraftOrAurus.put("ISDRAFTORDER", draftOrderFlag);
+			isDraftOrAurus.put("ISAURUSORDER", extnAurusTokenFlag);
+			isDraftOrAurus.put("MAXORDERSTATUS", strMaxStatus);
+			isDraftOrAurus.put("MINORDERSTATUS", strMinStatus);
+			isDraftOrAurus.put("EXTNAURUSCI", strExtnAurusCI);
+			isDraftOrAurus.put("EXTNAURUSOOT", strExtnAurusOOT);
+			isDraftOrAurus.put("POSTAUTHCOUNT", strExtnPostAuthCount);
+			isDraftOrAurus.put("REFUNDCOUNT", strExtnRefundCount);
+			isDraftOrAurus.put("SALESORDERHEADERKEY", strSOHdrKey);
+			isDraftOrAurus.put("EXTNAURUSREAUTHORIZED", strExtnAurusReauth);
+			isDraftOrAurus.put("ENTRYTYPE", strEntryType);
 			//OMS-2437 -- Start
-			IsDraftOrAurus.put("ORDERTYPE", strOrderType);
+			isDraftOrAurus.put("ORDERTYPE", strOrderType);
 			//OMS-2437 -- End
 			//OMS-3181 Changes -- Start
-			IsDraftOrAurus.put("EXTNORIGINALTRANID", strExtnOriginalTranID);
+			isDraftOrAurus.put("EXTNORIGINALTRANID", strExtnOriginalTranID);
 			//OMS-3181 Changes -- End
 			//OMS-3452 Changes -- Start
-			IsDraftOrAurus.put("CREDITCARDTYPE", strCreditCardType);
+			isDraftOrAurus.put("CREDITCARDTYPE", strCreditCardType);
 			//OMS-3452 Changes -- End
 			//OMS-3469 Changes -- Start
-			IsDraftOrAurus.put("EXTNSUBSCRIPTIONORDER", strSubscriptionOrder);
-			IsDraftOrAurus.put("EXTNORIGINALADPORDER", strOriginalADPOrder);
+			isDraftOrAurus.put("EXTNSUBSCRIPTIONORDER", strSubscriptionOrder);
+			isDraftOrAurus.put("EXTNORIGINALADPORDER", strOriginalADPOrder);
 			//OMS-3469 Changes -- End
 			if(YFCObject.isVoid(strExtnPostAuthSequenceNo)){
-			IsDraftOrAurus.put("POSTAUTHSEQNO", "0");
+			isDraftOrAurus.put("POSTAUTHSEQNO", "0");
 			}
 			else{
-				IsDraftOrAurus.put("POSTAUTHSEQNO", strExtnPostAuthSequenceNo);
+				isDraftOrAurus.put("POSTAUTHSEQNO", strExtnPostAuthSequenceNo);
 			}
 			
 			if(YFCObject.isVoid(strExtnRefundSequenceNo)){
-				IsDraftOrAurus.put("REFUNDSEQNO", "0");
+				isDraftOrAurus.put("REFUNDSEQNO", "0");
 			}
 			else{
-				IsDraftOrAurus.put("REFUNDSEQNO", strExtnRefundSequenceNo);
+				isDraftOrAurus.put("REFUNDSEQNO", strExtnRefundSequenceNo);
 			}
 
-		} catch (Exception Ex) {
-			Ex.printStackTrace();
+		} catch (Exception e) {
+			
+			printLogs("Exception in VSIAurusCollectionCreditCard Class and initailAurusOrderDetail Method");
+			printLogs("The exception is [ "+ e.getMessage() +" ]");
 			throw new YFSException();
 		}
+		
+		printLogs("Exiting initailAurusOrderDetail method");
 
-		return IsDraftOrAurus;
+		return isDraftOrAurus;
 }
 
 	private Document recordAdditionalAuthData(String ci,String oot
@@ -4823,6 +4894,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 
 	public static Document getCommonCodeList(YFSEnvironment env,
 			Document docApiInput) {
+		
 		Document docApiOutput = null;
 		try {
 			YIFApi api;
@@ -4830,7 +4902,11 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 			docApiOutput = api.invoke(env, "getCommonCodeList", docApiInput);
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			
+			if(log.isDebugEnabled()){
+				log.debug("Exception in VSIAurusCollectionCreditCard Class and getCommonCodeList Method");
+				log.debug(VSIConstants.EXCEPTION_PRINT_3+ e.getMessage() +VSIConstants.EXCEPTION_PRINT_2);
+			}			
 		}
 
 		return docApiOutput;
