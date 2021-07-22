@@ -2,7 +2,7 @@
 <Extn ExtnTotalPrice="" />
     <PriceInfo TotalAmount=""/>
  <OrderLines>
-  <OrderLine CustomerPONo="" DeliveryMethod="" OrderHeaderKey="" OrderLineKey="" LineType="" OrderedQty="" ReqDeliveryDate="" ReqShipDate="" SCAC="" ScacAndService="" PrimeLineNo="" ShipNode="" SubLineNo="" ProcureFromNode="" FulfillmentType="">
+  <OrderLine CustomerPONo="" DeliveryMethod="" OrderHeaderKey="" OrderLineKey="" LineType="" OrderedQty="" ReqDeliveryDate="" ReqShipDate="" SCAC="" ScacAndService="" PrimeLineNo="" ShipNode="" SubLineNo="" ProcureFromNode="" FulfillmentType="" CarrierServiceCode="">
     <Item ItemDesc="" ItemID="" ProductClass="" UnitOfMeasure="" UPCCode=""/>
     <PersonInfoShipTo AddressLine1="" AddressLine2="" AddressLine3="" AddressLine4="" AddressLine5="" AddressLine6="" AlternateEmailID="" Beeper="" City="" Company="" Country="" DayFaxNo="" DayPhone="" Department="" EMailID="" EveningFaxNo="" EveningPhone="" FirstName="" JobTitle="" LastName="" MiddleName="" MobilePhone="" OtherPhone="" PersonID="" State="" Suffix="" Title="" ZipCode=""/>
     <LinePriceInfo LineTotal="" UnitPrice="" TaxableFlag=""/>

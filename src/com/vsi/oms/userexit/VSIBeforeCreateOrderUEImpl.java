@@ -67,6 +67,9 @@ public class VSIBeforeCreateOrderUEImpl implements YFSBeforeCreateOrderUE,VSICon
 
 	private YFCLogCategory log = YFCLogCategory
 			.instance(VSIBeforeCreateOrderUEImpl.class);
+	//OMS-3821 Changes -- Start
+	private static final String TAG = VSIBeforeCreateOrderUEImpl.class.getSimpleName();
+	//OMS-3821 Changes -- End
 	YIFApi api;
 
 	public VSIBeforeCreateOrderUEImpl() {
@@ -593,7 +596,7 @@ public class VSIBeforeCreateOrderUEImpl implements YFSBeforeCreateOrderUE,VSICon
 
 			//orderType
 			
-			//Element elePersonInfoBillTo = SCXmlUtil.getChildElement(rootElement, VSIConstants.ELE_PERSON_INFO_BILL_TO);
+			//Element elePersonInfoBillTo = SCXmlUtil.getChildElement(rootElement, VSIConstants.ELE_PERSON_INFO_BILL_TO);				
 			
 	 		Document docgetCommonCodeOutput = null;
 	 		Element orderLinesElement = SCXmlUtil.getChildElement(rootElement, VSIConstants.ELE_ORDER_LINES);
@@ -788,7 +791,7 @@ public class VSIBeforeCreateOrderUEImpl implements YFSBeforeCreateOrderUE,VSICon
 							}
 						}
 		 				
-		 				if(flag == false){
+		 				if(!flag){		//OMS-3821 Change
 		 					if(!sCountry.equals("US")){
 		 						SCXmlUtil.setAttribute(rootElement, "SourcingClassification", "INTERNATIONAL");
 		 						flag = true;
@@ -825,9 +828,10 @@ public class VSIBeforeCreateOrderUEImpl implements YFSBeforeCreateOrderUE,VSICon
 			 						if(commonCodeListElement.hasChildNodes()){
 			 							SCXmlUtil.setAttribute(rootElement, "SourcingClassification", "US_Territories");
 			 						}//end of if
-			 						else if((addressLine6.equalsIgnoreCase(FLAG_Y)) || (orderTypeValue.equalsIgnoreCase(ATTR_ORDER_TYPE_POS)))
+			 						else if((addressLine6.equalsIgnoreCase(FLAG_Y)) || (orderTypeValue.equalsIgnoreCase(ATTR_ORDER_TYPE_POS)) || (MAIL_INNOVATIONS_CSC.equals(carrierServiceCode)))		//OMS-3821 Change
 			 						{		 							
 			 							SCXmlUtil.setAttribute(rootElement, ATTR_SOURCING_CLASSIFICATION, NO_SFS_CLASSIFICATION);
+			 							printLogs("Setting SourcingClassification as NO_SFS");		//OMS-3821 Change
 			 						}
 			 						else{
 			 							SCXmlUtil.setAttribute(rootElement, "SourcingClassification", "");
@@ -1083,7 +1087,7 @@ public class VSIBeforeCreateOrderUEImpl implements YFSBeforeCreateOrderUE,VSICon
 							SCXmlUtil.setAttribute(orderLineElem, VSIConstants.ATTR_REQ_CANCEL_DATE, VSIUtils.addDaysToPassedDateTime(sOrderDate, strCD));
 						
 						}//end of checking marketplace enterprise code
-					}//end of checking commonCodeListElement
+					}//end of checking commonCodeListElement	 				
 		 		}//end of if
 	 			}//end of for
 	 		}//end of Checking orderlines
@@ -2092,4 +2096,12 @@ private String getVirtualStore(YFSEnvironment env, String codeValue, String code
 			return false;
 		}
 		//OMS-1689: End
+		
+		//OMS-3821 Changes -- Start
+		private void printLogs(String mesg) {
+			if(log.isDebugEnabled()){
+				log.debug(TAG +" : "+mesg);
+			}
+		}
+		//OMS-3821 Changes -- End
 }

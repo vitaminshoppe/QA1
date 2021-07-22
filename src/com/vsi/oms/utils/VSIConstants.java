@@ -2258,10 +2258,15 @@ public static final String ATTR_USER_KEY="UserKey";
 	public static final String ATTR_VALUE_LC="value";
 	public static final String EXCEPTION_PRINT_3="The exception is [ ";
 	public static final String ATTR_RESERVATIONID="ReservationID";
+	public static final String ATTR_RESHIP_CSC="Reship_CarrierServiceCode";
 	//SonarCube Changes -- End
 
 	//OMS-3787 Changes -- Start
 	public static final String PAYMENT_STATUS_PAID="PAID";
 	//OMS-3787 Changes -- End
+	
+	//OMS-3821 Changes -- Start
+	public static final String MAIL_INNOVATIONS_CSC="MAIL_INNOVATIONS";
+	//OMS-3821 Changes -- End
 	
 }
