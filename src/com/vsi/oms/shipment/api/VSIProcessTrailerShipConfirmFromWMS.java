@@ -9,6 +9,7 @@ import com.vsi.oms.utils.VSIBaseCustomAPI;
 import com.vsi.oms.utils.VSIConstants;
 import com.vsi.oms.utils.VSIUtils;
 import com.vsi.oms.utils.XMLUtil;
+import com.yantra.interop.japi.YIFClientFactory;
 import com.yantra.yfc.core.YFCObject;
 import com.yantra.yfc.log.YFCLogCategory;
 import com.yantra.yfc.util.YFCCommon;
@@ -18,6 +19,9 @@ import com.yantra.yfs.japi.YFSException;
 public class VSIProcessTrailerShipConfirmFromWMS extends VSIBaseCustomAPI implements VSIConstants {
 
     private YFCLogCategory log = YFCLogCategory.instance(VSIProcessTrailerShipConfirmFromWMS.class);
+    //OMS-3822 Changes -- Start
+    private static final String TAG = VSIProcessTrailerShipConfirmFromWMS.class.getSimpleName();
+    //OMS-3822 Changes -- End
     String enterpriseCode = "";
     String orderType = "";
     Document docOutputShipment = null;
@@ -26,6 +30,61 @@ public class VSIProcessTrailerShipConfirmFromWMS extends VSIBaseCustomAPI implem
     String strASNMode = "";
 
     public Document processTrailerShipConfirmFromWMS(YFSEnvironment env, Document inXML) throws Exception {
+    	
+    	//OMS-3822 Changes -- Start
+    	printLogs("================Inside VSIProcessTrailerShipConfirmFromWMS class and processTrailerShipConfirmFromWMS method================================");
+    	printLogs("Input XML: "+SCXmlUtil.getString(inXML));
+    	
+    	Element eleTrailer=inXML.getDocumentElement();
+    	Element eleShpmntList=SCXmlUtil.getChildElement(eleTrailer, ELE_SHIPMENT_LIST);
+    	Element eleShipment=SCXmlUtil.getChildElement(eleShpmntList, ELE_SHIPMENT);
+    	String strSCAC=eleShipment.getAttribute(ATTR_SCAC);
+    	if("TBD".equals(strSCAC)) {
+    		printLogs("SCAC is TBD, alert and exception will be raised");
+    		printLogs("Preparing Alert Input");
+    		
+    		Element eleOrder=SCXmlUtil.getChildElement(eleShpmntList, ELE_ORDER);
+    		String strOrderNo=eleOrder.getAttribute(ATTR_ORDER_NO);
+    		
+    		Document docCreateExcptnIn = XMLUtil.createDocument(ELE_INBOX);
+    		Element eleInboxElement = docCreateExcptnIn.getDocumentElement();    		
+    		eleInboxElement.setAttribute(ATTR_ORDER_NO, strOrderNo);
+    		eleInboxElement.setAttribute(ATTR_ACTIVE_FLAG, FLAG_Y);
+    		eleInboxElement.setAttribute("DetailDescription", "SCAC TBD is not valid");
+    		eleInboxElement.setAttribute(ATTR_ERROR_REASON, "Invalid SCAC");
+    		eleInboxElement.setAttribute(ATTR_ERROR_TYPE,	"Invalid Attribute Alert");
+    		eleInboxElement.setAttribute(ATTR_EXCEPTION_TYPE, "Invalid SCAC");
+    		eleInboxElement.setAttribute(ATTR_EXPIRATION_DAYS, "0");
+    		eleInboxElement.setAttribute(ATTR_QUEUE_ID, "VSI_SHIP_CONFIRM_FROM_WMS_ERROR");    		
+    		
+    		eleInboxElement.setAttribute(ATTR_CONSOLIDATE, FLAG_Y);
+    		eleInboxElement.setAttribute(ATTR_CONS_WINDOW, VAL_FOREVER);
+    		
+    		Element eleConsolidationTemplate = docCreateExcptnIn.createElement(ELE_CONSOLIDATE_TEMPLATE);
+    		eleInboxElement.appendChild(eleConsolidationTemplate);
+    		Element eleInboxCpy = (Element) eleInboxElement.cloneNode(true);
+    		eleConsolidationTemplate.appendChild(eleInboxCpy);
+    		
+    		Element inboxReferencesListElement = docCreateExcptnIn.createElement(ELE_INBOX_REFERANCES_LIST);
+    		eleInboxElement.appendChild(inboxReferencesListElement);
+    		Element inboxReferencesElement = docCreateExcptnIn.createElement(ELE_INBOX_REFERANCES);
+    		inboxReferencesElement.setAttribute(ATTR_NAME, "OrderNo");
+    		inboxReferencesElement.setAttribute(ATTR_REFERENCE_TYPE, "Reprocess");
+    		inboxReferencesElement.setAttribute(ATTR_VALUE, strOrderNo);
+
+    		inboxReferencesListElement.appendChild(inboxReferencesElement);
+    		
+    		printLogs("Create Exception API Input prepared is: "+SCXmlUtil.getString(docCreateExcptnIn));
+    		
+    		VSIUtils.invokeAPI(env, API_CREATE_EXCEPTION, docCreateExcptnIn);
+    		
+    		printLogs("Create Exception API was invoked successfully");
+    		
+    		printLogs("Raising YFSException");
+    		
+            throw new YFSException("Exception due to invalid SCAC","Invalid SCAC","SCAC TBD is not valid");
+    	}
+    	//OMS-3822 Changes -- End
 
         //Change for 3761-Start
         getOrderAttributes(env, inXML);//Getting the enterprise code and order type
@@ -269,4 +328,12 @@ public class VSIProcessTrailerShipConfirmFromWMS extends VSIBaseCustomAPI implem
             }
         }
     }
+    
+    //OMS-3822 Changes -- Start
+    private void printLogs(String mesg) {
+		if(log.isDebugEnabled()){
+			log.debug(TAG +" : "+mesg);
+		}
+	}
+    //OMS-3822 Changes -- End
 }
