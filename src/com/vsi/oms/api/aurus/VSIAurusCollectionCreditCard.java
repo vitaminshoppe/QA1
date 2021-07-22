@@ -84,8 +84,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 
 		try {
 			printLogs("================Inside VSIAurusCollectionCreditCard================================");
-			printLogs("Printing Input XML: "+inStruct);
-			
+						
 			YFSExtnPaymentCollectionOutputStruct outStruct = new YFSExtnPaymentCollectionOutputStruct();			
 
 			if (VSIConstants.PAYMENT_MODE_CC
@@ -191,8 +190,7 @@ public class VSIAurusCollectionCreditCard implements YFSCollectionCreditCardUE {
 			}
 			
 			printLogs("================Exiting VSIAurusCollectionCreditCard================================");
-			printLogs("Printing Output XML: "+outStruct);
-
+			
 			return outStruct;
 		} catch (Exception e) {
 			printLogs("Exception in VSIAurusCollectionCreditCard Class and collectionCreditCard Method");
