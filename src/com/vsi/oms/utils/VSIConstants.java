@@ -2256,6 +2256,8 @@ public static final String ATTR_USER_KEY="UserKey";
 	public static final String ATTR_DESCRIPTION_LC="description";
 	public static final String ATTR_TENDERTYPECODE="tenderTypeCode";
 	public static final String ATTR_VALUE_LC="value";
+	public static final String EXCEPTION_PRINT_3="The exception is [ ";
+	public static final String ATTR_RESERVATIONID="ReservationID";
 	//SonarCube Changes -- End
 
 	//OMS-3787 Changes -- Start
